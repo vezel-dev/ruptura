@@ -1,0 +1,45 @@
+<Project Sdk="Vezel.Zig.Sdk">
+    <PropertyGroup>
+        <AssemblyName>ruptura</AssemblyName>
+        <DefineConstants>
+            $(DefineConstants);
+            WIN32_LEAN_AND_MEAN;
+            NETHOST_USE_AS_STATIC
+        </DefineConstants>
+        <DisableWarnings>
+            $(DisableWarnings);
+            cast-qual
+        </DisableWarnings>
+        <!-- TODO: https://github.com/dotnet/msbuild/issues/6672 -->
+        <PackageDefines>false</PackageDefines>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PreludeHeader Include="ruptura.h" />
+        <LibraryIncludeDirectory Include="../../lib" />
+        <LibraryReference Include="../../lib/libnethost.lib" />
+        <LinkerReference Include="advapi32" />
+    </ItemGroup>
+
+    <!--
+    TODO: Switch to this in .NET 7 Preview 7.
+
+    <PropertyGroup>
+        <_AppHostPackageNative>$(Pkgruntime_win-x64_Microsoft_NETCore_DotNetAppHost)/runtimes/$(RuntimeIdentifier)/native/</_AppHostPackageNative>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <LibraryIncludeDirectory Include="$(_AppHostPackageNative)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <LibraryReference Include="$(_AppHostPackageNative)libnethost.lib" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
+                          GeneratePathProperty="true" />
+    </ItemGroup>
+    -->
+</Project>

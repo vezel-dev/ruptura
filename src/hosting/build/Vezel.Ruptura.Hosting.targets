@@ -1,0 +1,6 @@
+<Project>
+    <PropertyGroup>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+</Project>

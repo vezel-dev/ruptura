@@ -1,0 +1,16 @@
+{
+  "recommendations": [
+    "codezombiech.gitignore",
+    "davidanson.vscode-markdownlint",
+    "eamodio.gitlens",
+    "editorconfig.editorconfig",
+    "github.codespaces",
+    "github.vscode-pull-request-github",
+    "hashhar.gitattributes",
+    "jock.svg",
+    "ms-dotnettools.csharp",
+    "redhat.vscode-xml",
+    "redhat.vscode-yaml",
+    "tintoy.msbuild-project-tools"
+  ]
+}

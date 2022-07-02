@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+name: Package
+on:
+    push:
+        branches:
+            - master
+defaults:
+    run:
+        shell: bash
+env:
+    DOTNET_CLI_TELEMETRY_OPTOUT: true
+    DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+    DOTNET_NOLOGO: true
+jobs:
+    package:
+        if: github.repository == 'vezel-dev/ruptura'
+        runs-on: windows-latest
+        steps:
+            - name: Clone repository
+              uses: actions/checkout@v3.0.2
+              with:
+                  fetch-depth: 0
+                  submodules: recursive
+            - name: Set up .NET
+              uses: actions/setup-dotnet@v2.1.0
+            - name: Build project
+              run: |
+                  dotnet tool restore
+                  dotnet build
+            - name: Upload GitHub packages
+              run: |
+                  dotnet gpr push pkg/feed/*.nupkg -k ${{ secrets.GITHUB_TOKEN }}
+            - name: Prune GitHub packages
+              uses: SmartsquareGmbH/delete-old-packages@v0.4.0
+              with:
+                  names: |
+                      Vezel.Ruptura.Hosting
+                      Vezel.Ruptura.Injection
+                      Vezel.Ruptura.Memory
+                  keep: 25

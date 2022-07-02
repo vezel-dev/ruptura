@@ -1,0 +1,58 @@
+{
+  "$schema": "https://raw.githubusercontent.com/DavidAnson/markdownlint/main/schema/markdownlint-config-schema.json",
+  "MD003": {
+    "style": "atx"
+  },
+  "MD004": {
+    "style": "asterisk"
+  },
+  "MD007": {
+    "indent": 4
+  },
+  "MD009": {
+    "br_spaces": 0
+  },
+  "MD010": {
+    "spaces_per_tab": 4
+  },
+  "MD013": {
+    "code_blocks": false,
+    "headings": false,
+    "tables": false
+  },
+  "MD024": {
+    "siblings_only": true
+  },
+  "MD025": {
+    "front_matter_title": ""
+  },
+  "MD029": {
+    "style": "ordered"
+  },
+  "MD033": {
+    "allowed_elements": [
+      "div",
+      "img",
+      "p",
+      "strong"
+    ]
+  },
+  "MD035": {
+    "style": "---"
+  },
+  "MD041": {
+    "front_matter_title": ""
+  },
+  "MD046": {
+    "style": "fenced"
+  },
+  "MD048": {
+    "style": "backtick"
+  },
+  "MD049": {
+    "style": "asterisk"
+  },
+  "MD050": {
+    "style": "asterisk"
+  }
+}

@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Vezel.Ruptura.Hosting</AssemblyName>
+        <BeforePack>_PackAnalyzer</BeforePack>
+        <IsPackable>true</IsPackable>
+        <PackageDescription>$(PackageDescription)
+
+This package provides the hosting model for injected programs.</PackageDescription>
+        <PackageId>Vezel.Ruptura.Hosting</PackageId>
+        <RootNamespace>Vezel.Ruptura.Hosting</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="build/**"
+              Pack="true"
+              PackagePath="%(Identity)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../analyzers/analyzers.csproj"
+                          ReferenceOutputAssembly="false" />
+        <ProjectReference Include="../memory/memory.csproj" />
+    </ItemGroup>
+
+    <Target Name="_PackAnalyzer">
+        <MSBuild Projects="../analyzers/analyzers.csproj"
+                 Targets="GetTargetPath"
+                 BuildInParallel="$(BuildInParallel)">
+            <Output TaskParameter="TargetOutputs"
+                    ItemName="_AnalyzerPath" />
+        </MSBuild>
+
+        <ItemGroup>
+            <None Include="@(_AnalyzerPath)"
+                  Pack="true"
+                  PackagePath="analyzers/dotnet/cs" />
+        </ItemGroup>
+    </Target>
+</Project>

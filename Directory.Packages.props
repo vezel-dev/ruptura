@@ -1,0 +1,26 @@
+<Project>
+    <ItemGroup>
+        <PackageVersion Include="Iced"
+                        Version="1.17.0" />
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces"
+                        Version="4.1.0" />
+        <PackageVersion Include="Microsoft.SourceLink.GitHub"
+                        Version="1.1.1" />
+        <PackageVersion Include="Microsoft.VisualStudio.Threading.Analyzers"
+                        Version="17.1.46" />
+        <PackageVersion Include="Microsoft.Windows.CsWin32"
+                        Version="0.2.1-beta" />
+        <PackageVersion Include="Microsoft.Windows.SDK.Win32Docs"
+                        Version="0.1.8-alpha" />
+        <PackageVersion Include="Microsoft.Windows.SDK.Win32Metadata"
+                        Version="24.0.1-preview" />
+        <PackageVersion Include="Nerdbank.GitVersioning"
+                        Version="3.5.86-alpha" />
+        <PackageVersion Include="PeNet"
+                        Version="2.9.7" />
+        <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
+                        Version="7.0.0-preview.5.22301.12" />
+        <PackageVersion Include="StyleCop.Analyzers"
+                        Version="1.2.0-beta.406" />
+    </ItemGroup>
+</Project>

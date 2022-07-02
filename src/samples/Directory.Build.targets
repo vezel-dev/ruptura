@@ -1,0 +1,26 @@
+<Project>
+    <ItemGroup>
+        <Using Include="Vezel.Ruptura.Hosting" />
+        <Using Include="Vezel.Ruptura.Injection" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!--
+        This reference is required since we are not consuming the library as a
+        PackageReference item.
+        -->
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../analyzers/analyzers.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../hosting/hosting.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../injection/injection.csproj" />
+    </ItemGroup>
+
+    <!--
+    This import is required since we are not consuming the library as a
+    PackageReference item.
+    -->
+    <Import Project="../hosting/build/Vezel.Ruptura.Hosting.targets" />
+
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('$(MSBuildThisFile)', '$(MSBuildThisFileDirectory)..'))" />
+</Project>

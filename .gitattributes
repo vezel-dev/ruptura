@@ -1,0 +1,5 @@
+* text
+*.ico binary
+# TODO: Remove in .NET 7 Preview 7.
+*.lib binary
+*.png binary
