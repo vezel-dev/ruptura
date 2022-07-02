@@ -2,4 +2,5 @@
 *.ico binary
 # TODO: Remove in .NET 7 Preview 7.
 *.lib binary
+*.pdb binary
 *.png binary
