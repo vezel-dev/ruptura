@@ -123,13 +123,14 @@ public sealed unsafe class TargetProcess : IDisposable
                 if (mod->dwSize != modSize)
                     continue;
 
-                var handle = (HANDLE)Handle.DangerousGetHandle();
+                using var modHandle = new SafeFileHandle(mod->hModule, false);
+
                 var arr = new char[MAX_PATH];
 
                 uint len;
 
                 fixed (char* p = arr)
-                    while ((len = K32GetModuleBaseName(handle, mod->hModule, p, (uint)arr.Length)) >= arr.Length)
+                    while ((len = K32GetModuleBaseName(Handle, modHandle, p, (uint)arr.Length)) >= arr.Length)
                         Array.Resize(ref arr, (int)len);
 
                 var baseName = arr.AsSpan(0, (int)len).ToString();
