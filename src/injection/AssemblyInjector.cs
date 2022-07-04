@@ -133,7 +133,7 @@ public sealed class AssemblyInjector : IDisposable
         {
             return exports?.SingleOrDefault(f => f.Name == name)?.Address is uint offset
                 ? k32Addr + offset
-                : throw new Win32Exception();
+                : throw new InjectionException($"Could not locate '{name}' in the target process.");
         }
 
         _loadLibraryW = GetExport("LoadLibraryW");
