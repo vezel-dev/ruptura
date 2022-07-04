@@ -4,7 +4,7 @@ sealed class InjectedProgram : IInjectedProgram
 
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
     {
-        if (context.IsInjected)
+        if (context.InjectorProcessId != null)
             return 42;
 
         Console.WriteLine("Starting conhost.exe...");

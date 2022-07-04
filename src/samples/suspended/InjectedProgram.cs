@@ -4,8 +4,13 @@ sealed class InjectedProgram : IInjectedProgram
 
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
     {
-        if (context.IsInjected)
+        if (context.InjectorProcessId != null)
+        {
+            // This should cause the WaitForInputIdle below to complete.
+            context.WakeUp();
+
             return 42;
+        }
 
         Console.WriteLine("Starting conhost.exe suspended...");
 
@@ -24,6 +29,10 @@ sealed class InjectedProgram : IInjectedProgram
             await injector.InjectAssemblyAsync();
 
             Console.WriteLine("Injected.");
+
+            // This should complete when the WakeUp call above happens.
+            if (!proc.WaitForInputIdle(_timeout))
+                throw new TimeoutException();
 
             var code = await injector.WaitForCompletionAsync();
 

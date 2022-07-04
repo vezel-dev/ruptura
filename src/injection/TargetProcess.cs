@@ -13,19 +13,22 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public SafeHandle Handle { get; }
 
+    internal int? MainThreadId { get; }
+
     internal bool IsCompatible { get; }
 
-    TargetProcess(int id, SafeHandle handle)
+    TargetProcess(int id, SafeHandle handle, int? mainThreadId)
     {
         Id = id;
         Handle = handle;
+        MainThreadId = mainThreadId;
 
         IMAGE_FILE_MACHINE os;
 
         if (!IsWow64Process2(Handle, out var emu, &os))
             throw new Win32Exception();
 
-        // 64-bit x86 process on a 64-bit x86 machine or 64-bit x86 process on a 64-bit ARM machine.
+        // x64 process on an x64 machine or x64 process on an Arm64 machine.
         if ((os, emu) is
             (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64) or
             (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN))
@@ -51,7 +54,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // CreateProcess can modify the command line arguments, so create a mutable array.
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
-        return CreateProcess(
+        if (!CreateProcess(
             null,
             ref args,
             null,
@@ -61,9 +64,28 @@ public sealed unsafe class TargetProcess : IDisposable
             null,
             workingDirectory,
             startupInfo,
-            out var info)
-            ? new((int)info.dwProcessId, new SafeFileHandle(info.hProcess, true))
-            : throw new Win32Exception();
+            out var info))
+            throw new Win32Exception();
+
+        try
+        {
+            return new(
+                (int)info.dwProcessId,
+                new SafeFileHandle(info.hProcess, true),
+                suspended ? (int)info.dwThreadId : null);
+        }
+        catch (Exception)
+        {
+            // Not much can be done if this fails.
+            _ = CloseHandle(info.hProcess);
+
+            throw;
+        }
+        finally
+        {
+            // Ditto.
+            _ = CloseHandle(info.hThread);
+        }
     }
 
     public static TargetProcess Open(int id)
@@ -71,7 +93,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // TODO: Can we reduce the level of access rights we demand here?
         var handle = OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS, false, (uint)id);
 
-        return !handle.IsInvalid ? new(id, handle) : throw new Win32Exception();
+        return !handle.IsInvalid ? new(id, handle, null) : throw new Win32Exception();
     }
 
     public void Dispose()
@@ -92,13 +114,9 @@ public sealed unsafe class TargetProcess : IDisposable
 
         SafeFileHandle snap;
 
-        while (true)
+        while ((snap = CreateToolhelp32Snapshot_SafeHandle(
+            CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPMODULE, pid)).IsInvalid)
         {
-            snap = CreateToolhelp32Snapshot_SafeHandle(CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPMODULE, pid);
-
-            if (!snap.IsInvalid)
-                break;
-
             // We may get ERROR_BAD_LENGTH for processes that have not finished initializing or if the process loads
             // or unloads a module while we are capturing the snapshot. For a process that was created suspended, this
             // could get us into an infinite loop, but we handle that with CreateRemoteThread before accessing modules.

@@ -126,22 +126,26 @@ public sealed class AssemblyInjector : IDisposable
             throw new InjectionException("Could not locate 'kernel32.dll' in the target process.");
 
         using var stream = new ProcessMemoryReadStream(_process, k32Addr, k32Size);
+
         var exports = new PeFile(stream).ExportedFunctions;
 
         nuint GetExport(string name)
         {
-            return exports?.SingleOrDefault(f => f.Name == name)?.Address ??
-                throw new InjectionException($"Could not locate '{name}' in the target process.");
+            return exports?.SingleOrDefault(f => f.Name == name)?.Address is uint offset
+                ? k32Addr + offset
+                : throw new Win32Exception();
         }
 
-        _loadLibraryW = k32Addr + GetExport("LoadLibraryW");
-        _getProcAddress = k32Addr + GetExport("GetProcAddress");
-        _getLastError = k32Addr + GetExport("GetLastError");
+        _loadLibraryW = GetExport("LoadLibraryW");
+        _getProcAddress = GetExport("GetProcAddress");
+        _getLastError = GetExport("GetLastError");
     }
 
     unsafe nuint CreateParametersArea()
     {
-        var size = (nint)(sizeof(nuint) + sizeof(uint) * 2);
+        // Keep in sync with src/module/main.h.
+
+        var size = (nint)(sizeof(nuint) + sizeof(uint) * 4);
 
         size += sizeof(nuint) * (_options.Arguments.Count + 1);
 
@@ -153,12 +157,15 @@ public sealed class AssemblyInjector : IDisposable
 
     unsafe void PopulateParametersArea(nuint area)
     {
-        // Construct a valid ruptura_parameters structure in the parameters area.
+        // Keep in sync with src/module/main.h.
+
         PopulateMemoryArea(area, (stream, writer) =>
         {
             writer.WritePointer(0);
             writer.Write(0u);
             writer.Write(0u);
+            writer.Write(0u);
+            writer.Write(0);
 
             var args = _options.Arguments.Prepend(_options.FileName).ToArray();
             var argvOff = (nuint)stream.Position;
@@ -182,7 +189,9 @@ public sealed class AssemblyInjector : IDisposable
 
             writer.WritePointer(area + argvOff);
             writer.Write((uint)argOffs.Length);
-            writer.Write((uint)Environment.ProcessId);
+            writer.Write(Environment.ProcessId);
+            writer.Write((uint)(_process.MainThreadId ?? 0));
+            writer.Write(0); // Padding.
 
             foreach (var argOff in argOffs)
                 writer.WritePointer(area + argOff);

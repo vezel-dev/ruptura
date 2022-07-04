@@ -1,0 +1,3 @@
+CloseHandle
+OpenThread
+ResumeThread

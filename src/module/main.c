@@ -5,9 +5,14 @@
 
 typedef struct
 {
-    HMODULE module_handle;
+    // Keep in sync with src/hosting/InjectedProgramContext.cs.
+
     uint32_t injector_process_id;
+    uint32_t main_thread_id;
+    HMODULE module_handle;
 } ruptura_state;
+
+static_assert(sizeof(ruptura_state) == 16);
 
 static volatile atomic(HMODULE) ruptura_module;
 
@@ -74,8 +79,9 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
 
     ruptura_state state =
     {
-        .module_handle = ruptura_module,
         .injector_process_id = parameters->injector_process_id,
+        .main_thread_id = parameters->main_thread_id,
+        .module_handle = ruptura_module,
     };
 
     // After this call, parameters is freed by the injector.
