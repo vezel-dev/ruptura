@@ -3,12 +3,14 @@ using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Hosting;
 
-public sealed class InjectedProgramContext
+public sealed unsafe class InjectedProgramContext
 {
     [StructLayout(LayoutKind.Sequential)]
     struct RupturaState
     {
         // Keep in sync with src/module/main.c.
+
+        public nuint Size;
 
         public uint InjectorProcessId;
 
@@ -35,8 +37,10 @@ public sealed class InjectedProgramContext
 
     [SuppressMessage("", "IDE0051")]
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static unsafe uint Initialize(RupturaState* state)
+    static uint Initialize(RupturaState* state)
     {
+        Debug.Assert(state->Size == (uint)sizeof(RupturaState), "Managed/unmanaged ruptura_state size mismatch.");
+
         try
         {
             using var mmf = MemoryMappedFile.OpenExisting(

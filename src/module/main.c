@@ -7,12 +7,11 @@ typedef struct
 {
     // Keep in sync with src/hosting/InjectedProgramContext.cs.
 
+    size_t size;
     uint32_t injector_process_id;
     uint32_t main_thread_id;
     HMODULE module_handle;
 } ruptura_state;
-
-static_assert(sizeof(ruptura_state) == 16);
 
 static volatile atomic(HMODULE) ruptura_module;
 
@@ -33,6 +32,7 @@ BOOL __stdcall DllMain(HMODULE module, uint32_t reason, void *reserved)
 uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
 {
     assert(parameters);
+    assert(parameters->size == sizeof(ruptura_parameters) && "Managed/unmanaged ruptura_parameters size mismatch.");
 
     bool expected = false;
 
@@ -42,7 +42,7 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
     uint32_t rc;
 
     ruptura_host *host = nullptr;
-    uint32_t argc = parameters->argc;
+    uint32_t argc = parameters->argument_count;
     wchar_t **argv = calloc(argc, sizeof(wchar_t *));
 
     if (!argv)
@@ -54,7 +54,7 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
 
     for (uint32_t i = 0; i < argc; i++)
     {
-        const wchar_t *src = parameters->argv[i];
+        const wchar_t *src = parameters->argument_vector[i];
         size_t len = wcslen(src) + 1;
         wchar_t *dst = malloc(len * sizeof(wchar_t));
 
@@ -79,6 +79,7 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
 
     ruptura_state state =
     {
+        .size = sizeof(ruptura_state),
         .injector_process_id = parameters->injector_process_id,
         .main_thread_id = parameters->main_thread_id,
         .module_handle = ruptura_module,

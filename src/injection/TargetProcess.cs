@@ -48,7 +48,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // TODO: Support redirecting standard I/O handles?
         var startupInfo = new STARTUPINFOW
         {
-            cb = (uint)Unsafe.SizeOf<STARTUPINFOW>(),
+            cb = (uint)sizeof(STARTUPINFOW),
         };
 
         // CreateProcess can modify the command line arguments, so create a mutable array.

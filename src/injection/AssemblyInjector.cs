@@ -9,6 +9,20 @@ namespace Vezel.Ruptura.Injection;
 
 public sealed class AssemblyInjector : IDisposable
 {
+    [StructLayout(LayoutKind.Sequential)]
+    unsafe struct RupturaParameters
+    {
+        public nuint Size;
+
+        public char** ArgumentVector;
+
+        public uint ArgumentCount;
+
+        public uint InjectorProcessId;
+
+        public uint MainThreadId;
+    }
+
     const string NativeEntryPoint = "ruptura_main";
 
     readonly TargetProcess _process;
@@ -145,7 +159,7 @@ public sealed class AssemblyInjector : IDisposable
     {
         // Keep in sync with src/module/main.h.
 
-        var size = (nint)(sizeof(nuint) + sizeof(uint) * 4);
+        var size = sizeof(RupturaParameters);
 
         size += sizeof(nuint) * (_options.Arguments.Count + 1);
 
@@ -162,10 +176,11 @@ public sealed class AssemblyInjector : IDisposable
         PopulateMemoryArea(area, (stream, writer) =>
         {
             writer.WritePointer(0);
+            writer.WritePointer(0);
             writer.Write(0u);
             writer.Write(0u);
             writer.Write(0u);
-            writer.Write(0);
+            writer.Write(0); // Padding.
 
             var args = _options.Arguments.Prepend(_options.FileName).ToArray();
             var argvOff = (nuint)stream.Position;
@@ -187,6 +202,7 @@ public sealed class AssemblyInjector : IDisposable
 
             stream.Position = 0;
 
+            writer.WritePointer((uint)sizeof(RupturaParameters));
             writer.WritePointer(area + argvOff);
             writer.Write((uint)argOffs.Length);
             writer.Write(Environment.ProcessId);
