@@ -24,7 +24,7 @@ sealed class InjectedProgram : IInjectedProgram
             if (!proc.WaitForInputIdle(_timeout))
                 throw new TimeoutException();
 
-            Console.WriteLine("Started as {0}.", proc.Id);
+            Console.WriteLine("Started as {0}. Injecting...", proc.Id);
 
             using var target = TargetProcess.Open(proc.Id);
             using var injector = new AssemblyInjector(
@@ -32,8 +32,6 @@ sealed class InjectedProgram : IInjectedProgram
                 new AssemblyInjectorOptions(typeof(InjectedProgram).Assembly.Location)
                     .WithInjectionTimeout(_timeout)
                     .WithCompletionTimeout(_timeout));
-
-            Console.WriteLine("Injecting into {0}...", proc.Id);
 
             await injector.InjectAssemblyAsync();
 
