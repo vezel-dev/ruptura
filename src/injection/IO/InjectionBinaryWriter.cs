@@ -18,6 +18,11 @@ sealed class InjectionBinaryWriter : BinaryWriter
             Write((uint)value);
     }
 
+    public void WriteSize(nuint value)
+    {
+        WritePointer(value);
+    }
+
     public void WriteAsciiString(string value)
     {
         foreach (var b in Encoding.ASCII.GetBytes(value))

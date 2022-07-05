@@ -43,7 +43,7 @@ public sealed class AssemblyInjector : IDisposable
     {
         ArgumentNullException.ThrowIfNull(process);
         ArgumentNullException.ThrowIfNull(options);
-        _ = process.IsCompatible ? true : throw new PlatformNotSupportedException();
+        _ = process.IsSupported ? true : throw new PlatformNotSupportedException();
 
         _process = process;
         _options = options;
@@ -68,7 +68,8 @@ public sealed class AssemblyInjector : IDisposable
 
     string GetModulePath()
     {
-        var path = Path.Combine(_options.ModuleDirectory, "ruptura-x64.dll");
+        var path = Path.Combine(
+            _options.ModuleDirectory, $"ruptura-{_process.Architecture.ToString().ToLowerInvariant()}.dll");
 
         return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
@@ -87,8 +88,16 @@ public sealed class AssemblyInjector : IDisposable
     {
         var initializeShell = _process.CreateFunction(asm =>
         {
-            asm.mov(eax, 0);
-            asm.ret();
+            if (asm.Bitness == 32)
+            {
+                asm.mov(eax, 0);
+                asm.ret();
+            }
+            else
+            {
+                asm.mov(eax, 0);
+                asm.ret(4);
+            }
         });
 
         try
@@ -141,7 +150,7 @@ public sealed class AssemblyInjector : IDisposable
         _getLastError = GetExport("GetLastError");
     }
 
-    unsafe nuint CreateParametersArea()
+    unsafe nuint CreateParameterArea()
     {
         // Keep in sync with src/module/main.h.
 
@@ -155,13 +164,13 @@ public sealed class AssemblyInjector : IDisposable
         return _process.AllocMemory((nuint)size, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
     }
 
-    unsafe void PopulateParametersArea(nuint area)
+    unsafe void PopulateParameterArea(nuint parameterArea)
     {
         // Keep in sync with src/module/main.h.
 
-        PopulateMemoryArea(area, (stream, writer) =>
+        PopulateMemoryArea(parameterArea, (stream, writer) =>
         {
-            writer.WritePointer(0);
+            writer.WriteSize(0);
             writer.WritePointer(0);
             writer.Write(0u);
             writer.Write(0u);
@@ -188,37 +197,37 @@ public sealed class AssemblyInjector : IDisposable
 
             stream.Position = 0;
 
-            writer.WritePointer((uint)sizeof(RupturaParameters));
-            writer.WritePointer(area + argvOff);
+            writer.WriteSize((uint)sizeof(RupturaParameters));
+            writer.WritePointer(parameterArea + argvOff);
             writer.Write((uint)argOffs.Length);
             writer.Write(Environment.ProcessId);
             writer.Write((uint)(_process.MainThreadId ?? 0));
             writer.Write(0); // Padding.
 
             foreach (var argOff in argOffs)
-                writer.WritePointer(area + argOff);
+                writer.WritePointer(parameterArea + argOff);
         });
     }
 
-    async Task InjectModuleAsync(string modulePath, nuint parameters, MemoryMappedViewAccessor accessor)
+    async Task InjectModuleAsync(string modulePath, nuint parameterArea, MemoryMappedViewAccessor accessor)
     {
         var size = Encoding.Unicode.GetByteCount(modulePath) + sizeof(char) +
             Encoding.ASCII.GetByteCount(NativeEntryPoint) + sizeof(byte);
-        var area = _process.AllocMemory((uint)size, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
+        var nameArea = _process.AllocMemory((uint)size, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
 
         try
         {
             nuint modulePathPtr = 0;
             nuint entryPointPtr = 0;
 
-            PopulateMemoryArea(area, (stream, writer) =>
+            PopulateMemoryArea(nameArea, (stream, writer) =>
             {
-                modulePathPtr = area + (nuint)stream.Position;
+                modulePathPtr = nameArea + (nuint)stream.Position;
 
                 // Write the module path first to ensure correct alignment.
                 writer.WriteUtf16String(modulePath);
 
-                entryPointPtr = area + (nuint)stream.Position;
+                entryPointPtr = nameArea + (nuint)stream.Position;
 
                 writer.WriteAsciiString(NativeEntryPoint);
             });
@@ -228,40 +237,69 @@ public sealed class AssemblyInjector : IDisposable
                 var done = asm.CreateLabel("done");
                 var failure = asm.CreateLabel("failure");
 
-                asm.push(rbx);
-                asm.sub(rsp, 32);
+                if (asm.Bitness == 32)
+                {
+                    asm.push((uint)modulePathPtr);
+                    asm.mov(eax, (uint)_loadLibraryW);
+                    asm.call(eax);
+                    asm.cmp(eax, 0);
+                    asm.je(failure);
 
-                asm.mov(rbx, rcx);
-                asm.mov(rcx, modulePathPtr);
-                asm.mov(rax, _loadLibraryW);
-                asm.call(rax);
-                asm.cmp(rax, 0);
-                asm.je(failure);
+                    asm.push((uint)entryPointPtr);
+                    asm.push(eax);
+                    asm.mov(eax, (uint)_getProcAddress);
+                    asm.call(eax);
+                    asm.cmp(eax, 0);
+                    asm.je(failure);
 
-                asm.mov(rcx, rax);
-                asm.mov(rdx, entryPointPtr);
-                asm.mov(rax, _getProcAddress);
-                asm.call(rax);
-                asm.cmp(rax, 0);
-                asm.je(failure);
+                    asm.push(__dword_ptr[esp + 4]);
+                    asm.call(eax);
+                    asm.jmp(done);
 
-                asm.mov(rcx, rbx);
-                asm.call(rax);
-                asm.jmp(done);
+                    asm.Label(ref failure);
+                    asm.mov(eax, (uint)_getLastError);
+                    asm.call(eax);
 
-                asm.Label(ref failure);
-                asm.mov(rax, _getLastError);
-                asm.call(rax);
+                    asm.Label(ref done);
+                    asm.ret(4);
+                }
+                else
+                {
+                    asm.push(rbx);
+                    asm.sub(rsp, 32);
 
-                asm.Label(ref done);
-                asm.add(rsp, 32);
-                asm.pop(rbx);
-                asm.ret();
+                    asm.mov(rbx, rcx);
+                    asm.mov(rcx, modulePathPtr);
+                    asm.mov(rax, _loadLibraryW);
+                    asm.call(rax);
+                    asm.cmp(rax, 0);
+                    asm.je(failure);
+
+                    asm.mov(rcx, rax);
+                    asm.mov(rdx, entryPointPtr);
+                    asm.mov(rax, _getProcAddress);
+                    asm.call(rax);
+                    asm.cmp(rax, 0);
+                    asm.je(failure);
+
+                    asm.mov(rcx, rbx);
+                    asm.call(rax);
+                    asm.jmp(done);
+
+                    asm.Label(ref failure);
+                    asm.mov(rax, _getLastError);
+                    asm.call(rax);
+
+                    asm.Label(ref done);
+                    asm.add(rsp, 32);
+                    asm.pop(rbx);
+                    asm.ret();
+                }
             });
 
             try
             {
-                var threadHandle = _process.CreateThread(injectShell, parameters);
+                var threadHandle = _process.CreateThread(injectShell, parameterArea);
 
                 try
                 {
@@ -315,7 +353,7 @@ public sealed class AssemblyInjector : IDisposable
         }
         finally
         {
-            _process.FreeMemory(area);
+            _process.FreeMemory(nameArea);
         }
     }
 
@@ -338,11 +376,11 @@ public sealed class AssemblyInjector : IDisposable
                 ForceLoaderInitialization();
                 RetrieveKernel32Exports();
 
-                var paramsArea = CreateParametersArea();
+                var paramsArea = CreateParameterArea();
 
                 try
                 {
-                    PopulateParametersArea(paramsArea);
+                    PopulateParameterArea(paramsArea);
 
                     await InjectModuleAsync(modulePath, paramsArea, accessor).ConfigureAwait(false);
                 }

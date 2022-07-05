@@ -13,9 +13,11 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public SafeHandle Handle { get; }
 
+    public Architecture Architecture { get; }
+
     internal int? MainThreadId { get; }
 
-    internal bool IsCompatible { get; }
+    internal bool IsSupported => Architecture == Architecture.X64;
 
     TargetProcess(int id, SafeHandle handle, int? mainThreadId)
     {
@@ -25,14 +27,25 @@ public sealed unsafe class TargetProcess : IDisposable
 
         IMAGE_FILE_MACHINE os;
 
-        if (!IsWow64Process2(Handle, out var emu, &os))
+        if (!IsWow64Process2(Handle, out var proc, &os))
             throw new Win32Exception();
 
-        // x64 process on an x64 machine or x64 process on an Arm64 machine.
-        if ((os, emu) is
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64) or
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN))
-            IsCompatible = true;
+        Architecture = (os, proc) switch
+        {
+            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
+            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386) =>
+                Architecture.X86,
+            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
+            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64) =>
+                Architecture.X64,
+            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
+            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM) =>
+                Architecture.Arm,
+            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
+            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64) =>
+                Architecture.Arm64,
+            _ => throw new UnreachableException(),
+        };
     }
 
     ~TargetProcess()
@@ -208,7 +221,12 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal nuint CreateFunction(Action<Assembler> action)
     {
-        var asm = new Assembler(64);
+        var asm = new Assembler(Architecture switch
+        {
+            Architecture.X86 or Architecture.Arm => 32,
+            Architecture.X64 or Architecture.Arm64 => 64,
+            _ => throw new UnreachableException(),
+        });
 
         action(asm);
 
