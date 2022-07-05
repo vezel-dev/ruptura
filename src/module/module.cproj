@@ -32,7 +32,9 @@
     TODO: Switch to this in .NET 7 Preview 7.
 
     <PropertyGroup>
-        <_AppHostPackageNative>$(Pkgruntime_win-x64_Microsoft_NETCore_DotNetAppHost)/runtimes/$(RuntimeIdentifier)/native/</_AppHostPackageNative>
+        <_AppHostPackage Condition="'$(RuntimeIdentifier)' == 'win-x86'">$(Pkgruntime_win-x86_Microsoft_NETCore_DotNetAppHost)/</_AppHostPackage>
+        <_AppHostPackage Condition="'$(RuntimeIdentifier)' == 'win-x64'">$(Pkgruntime_win-x64_Microsoft_NETCore_DotNetAppHost)/</_AppHostPackage>
+        <_AppHostPackageNative>$(_AppHostPackage)runtimes/$(RuntimeIdentifier)/native/</_AppHostPackageNative>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,6 +47,8 @@
 
     <ItemGroup>
         <PackageReference Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
+                          GeneratePathProperty="true" />
+        <PackageReference Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
                           GeneratePathProperty="true" />
     </ItemGroup>
     -->
