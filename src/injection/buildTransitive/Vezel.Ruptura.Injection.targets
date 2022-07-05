@@ -1,0 +1,12 @@
+<Project>
+    <!--
+    We need this odd way of adding the native module to referencing projects
+    because NuGet will not flow content transitively by default, and it would
+    make for a poor user experience to require setting PrivateAssets without
+    contentFiles.
+    -->
+    <ItemGroup>
+        <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll"
+                 CopyToOutputDirectory="Always" />
+    </ItemGroup>
+</Project>

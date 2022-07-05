@@ -1,6 +1,6 @@
 <Project Sdk="Vezel.Zig.Sdk">
     <PropertyGroup>
-        <AssemblyName>ruptura</AssemblyName>
+        <AssemblyName>ruptura-x64</AssemblyName>
         <DefineConstants>
             $(DefineConstants);
             WIN32_LEAN_AND_MEAN;

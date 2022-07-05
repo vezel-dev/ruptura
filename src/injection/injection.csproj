@@ -2,6 +2,7 @@
     <PropertyGroup>
         <AssemblyName>Vezel.Ruptura.Injection</AssemblyName>
         <IsPackable>true</IsPackable>
+        <NoWarn>NU5100</NoWarn>
         <PackageDescription>$(PackageDescription)
 
 This package provides the infrastructure to inject the .NET runtime and
@@ -13,6 +14,12 @@ assemblies into processes.</PackageDescription>
     <ItemGroup>
         <Using Include="Iced.Intel" />
         <Using Include="PeNet" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="buildTransitive/**"
+              Pack="true"
+              PackagePath="%(Identity)" />
     </ItemGroup>
 
     <ItemGroup>
@@ -31,9 +38,9 @@ assemblies into processes.</PackageDescription>
         <PackageReference Include="PeNet" />
     </ItemGroup>
 
-    <!-- TODO: This packaging strategy is bad for future code signing. -->
-    <Target Name="_EmbedModule"
-            BeforeTargets="BeforeResGen">
+    <Target Name="_AddModuleContent"
+            DependsOnTargets="ResolveAssemblyReferences"
+            BeforeTargets="AssignTargetPaths">
         <MSBuild Projects="../module/module.cproj"
                  Targets="GetTargetPath">
             <Output TaskParameter="TargetOutputs"
@@ -41,10 +48,9 @@ assemblies into processes.</PackageDescription>
         </MSBuild>
 
         <ItemGroup>
-            <EmbeddedResource Include="@(_ModulePath)"
-                              LogicalName="ruptura.dll"
-                              Type="Non-Resx"
-                              WithCulture="false" />
+            <Content Include="@(_ModulePath)"
+                     CopyToOutputDirectory="Always"
+                     PackagePath="ruptura" />
         </ItemGroup>
     </Target>
 </Project>

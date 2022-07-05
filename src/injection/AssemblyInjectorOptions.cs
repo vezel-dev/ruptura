@@ -6,6 +6,13 @@ public sealed class AssemblyInjectorOptions
 
     public IReadOnlyList<string> Arguments { get; private set; } = Array.Empty<string>();
 
+    public string ModuleDirectory { get; private set; } =
+        Path.GetDirectoryName(
+            Assembly.GetExecutingAssembly().Location is var location and not ""
+                ? location
+                : Environment.ProcessPath)
+            ?? Environment.CurrentDirectory;
+
     public TimeSpan InjectionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
 
     public TimeSpan CompletionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
@@ -27,6 +34,7 @@ public sealed class AssemblyInjectorOptions
         {
             FileName = FileName,
             Arguments = Arguments,
+            ModuleDirectory = ModuleDirectory,
             InjectionTimeout = InjectionTimeout,
             CompletionTimeout = CompletionTimeout,
         };
@@ -51,6 +59,17 @@ public sealed class AssemblyInjectorOptions
         var options = Clone();
 
         options.Arguments = arguments.ToArray();
+
+        return options;
+    }
+
+    public AssemblyInjectorOptions WithModuleDirectory(string moduleDirectory)
+    {
+        ArgumentNullException.ThrowIfNull(moduleDirectory);
+
+        var options = Clone();
+
+        options.ModuleDirectory = moduleDirectory;
 
         return options;
     }

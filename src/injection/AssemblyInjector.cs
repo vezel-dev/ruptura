@@ -54,27 +54,6 @@ public sealed class AssemblyInjector : IDisposable
         DisposeCore();
     }
 
-    static async Task<string> ExtractModuleAsync()
-    {
-        var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("ruptura.dll")!;
-
-        await using (resourceStream.ConfigureAwait(false))
-        {
-            var moduleDirectory = Path.Combine(
-                Path.GetTempPath(), "ruptura", Environment.ProcessId.ToString(CultureInfo.InvariantCulture));
-            var modulePath = Path.Combine(moduleDirectory, "ruptura.dll");
-
-            _ = Directory.CreateDirectory(moduleDirectory);
-
-            var moduleStream = File.OpenWrite(modulePath);
-
-            await using (moduleStream.ConfigureAwait(false))
-                await resourceStream.CopyToAsync(moduleStream).ConfigureAwait(false);
-
-            return modulePath;
-        }
-    }
-
     public void Dispose()
     {
         DisposeCore();
@@ -85,6 +64,13 @@ public sealed class AssemblyInjector : IDisposable
     void DisposeCore()
     {
         _threadHandle?.Dispose();
+    }
+
+    string GetModulePath()
+    {
+        var path = Path.Combine(_options.ModuleDirectory, "ruptura-x64.dll");
+
+        return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
 
     void PopulateMemoryArea(nuint area, Action<MemoryStream, InjectionBinaryWriter> action)
@@ -343,7 +329,7 @@ public sealed class AssemblyInjector : IDisposable
         {
             try
             {
-                var modulePath = await ExtractModuleAsync().ConfigureAwait(false);
+                var modulePath = GetModulePath();
 
                 using var mmf = MemoryMappedFile.CreateNew(
                     $"ruptura-{Environment.ProcessId}-{_process.Id}", sizeof(bool));
