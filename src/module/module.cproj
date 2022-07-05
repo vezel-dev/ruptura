@@ -1,6 +1,6 @@
 <Project Sdk="Vezel.Zig.Sdk">
     <PropertyGroup>
-        <AssemblyName>ruptura-x64</AssemblyName>
+        <AssemblyName>ruptura</AssemblyName>
         <DefineConstants>
             $(DefineConstants);
             WIN32_LEAN_AND_MEAN;
@@ -12,7 +12,13 @@
         </DisableWarnings>
         <!-- TODO: https://github.com/dotnet/msbuild/issues/6672 -->
         <PackageDefines>false</PackageDefines>
-        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <RuntimeIdentifiers>
+            win-x64
+        </RuntimeIdentifiers>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <AssemblyName Condition="'$(RuntimeIdentifier)' != ''">ruptura-$(RuntimeIdentifier.Split('-')[1])</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

@@ -38,9 +38,8 @@ assemblies into processes.</PackageDescription>
         <PackageReference Include="PeNet" />
     </ItemGroup>
 
-    <Target Name="_AddModuleContent"
-            DependsOnTargets="ResolveAssemblyReferences"
-            BeforeTargets="AssignTargetPaths">
+    <Target Name="_AddModule"
+            Returns="@(Content)">
         <MSBuild Projects="../module/module.cproj"
                  Targets="GetTargetPath">
             <Output TaskParameter="TargetOutputs"
@@ -52,5 +51,22 @@ assemblies into processes.</PackageDescription>
                      CopyToOutputDirectory="Always"
                      PackagePath="ruptura" />
         </ItemGroup>
+    </Target>
+
+    <Target Name="_AddModules"
+            DependsOnTargets="ResolveAssemblyReferences"
+            BeforeTargets="AssignTargetPaths">
+        <ItemGroup>
+            <_RuntimeIdentifiers Include="win-x64" />
+            <_Projects Include="$(MSBuildProjectFullPath)"
+                       Properties="RuntimeIdentifier=%(_RuntimeIdentifiers.Identity)" />
+        </ItemGroup>
+
+        <MSBuild Projects="@(_Projects)"
+                 Targets="_AddModule"
+                 BuildInParallel="$(BuildInParallel)">
+            <Output TaskParameter="TargetOutputs"
+                    ItemName="Content" />
+        </MSBuild>
     </Target>
 </Project>
