@@ -10,8 +10,7 @@ public sealed class AssemblyInjectorOptions
         Path.GetDirectoryName(
             Assembly.GetExecutingAssembly().Location is var location and not ""
                 ? location
-                : Environment.ProcessPath)
-            ?? Environment.CurrentDirectory;
+                : Environment.ProcessPath) ?? Environment.CurrentDirectory;
 
     public TimeSpan InjectionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
 
