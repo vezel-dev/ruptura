@@ -74,14 +74,12 @@ public sealed class AssemblyInjector : IDisposable
         return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
 
-    void PopulateMemoryArea(nuint area, Action<MemoryStream, InjectionBinaryWriter> action)
+    void PopulateMemoryArea(nuint area, nuint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
     {
-        using var stream = new MemoryStream();
+        using var stream = new ProcessMemoryStream(_process, area, length);
+        using var writer = new InjectionBinaryWriter(stream, true);
 
-        using (var writer = new InjectionBinaryWriter(stream, true))
-            action(stream, writer);
-
-        _process.WriteMemory(area, stream.ToArray());
+        action(stream, writer);
     }
 
     void ForceLoaderInitialization()
@@ -134,7 +132,7 @@ public sealed class AssemblyInjector : IDisposable
         if (_process.GetModule("kernel32.dll") is not (var k32Addr, var k32Size))
             throw new InjectionException("Could not locate 'kernel32.dll' in the target process.");
 
-        using var stream = new ProcessMemoryReadStream(_process, k32Addr, k32Size);
+        using var stream = new ProcessMemoryStream(_process, k32Addr, k32Size);
 
         var exports = new PeFile(stream).ExportedFunctions;
 
@@ -150,25 +148,27 @@ public sealed class AssemblyInjector : IDisposable
         _getLastError = GetExport("GetLastError");
     }
 
-    unsafe nuint CreateParameterArea()
+    unsafe (nuint Address, nuint Length) CreateParameterArea()
     {
         // Keep in sync with src/module/main.h.
 
-        var size = sizeof(RupturaParameters);
+        var length = sizeof(RupturaParameters);
 
-        size += sizeof(nuint) * (_options.Arguments.Count + 1);
+        length += sizeof(nuint) * (_options.Arguments.Count + 1);
 
         foreach (var arg in _options.Arguments.Prepend(_options.FileName))
-            size += Encoding.Unicode.GetByteCount(arg) + sizeof(char);
+            length += Encoding.Unicode.GetByteCount(arg) + sizeof(char);
 
-        return _process.AllocMemory((nuint)size, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
+        var len = (nuint)length;
+
+        return (_process.AllocMemory((nuint)length, PAGE_PROTECTION_FLAGS.PAGE_READWRITE), len);
     }
 
-    unsafe void PopulateParameterArea(nuint parameterArea)
+    unsafe void PopulateParameterArea(nuint address, nuint length)
     {
         // Keep in sync with src/module/main.h.
 
-        PopulateMemoryArea(parameterArea, (stream, writer) =>
+        PopulateMemoryArea(address, length, (stream, writer) =>
         {
             writer.WriteSize(0);
             writer.WritePointer(0);
@@ -198,29 +198,29 @@ public sealed class AssemblyInjector : IDisposable
             stream.Position = 0;
 
             writer.WriteSize((uint)sizeof(RupturaParameters));
-            writer.WritePointer(parameterArea + argvOff);
+            writer.WritePointer(address + argvOff);
             writer.Write((uint)argOffs.Length);
             writer.Write(Environment.ProcessId);
             writer.Write((uint)(_process.MainThreadId ?? 0));
             writer.Write(0); // Padding.
 
             foreach (var argOff in argOffs)
-                writer.WritePointer(parameterArea + argOff);
+                writer.WritePointer(address + argOff);
         });
     }
 
     async Task InjectModuleAsync(string modulePath, nuint parameterArea, MemoryMappedViewAccessor accessor)
     {
-        var size = Encoding.Unicode.GetByteCount(modulePath) + sizeof(char) +
+        var nameAreaLength = Encoding.Unicode.GetByteCount(modulePath) + sizeof(char) +
             Encoding.ASCII.GetByteCount(NativeEntryPoint) + sizeof(byte);
-        var nameArea = _process.AllocMemory((uint)size, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
+        var nameArea = _process.AllocMemory((uint)nameAreaLength, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
 
         try
         {
             nuint modulePathPtr = 0;
             nuint entryPointPtr = 0;
 
-            PopulateMemoryArea(nameArea, (stream, writer) =>
+            PopulateMemoryArea(nameArea, (uint)nameAreaLength, (stream, writer) =>
             {
                 modulePathPtr = nameArea + (nuint)stream.Position;
 
@@ -377,11 +377,11 @@ public sealed class AssemblyInjector : IDisposable
                 ForceLoaderInitialization();
                 RetrieveKernel32Exports();
 
-                var paramsArea = CreateParameterArea();
+                var (paramsArea, paramsAreaLength) = CreateParameterArea();
 
                 try
                 {
-                    PopulateParameterArea(paramsArea);
+                    PopulateParameterArea(paramsArea, paramsAreaLength);
 
                     await InjectModuleAsync(modulePath, paramsArea, accessor).ConfigureAwait(false);
                 }

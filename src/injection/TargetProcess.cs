@@ -1,3 +1,4 @@
+using Vezel.Ruptura.Injection.IO;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.ToolHelp;
 using Windows.Win32.System.Memory;
@@ -223,32 +224,29 @@ public sealed unsafe class TargetProcess : IDisposable
     {
         var asm = new Assembler(Architecture switch
         {
-            Architecture.X86 or Architecture.Arm => 32,
-            Architecture.X64 or Architecture.Arm64 => 64,
+            Architecture.X86 => 32,
+            Architecture.X64 => 64,
             _ => throw new UnreachableException(),
         });
 
         action(asm);
 
-        using var stream = new MemoryStream();
-        var writer = new StreamCodeWriter(stream);
+        using var tempStream = new MemoryStream();
 
         // Do an initial assembly pass to estimate how much memory we will need.
-        _ = asm.Assemble(writer, 0);
+        _ = asm.Assemble(new StreamCodeWriter(tempStream), 0);
 
-        var len = (nuint)stream.Length * 2; // Usually way too much, but safe.
+        var len = (nuint)tempStream.Length * 2; // Usually way too much, but safe.
         var code = AllocMemory(len, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
 
         try
         {
-            stream.Position = 0;
+            using var stream = new ProcessMemoryStream(this, code, len);
 
-            // Now assemble for real with a known RIP value.
-            _ = asm.Assemble(writer, code);
+            // Now assemble into the process for real with a known RIP value.
+            _ = asm.Assemble(new StreamCodeWriter(stream), code);
 
-            WriteMemory(code, stream.ToArray());
             ProtectMemory(code, len, PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_READ);
-            FlushCache(code, len);
         }
         catch (Exception)
         {

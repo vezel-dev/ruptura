@@ -1,12 +1,12 @@
 namespace Vezel.Ruptura.Injection.IO;
 
-sealed class ProcessMemoryReadStream : Stream
+sealed class ProcessMemoryStream : Stream
 {
     // TODO: Review some of the casts here.
 
     public override bool CanRead => true;
 
-    public override bool CanWrite => false;
+    public override bool CanWrite => true;
 
     public override bool CanSeek => true;
 
@@ -31,7 +31,9 @@ sealed class ProcessMemoryReadStream : Stream
 
     nuint _position;
 
-    public ProcessMemoryReadStream(TargetProcess process, nuint address, nuint length)
+    bool _wrote;
+
+    public ProcessMemoryStream(TargetProcess process, nuint address, nuint length)
     {
         _process = process;
         _address = address;
@@ -71,7 +73,8 @@ sealed class ProcessMemoryReadStream : Stream
 
     public override void Flush()
     {
-        throw new NotSupportedException();
+        if (_wrote)
+            _process.FlushCache(_address, _length);
     }
 
     public override void SetLength(long value)
@@ -141,21 +144,38 @@ sealed class ProcessMemoryReadStream : Stream
         int count,
         CancellationToken cancellationToken = default)
     {
-        throw new NotSupportedException();
+        ValidateBufferArguments(buffer, offset, count);
+
+        return WriteAsync(buffer.AsMemory(offset..count), cancellationToken).AsTask();
     }
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        throw new NotSupportedException();
+        _ = _position + (uint)buffer.Length <= _length ? true : throw new NotSupportedException();
+
+        _wrote = true;
+
+        try
+        {
+            _process.WriteMemory(_address + _position, buffer);
+        }
+        catch (Win32Exception ex)
+        {
+            throw new IOException(null, ex);
+        }
+
+        _position += (uint)buffer.Length;
     }
 
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        throw new NotSupportedException();
+        Write(buffer.Span);
+
+        return default;
     }
 
     public override void WriteByte(byte value)
     {
-        throw new NotSupportedException();
+        Write(stackalloc[] { value });
     }
 }
