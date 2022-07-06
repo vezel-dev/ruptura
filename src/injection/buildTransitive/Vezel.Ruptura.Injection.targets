@@ -5,8 +5,11 @@
     make for a poor user experience to require setting PrivateAssets without
     contentFiles.
     -->
-    <ItemGroup>
-        <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll"
-                 CopyToOutputDirectory="Always" />
-    </ItemGroup>
+    <Target Name="_AddRupturaModules"
+            BeforeTargets="AssignTargetPaths">
+        <ItemGroup>
+            <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll"
+                     CopyToOutputDirectory="Always" />
+        </ItemGroup>
+    </Target>
 </Project>
