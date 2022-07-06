@@ -16,11 +16,5 @@
         <ProjectReference Include="$(MSBuildThisFileDirectory)../injection/injection.csproj" />
     </ItemGroup>
 
-    <!--
-    This import is required since we are not consuming the library as a
-    PackageReference item.
-    -->
-    <Import Project="../hosting/build/Vezel.Ruptura.Hosting.targets" />
-
     <Import Project="$([MSBuild]::GetPathOfFileAbove('$(MSBuildThisFile)', '$(MSBuildThisFileDirectory)..'))" />
 </Project>
