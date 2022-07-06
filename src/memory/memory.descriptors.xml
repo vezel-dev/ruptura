@@ -1,0 +1,7 @@
+<linker>
+    <assembly fullname="Vezel.Ruptura.Memory">
+        <type fullname="Vezel.Ruptura.Memory.InjectedNativeModule">
+            <method name="Initialize" />
+        </type>
+    </assembly>
+</linker>

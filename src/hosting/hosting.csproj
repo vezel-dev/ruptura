@@ -17,6 +17,11 @@ This package provides the hosting model for injected programs.</PackageDescripti
     </ItemGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="hosting.descriptors.xml"
+                          LogicalName="ILLink.Descriptors.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="../analyzers/analyzers.csproj"
                           ReferenceOutputAssembly="false" />
         <ProjectReference Include="../memory/memory.csproj" />

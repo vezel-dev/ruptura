@@ -1,0 +1,7 @@
+<linker>
+    <assembly fullname="Vezel.Ruptura.Hosting">
+        <type fullname="Vezel.Ruptura.Hosting.InjectedProgramContext">
+            <method name="Initialize" />
+        </type>
+    </assembly>
+</linker>
