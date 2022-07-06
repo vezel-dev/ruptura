@@ -15,7 +15,7 @@ by injected programs.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="hosting.descriptors.xml"
+        <EmbeddedResource Include="memory.descriptors.xml"
                           LogicalName="ILLink.Descriptors.xml" />
     </ItemGroup>
 
