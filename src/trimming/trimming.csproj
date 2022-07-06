@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <!--
+    This project exists solely so that we can get full trimming analysis of the
+    library projects when running dotnet publish.
+    -->
+
+    <PropertyGroup>
+        <AssemblyName>trimming</AssemblyName>
+        <IsPublishable>true</IsPublishable>
+        <OutputType>Exe</OutputType>
+        <PublishTrimmed>true</PublishTrimmed>
+        <RootNamespace>Vezel.Ruptura.Trimming</RootNamespace>
+        <TrimmerDefaultAction>link</TrimmerDefaultAction>
+        <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <TrimmerRootAssembly Include="Vezel.Ruptura.Hosting" />
+        <TrimmerRootAssembly Include="Vezel.Ruptura.Memory" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../hosting/hosting.csproj" />
+        <ProjectReference Include="../memory/memory.csproj" />
+    </ItemGroup>
+</Project>
