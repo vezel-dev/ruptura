@@ -5,13 +5,21 @@
 
 typedef struct
 {
+    // Keep in sync with src/memory/InjectedNativeModule.cs.
+
+    size_t size;
+    uint32_t injector_process_id;
+    HMODULE module_handle;
+} ruptura_module_parameters;
+
+typedef struct
+{
     // Keep in sync with src/hosting/InjectedProgramContext.cs.
 
     size_t size;
     uint32_t injector_process_id;
     uint32_t main_thread_id;
-    HMODULE module_handle;
-} ruptura_state;
+} ruptura_context_parameters;
 
 static volatile atomic(HMODULE) ruptura_module;
 
@@ -77,18 +85,29 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
     if ((rc = ruptura_host_initialize(host, (const wchar_t **)argv, argc)))
         goto failure;
 
-    ruptura_state state =
+    ruptura_module_parameters module_params =
     {
-        .size = sizeof(ruptura_state),
+        .size = sizeof(ruptura_module_parameters),
         .injector_process_id = parameters->injector_process_id,
-        .main_thread_id = parameters->main_thread_id,
         .module_handle = ruptura_module,
     };
 
-    // After this call, parameters is freed by the injector.
     if ((rc = ruptura_host_call(
-        host, L"Vezel.Ruptura.Hosting.InjectedProgramContext, Vezel.Ruptura.Hosting", L"Initialize", &state)))
+        host, L"Vezel.Ruptura.Memory.InjectedNativeModule, Vezel.Ruptura.Memory", L"Initialize", &module_params)))
         goto failure;
+
+    ruptura_context_parameters context_params =
+    {
+        .size = sizeof(ruptura_context_parameters),
+        .injector_process_id = parameters->injector_process_id,
+        .main_thread_id = parameters->main_thread_id,
+    };
+
+    if ((rc = ruptura_host_call(
+        host, L"Vezel.Ruptura.Hosting.InjectedProgramContext, Vezel.Ruptura.Hosting", L"Initialize", &context_params)))
+        goto failure;
+
+    // parameters will now be freed by the injector.
 
     if ((rc = ruptura_host_run(host)))
         goto failure;

@@ -3,10 +3,10 @@ using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Hosting;
 
-public sealed unsafe class InjectedProgramContext
+public sealed class InjectedProgramContext
 {
     [StructLayout(LayoutKind.Sequential)]
-    struct RupturaState
+    struct RupturaContextParameters
     {
         // Keep in sync with src/module/main.c.
 
@@ -15,41 +15,41 @@ public sealed unsafe class InjectedProgramContext
         public uint InjectorProcessId;
 
         public uint MainThreadId;
-
-        public nint ModuleHandle;
     }
 
-    public static InjectedProgramContext Instance { get; private set; } = new(null, 0, 0);
+    public static InjectedProgramContext Instance { get; private set; } = new(null, 0);
 
     public int? InjectorProcessId { get; }
 
     readonly uint _mainThreadId;
 
-    // TODO: Do we need to expose any native functionality from the module?
-    readonly nint _moduleHandle;
-
-    InjectedProgramContext(int? injectorProcessId, uint mainThreadId, nint moduleHandle)
+    InjectedProgramContext(int? injectorProcessId, uint mainThreadId)
     {
         InjectorProcessId = injectorProcessId;
         _mainThreadId = mainThreadId;
-        _moduleHandle = moduleHandle;
     }
 
-    [SuppressMessage("", "IDE0051")]
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static uint Initialize(RupturaState* state)
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    [UnmanagedCallersOnly]
+    public static unsafe uint Initialize(void* parameter)
     {
-        Debug.Assert(state->Size == (uint)sizeof(RupturaState), "Managed/unmanaged ruptura_state size mismatch.");
+        // Only meant to be called by the native module.
+
+        var state = (RupturaContextParameters*)parameter;
+
+        Debug.Assert(
+            state->Size == (uint)sizeof(RupturaContextParameters),
+            "Managed/unmanaged ruptura_context_parameters size mismatch.");
 
         try
         {
             using var mmf = MemoryMappedFile.OpenExisting(
                 $"ruptura-{state->InjectorProcessId}-{Environment.ProcessId}");
-            using var accessor = mmf.CreateViewAccessor(0, sizeof(bool), MemoryMappedFileAccess.Write);
+            using var accessor = mmf.CreateViewAccessor(0, sizeof(bool) * 2, MemoryMappedFileAccess.Write);
 
-            accessor.Write(0, true);
+            accessor.Write(1, true);
 
-            Instance = new((int)state->InjectorProcessId, state->MainThreadId, state->ModuleHandle);
+            Instance = new((int)state->InjectorProcessId, state->MainThreadId);
         }
         catch (Exception ex)
         {

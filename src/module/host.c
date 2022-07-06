@@ -115,7 +115,7 @@ uint32_t ruptura_host_call(
     assert(type_name);
     assert(method_name);
 
-    uint32_t (__stdcall *func)(void *parameter);
+    uint32_t (*func)(void *parameter);
 
     uint32_t rc;
 
