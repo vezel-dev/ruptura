@@ -254,6 +254,7 @@ public sealed class AssemblyInjector : IDisposable
 
                     asm.push(__dword_ptr[esp + 4]);
                     asm.call(eax);
+                    asm.add(esp, 4);
                     asm.jmp(done);
 
                     asm.Label(ref failure);
