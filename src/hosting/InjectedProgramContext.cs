@@ -30,7 +30,7 @@ public sealed class InjectedProgramContext
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    [UnmanagedCallersOnly]
+    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static unsafe uint Initialize(void* parameter)
     {
         // Only meant to be called by the native module.
