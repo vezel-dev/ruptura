@@ -1,13 +1,13 @@
-CreateProcess
+CreateProcessW
 CreateRemoteThreadEx
 CreateToolhelp32Snapshot
 FlushInstructionCache
 GetCurrentProcess
 GetExitCodeThread
 IsWow64Process2
-K32GetModuleBaseName
-Module32First
-Module32Next
+K32GetModuleBaseNameW
+Module32FirstW
+Module32NextW
 OpenProcess
 ReadProcessMemory
 VirtualAllocEx
@@ -19,5 +19,4 @@ WriteProcessMemory
 IMAGE_FILE_MACHINE
 WIN32_ERROR
 
-INFINITE
 MAX_PATH

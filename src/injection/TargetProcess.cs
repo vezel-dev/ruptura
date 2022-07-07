@@ -68,7 +68,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // CreateProcess can modify the command line arguments, so create a mutable array.
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
-        if (!CreateProcess(
+        if (!CreateProcessW(
             null,
             ref args,
             null,
@@ -141,13 +141,13 @@ public sealed unsafe class TargetProcess : IDisposable
         using (snap)
         {
             // TODO: https://github.com/microsoft/CsWin32/issues/597
-            var modSize = 568;
+            var modSize = 1080;
             var modSpace = stackalloc byte[modSize];
-            var mod = (MODULEENTRY32*)modSpace;
+            var mod = (MODULEENTRY32W*)modSpace;
 
             mod->dwSize = (uint)modSize;
 
-            if (!Module32First(snap, ref *mod))
+            if (!Module32FirstW(snap, ref *mod))
                 throw new Win32Exception();
 
             do
@@ -162,7 +162,7 @@ public sealed unsafe class TargetProcess : IDisposable
                 uint len;
 
                 fixed (char* p = arr)
-                    while ((len = K32GetModuleBaseName(Handle, modHandle, p, (uint)arr.Length)) >= arr.Length)
+                    while ((len = K32GetModuleBaseNameW(Handle, modHandle, p, (uint)arr.Length)) >= arr.Length)
                         Array.Resize(ref arr, (int)len);
 
                 var baseName = arr.AsSpan(0, (int)len).ToString();
@@ -170,7 +170,7 @@ public sealed unsafe class TargetProcess : IDisposable
                 if (baseName.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return ((nuint)mod->modBaseAddr, mod->modBaseSize);
             }
-            while (Module32Next(snap, ref *mod));
+            while (Module32NextW(snap, ref *mod));
         }
 
         return null;

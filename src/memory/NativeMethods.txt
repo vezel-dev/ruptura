@@ -5,8 +5,8 @@ GetCurrentProcessId
 GetCurrentThread
 GetCurrentThreadId
 K32GetModuleBaseName
-Module32First
-Module32Next
+Module32FirstW
+Module32NextW
 OpenThread
 ResumeThread
 SuspendThread
