@@ -44,12 +44,13 @@ public sealed class EntryPointGenerator : ISourceGenerator
         var entry = context.Compilation.GetEntryPoint(context.CancellationToken);
 
         if (entry != null)
+        {
             foreach (var loc in entry.Locations)
                 context.ReportDiagnostic(
                     Diagnostic.Create(DiagnosticDescriptors.AvoidImplementingEntryPoint, loc, entry));
 
-        if (entry != null)
             return;
+        }
 
         var name = syms[0].ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
