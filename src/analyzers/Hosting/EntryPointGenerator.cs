@@ -1,4 +1,4 @@
-namespace Vezel.Ruptura.Analyzers;
+namespace Vezel.Ruptura.Analyzers.Hosting;
 
 [Generator(LanguageNames.CSharp)]
 public sealed class EntryPointGenerator : ISourceGenerator
@@ -41,9 +41,7 @@ public sealed class EntryPointGenerator : ISourceGenerator
                     context.ReportDiagnostic(
                         Diagnostic.Create(DiagnosticDescriptors.AvoidMultipleInjectedProgramTypes, loc));
 
-        var entry = context.Compilation.GetEntryPoint(context.CancellationToken);
-
-        if (entry != null)
+        if (context.Compilation.GetEntryPoint(context.CancellationToken) is IMethodSymbol entry)
         {
             foreach (var loc in entry.Locations)
                 context.ReportDiagnostic(
