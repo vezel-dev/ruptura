@@ -4,7 +4,7 @@ using Windows.Win32.System.Diagnostics.ToolHelp;
 using Windows.Win32.System.Memory;
 using Windows.Win32.System.SystemInformation;
 using Windows.Win32.System.Threading;
-using static Windows.Win32.WindowsPInvoke;
+using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Injection;
 
@@ -28,7 +28,7 @@ public sealed unsafe class TargetProcess : IDisposable
 
         IMAGE_FILE_MACHINE os;
 
-        if (!IsWow64Process2(Handle, out var proc, &os))
+        if (!Win32.IsWow64Process2(Handle, out var proc, &os))
             throw new Win32Exception();
 
         Architecture = (os, proc) switch
@@ -68,7 +68,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // CreateProcess can modify the command line arguments, so create a mutable array.
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
-        if (!CreateProcessW(
+        if (!Win32.CreateProcessW(
             null,
             ref args,
             null,
@@ -91,21 +91,21 @@ public sealed unsafe class TargetProcess : IDisposable
         catch (Exception)
         {
             // Not much can be done if this fails.
-            _ = CloseHandle(info.hProcess);
+            _ = Win32.CloseHandle(info.hProcess);
 
             throw;
         }
         finally
         {
             // Ditto.
-            _ = CloseHandle(info.hThread);
+            _ = Win32.CloseHandle(info.hThread);
         }
     }
 
     public static TargetProcess Open(int id)
     {
         // TODO: Can we reduce the level of access rights we demand here?
-        var handle = OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS, false, (uint)id);
+        var handle = Win32.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS, false, (uint)id);
 
         return !handle.IsInvalid ? new(id, handle, null) : throw new Win32Exception();
     }
@@ -128,7 +128,7 @@ public sealed unsafe class TargetProcess : IDisposable
 
         SafeFileHandle snap;
 
-        while ((snap = CreateToolhelp32Snapshot_SafeHandle(
+        while ((snap = Win32.CreateToolhelp32Snapshot_SafeHandle(
             CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPMODULE, pid)).IsInvalid)
         {
             // We may get ERROR_BAD_LENGTH for processes that have not finished initializing or if the process loads
@@ -147,30 +147,38 @@ public sealed unsafe class TargetProcess : IDisposable
 
             mod->dwSize = (uint)modSize;
 
-            if (!Module32FirstW(snap, ref *mod))
-                throw new Win32Exception();
+            var result = Win32.Module32FirstW(snap, ref *mod);
 
-            do
+            while (true)
             {
+                if (!result)
+                {
+                    if (Marshal.GetLastPInvokeError() != (int)WIN32_ERROR.ERROR_NO_MORE_FILES)
+                        throw new Win32Exception();
+
+                    break;
+                }
+
                 if (mod->dwSize != modSize)
                     continue;
 
                 using var modHandle = new SafeFileHandle(mod->hModule, false);
 
-                var arr = new char[MAX_PATH];
+                var arr = new char[Win32.MAX_PATH];
 
                 uint len;
 
                 fixed (char* p = arr)
-                    while ((len = K32GetModuleBaseNameW(Handle, modHandle, p, (uint)arr.Length)) >= arr.Length)
+                    while ((len = Win32.K32GetModuleBaseNameW(Handle, modHandle, p, (uint)arr.Length)) >= arr.Length)
                         Array.Resize(ref arr, (int)len);
 
                 var baseName = arr.AsSpan(0, (int)len).ToString();
 
                 if (baseName.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return ((nuint)mod->modBaseAddr, mod->modBaseSize);
+
+                result = Win32.Module32NextW(snap, ref *mod);
             }
-            while (Module32NextW(snap, ref *mod));
         }
 
         return null;
@@ -178,45 +186,46 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal nuint AllocMemory(nuint length, PAGE_PROTECTION_FLAGS flags)
     {
-        return VirtualAllocEx(
+        return Win32.VirtualAlloc2(
             Handle,
             null,
             length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
-            flags) is var ptr && ptr != null
+            (uint)flags,
+            Span<MEM_EXTENDED_PARAMETER>.Empty) is var ptr and not null
             ? (nuint)ptr
             : throw new Win32Exception();
     }
 
     internal void FreeMemory(nuint address)
     {
-        if (!VirtualFreeEx(Handle, (void*)address, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE))
+        if (!Win32.VirtualFreeEx(Handle, (void*)address, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE))
             throw new Win32Exception();
     }
 
     internal void ProtectMemory(nuint address, nuint length, PAGE_PROTECTION_FLAGS flags)
     {
-        if (!VirtualProtectEx(Handle, (void*)address, length, flags, out _))
+        if (!Win32.VirtualProtectEx(Handle, (void*)address, length, flags, out _))
             throw new Win32Exception();
     }
 
     internal void ReadMemory(nuint address, Span<byte> buffer)
     {
         fixed (byte* p = buffer)
-            if (!ReadProcessMemory(Handle, (void*)address, p, (nuint)buffer.Length, null))
+            if (!Win32.ReadProcessMemory(Handle, (void*)address, p, (nuint)buffer.Length, null))
                 throw new Win32Exception();
     }
 
     internal void WriteMemory(nuint address, ReadOnlySpan<byte> buffer)
     {
         fixed (byte* p = buffer)
-            if (!WriteProcessMemory(Handle, (void*)address, p, (nuint)buffer.Length, null))
+            if (!Win32.WriteProcessMemory(Handle, (void*)address, p, (nuint)buffer.Length, null))
                 throw new Win32Exception();
     }
 
     internal void FlushCache(nuint address, nuint length)
     {
-        if (!FlushInstructionCache(Handle, (void*)address, length))
+        if (!Win32.FlushInstructionCache(Handle, (void*)address, length))
             throw new Win32Exception();
     }
 
@@ -260,7 +269,7 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal SafeHandle CreateThread(nuint address, nuint parameter)
     {
-        var handle = CreateRemoteThreadEx(
+        var handle = Win32.CreateRemoteThreadEx(
             Handle,
             null,
             0,

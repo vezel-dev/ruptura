@@ -1,0 +1,13 @@
+using Windows.Win32.System.Memory;
+
+namespace Vezel.Ruptura.System;
+
+public enum MemoryAccess : uint
+{
+    None = PAGE_PROTECTION_FLAGS.PAGE_NOACCESS,
+    Read = PAGE_PROTECTION_FLAGS.PAGE_READONLY,
+    ReadWrite = PAGE_PROTECTION_FLAGS.PAGE_READWRITE,
+    Execute = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE,
+    ReadExecute = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_READ,
+    ReadWriteExecute = PAGE_PROTECTION_FLAGS.PAGE_EXECUTE_READWRITE,
+}

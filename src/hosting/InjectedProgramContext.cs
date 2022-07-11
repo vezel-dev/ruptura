@@ -1,5 +1,4 @@
-using Windows.Win32.System.Threading;
-using static Windows.Win32.WindowsPInvoke;
+using Vezel.Ruptura.System;
 
 namespace Vezel.Ruptura.Hosting;
 
@@ -63,17 +62,9 @@ public sealed class InjectedProgramContext
     {
         _ = _mainThreadId != 0 ? true : throw new InvalidOperationException("This process was not created suspended.");
 
-        using var thread = OpenThread_SafeHandle(THREAD_ACCESS_RIGHTS.THREAD_SUSPEND_RESUME, false, _mainThreadId);
+        using var thread = ThreadObject.OpenId((int)_mainThreadId);
 
-        if (thread.IsInvalid)
-            throw new Win32Exception();
-
-        var ret = ResumeThread(thread);
-
-        if (ret == uint.MaxValue)
-            throw new Win32Exception();
-
-        if (ret == 0)
+        if (thread.Resume() == 0)
             throw new InvalidOperationException("The process appears to have been resumed already.");
     }
 }

@@ -21,6 +21,9 @@ This project offers the following packages:
 * [Vezel.Ruptura.Memory](https://www.nuget.org/packages/Vezel.Ruptura.Memory):
   Provides function hooking and memory manipulation utilities for use by
   injected programs.
+* [Vezel.Ruptura.System](https://www.nuget.org/packages/Vezel.Ruptura.System):
+  Provides lightweight managed wrappers around operating system objects such as
+  processes and threads.
 
 For more information, please visit the
 [project home page](https://docs.vezel.dev/ruptura).

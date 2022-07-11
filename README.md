@@ -44,18 +44,22 @@ This project offers the following packages:
 | [![Vezel.Ruptura.Hosting][hosting-img]][hosting-pkg] | Provides the hosting model for injected programs. | ![Downloads][hosting-dls] |
 | [![Vezel.Ruptura.Injection][injection-img]][injection-pkg] | Provides the infrastructure to inject the .NET runtime and assemblies into processes. | ![Downloads][injection-dls] |
 | [![Vezel.Ruptura.Memory][memory-img]][memory-pkg] | Provides function hooking and memory manipulation utilities for use by injected programs. | ![Downloads][memory-dls] |
+| [![Vezel.Ruptura.System][system-img]][system-pkg] | Provides lightweight managed wrappers around operating system objects such as processes and threads. | ![Downloads][system-dls] |
 
 [hosting-pkg]: https://www.nuget.org/packages/Vezel.Ruptura.Hosting
 [injection-pkg]: https://www.nuget.org/packages/Vezel.Ruptura.Injection
 [memory-pkg]: https://www.nuget.org/packages/Vezel.Ruptura.Memory
+[system-pkg]: https://www.nuget.org/packages/Vezel.Ruptura.System
 
 [hosting-img]: https://img.shields.io/nuget/v/Vezel.Ruptura.Hosting?label=Vezel.Ruptura.Hosting
 [injection-img]: https://img.shields.io/nuget/v/Vezel.Ruptura.Injection?label=Vezel.Ruptura.Injection
 [memory-img]: https://img.shields.io/nuget/v/Vezel.Ruptura.Memory?label=Vezel.Ruptura.Memory
+[system-img]: https://img.shields.io/nuget/v/Vezel.Ruptura.System?label=Vezel.Ruptura.System
 
 [hosting-dls]: https://img.shields.io/nuget/dt/Vezel.Ruptura.Hosting?label=
 [injection-dls]: https://img.shields.io/nuget/dt/Vezel.Ruptura.Injection?label=
 [memory-dls]: https://img.shields.io/nuget/dt/Vezel.Ruptura.Memory?label=
+[system-dls]: https://img.shields.io/nuget/dt/Vezel.Ruptura.System?label=
 
 To install a package, run `dotnet add package <name>`.
 

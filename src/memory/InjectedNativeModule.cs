@@ -16,11 +16,11 @@ public sealed class InjectedNativeModule
 
     public static InjectedNativeModule Instance { get; private set; } = new(0);
 
-    readonly nint _moduleHandle;
+    public nint ModuleHandle { get; }
 
     InjectedNativeModule(nint moduleHandle)
     {
-        _moduleHandle = moduleHandle;
+        ModuleHandle = moduleHandle;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]

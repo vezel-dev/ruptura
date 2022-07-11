@@ -3,7 +3,7 @@ using Vezel.Ruptura.Injection.Threading;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Memory;
 using static Iced.Intel.AssemblerRegisters;
-using static Windows.Win32.WindowsPInvoke;
+using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Injection;
 
@@ -104,7 +104,7 @@ public sealed class AssemblyInjector : IDisposable
             // loading the image so that, among other things, we will be able to resolve kernel32.dll exports.
             using var threadHandle = _process.CreateThread(initializeShell, 0);
 
-            switch ((WIN32_ERROR)WaitForSingleObjectEx(
+            switch ((WIN32_ERROR)Win32.WaitForSingleObjectEx(
                 threadHandle, (uint)(long)_options.InjectionTimeout.TotalMilliseconds, false))
             {
                 case WIN32_ERROR.WAIT_OBJECT_0:
@@ -115,7 +115,7 @@ public sealed class AssemblyInjector : IDisposable
                     throw new Win32Exception();
             }
 
-            if (!GetExitCodeThread(threadHandle, out var code))
+            if (!Win32.GetExitCodeThread(threadHandle, out var code))
                 throw new Win32Exception();
 
             if (code != 0)
@@ -318,10 +318,10 @@ public sealed class AssemblyInjector : IDisposable
                         }
 
                         // Did the thread exit with an error?
-                        switch ((WIN32_ERROR)WaitForSingleObjectEx(threadHandle, 0, false))
+                        switch ((WIN32_ERROR)Win32.WaitForSingleObjectEx(threadHandle, 0, false))
                         {
                             case WIN32_ERROR.WAIT_OBJECT_0:
-                                if (!GetExitCodeThread(threadHandle, out var code))
+                                if (!Win32.GetExitCodeThread(threadHandle, out var code))
                                     throw new Win32Exception();
 
                                 throw new InjectionException(
@@ -419,7 +419,7 @@ public sealed class AssemblyInjector : IDisposable
 
                     if (timeout)
                         ex = new TimeoutException();
-                    else if (!GetExitCodeThread(waitHandle.SafeWaitHandle, out var code))
+                    else if (!Win32.GetExitCodeThread(waitHandle.SafeWaitHandle, out var code))
                         ex = new Win32Exception();
                     else
                         tcs.SetResult((int)code);

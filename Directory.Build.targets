@@ -14,8 +14,10 @@
         <Using Include="System.IO.MemoryMappedFiles" />
         <Using Include="System.Reflection" />
         <Using Include="System.Runtime.CompilerServices" />
+        <Using Include="System.Runtime.ConstrainedExecution" />
         <Using Include="System.Runtime.ExceptionServices" />
         <Using Include="System.Runtime.InteropServices" />
+        <Using Include="System.Runtime.InteropServices.ComTypes" />
         <Using Include="System.Text" />
         <Using Include="System.Threading" />
     </ItemGroup>

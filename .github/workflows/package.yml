@@ -37,4 +37,5 @@ jobs:
                       Vezel.Ruptura.Hosting
                       Vezel.Ruptura.Injection
                       Vezel.Ruptura.Memory
+                      Vezel.Ruptura.System
                   keep: 25
