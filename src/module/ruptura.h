@@ -11,3 +11,5 @@
 #define nonnull _Nonnull
 #define nullable _Nullable
 #define nullptr NULL
+
+#define RUPTURA_API __declspec(dllexport)

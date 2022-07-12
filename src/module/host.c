@@ -19,6 +19,8 @@ struct ruptura_host_
 
 uint32_t ruptura_host_new(ruptura_host *nullable *nonnull host)
 {
+    assert(host);
+
     ruptura_host *ptr = calloc(1, sizeof(ruptura_host));
 
     if (ptr)
@@ -135,6 +137,8 @@ uint32_t ruptura_host_run(ruptura_host *nonnull host)
 
 uint32_t ruptura_host_free(ruptura_host *nonnull host)
 {
+    assert(host);
+
     uint32_t rc;
 
     if (host->handle && (rc = (uint32_t)host->close_fn(host->handle)))
@@ -142,6 +146,8 @@ uint32_t ruptura_host_free(ruptura_host *nonnull host)
 
     if (host->hostfxr && !FreeLibrary(host->hostfxr))
         return GetLastError();
+
+    free(host);
 
     return 0;
 }

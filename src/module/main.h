@@ -11,4 +11,4 @@ typedef struct
     uint32_t main_thread_id;
 } ruptura_parameters;
 
-__declspec(dllexport) uint32_t ruptura_main(ruptura_parameters *nonnull parameters);
+RUPTURA_API uint32_t ruptura_main(ruptura_parameters *nonnull parameters);
