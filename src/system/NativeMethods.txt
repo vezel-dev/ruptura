@@ -56,6 +56,8 @@ WaitForMultipleObjectsEx
 WaitForSingleObjectEx
 WriteProcessMemory
 
+MEM_ADDRESS_REQUIREMENTS
+MEM_EXTENDED_PARAMETER_TYPE
 WIN32_ERROR
 
 HF32_DEFAULT

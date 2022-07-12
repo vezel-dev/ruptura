@@ -83,15 +83,45 @@ public sealed unsafe class ProcessObject : SynchronizationObject
         userTime = new(ToTicks(user));
     }
 
-    public void* AllocateMemory(nint length, MemoryAccess access)
+    public void* AllocateMemory(void* address, nint length, MemoryAccess access)
     {
+        return Win32.VirtualAlloc2(
+            SafeHandle,
+            address,
+            (nuint)length,
+            VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
+            (uint)access,
+            Span<MEM_EXTENDED_PARAMETER>.Empty) is var ptr and not null
+            ? ptr
+            : throw new Win32Exception();
+    }
+
+    public void* AllocateMemoryInRange(void* low, void* high, nint length, MemoryAccess access)
+    {
+        var req = new MEM_ADDRESS_REQUIREMENTS
+        {
+            LowestStartingAddress = low,
+            HighestEndingAddress = high,
+        };
+        var param = new MEM_EXTENDED_PARAMETER
+        {
+            Anonymous1 =
+            {
+                _bitfield = (ulong)MEM_EXTENDED_PARAMETER_TYPE.MemExtendedParameterAddressRequirements,
+            },
+            Anonymous2 =
+            {
+                Pointer = &req,
+            },
+        };
+
         return Win32.VirtualAlloc2(
             SafeHandle,
             null,
             (nuint)length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
             (uint)access,
-            Span<MEM_EXTENDED_PARAMETER>.Empty) is var ptr and not null
+            new Span<MEM_EXTENDED_PARAMETER>(&param, 1)) is var ptr and not null
             ? ptr
             : throw new Win32Exception();
     }

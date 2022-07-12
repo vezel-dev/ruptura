@@ -12,6 +12,7 @@ by injected programs.</PackageDescription>
 
     <ItemGroup>
         <Using Include="Iced.Intel" />
+        <Using Include="Vezel.Ruptura.System" />
     </ItemGroup>
 
     <ItemGroup>
