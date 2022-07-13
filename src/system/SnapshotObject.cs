@@ -37,14 +37,12 @@ public sealed unsafe class SnapshotObject : KernelObject
     public IEnumerable<ProcessSnapshot> EnumerateProcesses()
     {
         var handle = SafeHandle;
+        var entry = new PROCESSENTRY32W
+        {
+            dwSize = (uint)Unsafe.SizeOf<PROCESSENTRY32W>(),
+        };
 
-        // TODO: https://github.com/microsoft/CsWin32/issues/597
-        var entrySize = 568;
-        var entrySpace = new byte[entrySize];
-
-        MemoryMarshal.AsRef<PROCESSENTRY32W>(entrySpace).dwSize = (uint)entrySize;
-
-        var result = Win32.Process32FirstW(handle, ref MemoryMarshal.AsRef<PROCESSENTRY32W>(entrySpace));
+        var result = Win32.Process32FirstW(handle, ref entry);
 
         while (true)
         {
@@ -56,31 +54,22 @@ public sealed unsafe class SnapshotObject : KernelObject
                 yield break;
             }
 
-            ProcessSnapshot? CreateProcess(ReadOnlySpan<byte> space)
-            {
-                ref readonly var entry = ref MemoryMarshal.AsRef<PROCESSENTRY32W>(space);
+            if (entry.dwSize == Unsafe.SizeOf<PROCESSENTRY32W>())
+                yield return new((int)entry.th32ParentProcessID, (int)entry.th32ProcessID);
 
-                return entry.dwSize == entrySize ? new((int)entry.th32ParentProcessID, (int)entry.th32ProcessID) : null;
-            }
-
-            if (CreateProcess(entrySpace) is ProcessSnapshot process)
-                yield return process;
-
-            result = Win32.Process32NextW(handle, ref MemoryMarshal.AsRef<PROCESSENTRY32W>(entrySpace));
+            result = Win32.Process32NextW(handle, ref entry);
         }
     }
 
     public IEnumerable<ModuleSnapshot> EnumerateModules()
     {
         var handle = SafeHandle;
+        var entry = new MODULEENTRY32W
+        {
+            dwSize = (uint)Unsafe.SizeOf<MODULEENTRY32W>(),
+        };
 
-        // TODO: https://github.com/microsoft/CsWin32/issues/597
-        var entrySize = 1080;
-        var entrySpace = new byte[entrySize];
-
-        MemoryMarshal.AsRef<MODULEENTRY32W>(entrySpace).dwSize = (uint)entrySize;
-
-        var result = Win32.Module32FirstW(handle, ref MemoryMarshal.AsRef<MODULEENTRY32W>(entrySpace));
+        var result = Win32.Module32FirstW(handle, ref entry);
 
         while (true)
         {
@@ -92,19 +81,16 @@ public sealed unsafe class SnapshotObject : KernelObject
                 yield break;
             }
 
-            ModuleSnapshot? CreateModule(ReadOnlySpan<byte> space)
+            static ModuleSnapshot CreateModule(ref MODULEENTRY32W entry)
             {
-                ref readonly var entry = ref MemoryMarshal.AsRef<MODULEENTRY32W>(space);
-
-                return entry.dwSize == entrySize
-                    ? new((int)entry.th32ProcessID, entry.hModule, entry.modBaseAddr, (int)entry.modBaseSize)
-                    : null;
+                // Cannot use unsafe code in iterators...
+                return new((int)entry.th32ProcessID, entry.hModule, entry.modBaseAddr, (int)entry.modBaseSize);
             }
 
-            if (CreateModule(entrySpace) is ModuleSnapshot module)
-                yield return module;
+            if (entry.dwSize == Unsafe.SizeOf<MODULEENTRY32W>())
+                yield return CreateModule(ref entry);
 
-            result = Win32.Module32NextW(handle, ref MemoryMarshal.AsRef<MODULEENTRY32W>(entrySpace));
+            result = Win32.Module32NextW(handle, ref entry);
         }
     }
 

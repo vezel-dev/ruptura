@@ -15,7 +15,6 @@ VirtualProtectEx
 WaitForSingleObjectEx
 WriteProcessMemory
 
-IMAGE_FILE_MACHINE
 WIN32_ERROR
 
 MAX_PATH
