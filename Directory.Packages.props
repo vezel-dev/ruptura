@@ -17,7 +17,7 @@
         <PackageVersion Include="Nerdbank.GitVersioning"
                         Version="3.5.86-alpha" />
         <PackageVersion Include="PeNet"
-                        Version="2.9.7" />
+                        Version="2.9.8" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
                         Version="7.0.0-preview.6.22324.4" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
