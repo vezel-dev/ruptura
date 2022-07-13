@@ -8,7 +8,7 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
     {
     }
 
-    public override unsafe CallFrameSymbol? Symbolicate(CallFrame frame)
+    protected internal override unsafe CallFrameSymbol? Symbolicate(CallFrame frame)
     {
         if (frame.ManagedMethod is not MethodBase method)
             return null;

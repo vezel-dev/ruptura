@@ -14,7 +14,7 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
     {
     }
 
-    public override unsafe CallFrameSymbol? Symbolicate(CallFrame frame)
+    protected internal override unsafe CallFrameSymbol? Symbolicate(CallFrame frame)
     {
         var ip = (nuint)frame.IP;
         var context = frame.Frame.InlineFrameContext;
