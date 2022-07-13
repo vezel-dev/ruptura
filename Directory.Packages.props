@@ -19,9 +19,9 @@
         <PackageVersion Include="PeNet"
                         Version="2.9.7" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
-                        Version="7.0.0-preview.5.22301.12" />
+                        Version="7.0.0-preview.6.22324.4" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
-                        Version="7.0.0-preview.5.22301.12" />
+                        Version="7.0.0-preview.6.22324.4" />
         <PackageVersion Include="StyleCop.Analyzers"
                         Version="1.2.0-beta.406" />
     </ItemGroup>
