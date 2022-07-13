@@ -13,6 +13,7 @@ by injected programs.</PackageDescription>
     <ItemGroup>
         <Using Include="Iced.Intel" />
         <Using Include="Vezel.Ruptura.System" />
+        <Using Include="Vezel.Ruptura.System.SafeHandles" />
     </ItemGroup>
 
     <ItemGroup>

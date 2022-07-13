@@ -1,6 +1,6 @@
 namespace Vezel.Ruptura.Memory;
 
-public sealed class InjectedNativeModule
+public sealed unsafe class InjectedNativeModule
 {
     [StructLayout(LayoutKind.Sequential)]
     struct RupturaModuleParameters
@@ -16,16 +16,45 @@ public sealed class InjectedNativeModule
 
     public static InjectedNativeModule Instance { get; private set; } = new(0);
 
-    public nint ModuleHandle { get; }
+    public nint ModuleHandle => _moduleHandle;
+
+    readonly delegate* unmanaged[Cdecl]<void*, out void*, out void*, out void*, void> _extractContext;
+
+    volatile nint _moduleHandle;
 
     InjectedNativeModule(nint moduleHandle)
     {
-        ModuleHandle = moduleHandle;
+        if (moduleHandle == 0)
+        {
+            moduleHandle = NativeLibrary.Load(
+                $"ruptura-{RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()}.dll");
+
+            // TODO: Is there a better place we can do this?
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
+            {
+                var handle = _moduleHandle;
+
+                _moduleHandle = 0;
+
+                NativeLibrary.Free(handle);
+            };
+        }
+
+        _moduleHandle = moduleHandle;
+
+        nint GetExport(string name)
+        {
+            return NativeLibrary.GetExport(moduleHandle, name);
+        }
+
+        _extractContext =
+            (delegate* unmanaged[Cdecl]<void*, out void*, out void*, out void*, void>)GetExport(
+                "ruptura_helper_extract_context");
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
-    public static unsafe uint Initialize(void* parameter)
+    public static uint Initialize(void* parameter)
     {
         // Only meant to be called by the native module.
 
@@ -51,5 +80,10 @@ public sealed class InjectedNativeModule
         }
 
         return 0;
+    }
+
+    internal void ExtractContext(void* context, out void* ip, out void* sp, out void* fp)
+    {
+        _extractContext(context, out ip, out sp, out fp);
     }
 }

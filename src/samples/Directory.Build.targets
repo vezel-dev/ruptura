@@ -3,6 +3,7 @@
         <Using Include="Vezel.Ruptura.Hosting" />
         <Using Include="Vezel.Ruptura.Injection" />
         <Using Include="Vezel.Ruptura.Memory.Code" />
+        <Using Include="Vezel.Ruptura.Memory.Diagnostics" />
     </ItemGroup>
 
     <ItemGroup>

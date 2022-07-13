@@ -1,4 +1,11 @@
 <linker>
+    <!-- Used in Vezel.Ruptura.Memory.Diagnostics.CallTrace. -->
+    <assembly fullname="System.Private.CoreLib">
+        <type fullname="System.Diagnostics.StackFrame">
+            <method name="GetMethodFromNativeIP" />
+        </type>
+    </assembly>
+
     <assembly fullname="Vezel.Ruptura.Memory">
         <type fullname="Vezel.Ruptura.Memory.InjectedNativeModule">
             <method name="Initialize" />
