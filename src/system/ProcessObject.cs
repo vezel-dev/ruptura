@@ -7,6 +7,8 @@ namespace Vezel.Ruptura.System;
 
 public sealed unsafe class ProcessObject : SynchronizationObject
 {
+    public static ProcessObject Current { get; } = OpenCurrent();
+
     public static int CurrentId => (int)Win32.GetCurrentProcessId();
 
     public int Id => Win32.GetProcessId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();

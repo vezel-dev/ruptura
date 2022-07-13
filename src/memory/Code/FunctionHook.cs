@@ -23,12 +23,12 @@ public sealed unsafe class FunctionHook : IDisposable
 
     const int JumpInstructionSize = 5;
 
-    public void* TargetCode => !_process.IsDisposed ? _target : throw new ObjectDisposedException(GetType().Name);
+    public void* TargetCode => _allocation != null ? _target : throw new ObjectDisposedException(GetType().Name);
 
-    public void* HookCode => !_process.IsDisposed ? _hook : throw new ObjectDisposedException(GetType().Name);
+    public void* HookCode => _allocation != null ? _hook : throw new ObjectDisposedException(GetType().Name);
 
     public void* TrampolineCode =>
-        !_process.IsDisposed
+        _allocation != null
             ? ((HookTrampoline*)_allocation.Code)->CallTarget
             : throw new ObjectDisposedException(GetType().Name);
 
@@ -36,20 +36,18 @@ public sealed unsafe class FunctionHook : IDisposable
     {
         get
         {
-            _ = !_process.IsDisposed ? true : throw new ObjectDisposedException(GetType().Name);
+            _ = _allocation != null ? true : throw new ObjectDisposedException(GetType().Name);
 
             return Volatile.Read(ref *(nuint*)_jumpTarget) == (nuint)HookCode;
         }
 
         set
         {
-            _ = !_process.IsDisposed ? true : throw new ObjectDisposedException(GetType().Name);
+            _ = _allocation != null ? true : throw new ObjectDisposedException(GetType().Name);
 
             Volatile.Write(ref *(nuint*)_jumpTarget, (nuint)(value ? HookCode : TrampolineCode));
         }
     }
-
-    readonly ProcessObject _process;
 
     readonly void* _target;
 
@@ -57,19 +55,17 @@ public sealed unsafe class FunctionHook : IDisposable
 
     readonly ReadOnlyMemory<Instruction> _prologue;
 
-    readonly CodeAllocation _allocation;
-
     readonly void** _jumpTarget;
 
+    CodeAllocation? _allocation;
+
     FunctionHook(
-        ProcessObject process,
         void* target,
         void* hook,
         ReadOnlyMemory<Instruction> prologue,
         CodeAllocation allocation,
         void** jumpTarget)
     {
-        _process = process;
         _target = target;
         _hook = hook;
         _prologue = prologue;
@@ -79,7 +75,6 @@ public sealed unsafe class FunctionHook : IDisposable
 
     public static FunctionHook Create(CodeManager manager, void* target, void* hook)
     {
-        var process = default(ProcessObject);
         var alloc = default(CodeAllocation);
         var jumpTarget = default(void**);
 
@@ -185,7 +180,7 @@ public sealed unsafe class FunctionHook : IDisposable
 
             alloc.Commit();
 
-            process = ProcessObject.OpenCurrent();
+            var process = ProcessObject.Current;
 
             // Finally, patch the function we are hooking.
             {
@@ -202,7 +197,7 @@ public sealed unsafe class FunctionHook : IDisposable
                 asm.Assemble(new RawCodeWriter((byte*)target), (nuint)target);
             }
 
-            return new(process, target, hook, prologue.ToArray(), alloc, jumpTarget)
+            return new(target, hook, prologue.ToArray(), alloc, jumpTarget)
             {
                 IsActive = false, // Initializes *jumpTarget to tramp->CallTarget.
             };
@@ -211,7 +206,6 @@ public sealed unsafe class FunctionHook : IDisposable
         {
             NativeMemory.Free(jumpTarget);
             alloc?.Dispose();
-            process?.Dispose();
 
             throw;
         }
@@ -219,7 +213,7 @@ public sealed unsafe class FunctionHook : IDisposable
 
     public void Dispose()
     {
-        if (_process.IsDisposed)
+        if (_allocation == null)
             return;
 
         var asm = new CodeAssembler();
@@ -230,8 +224,9 @@ public sealed unsafe class FunctionHook : IDisposable
         // Restore the original prologue.
         asm.Assemble(new RawCodeWriter((byte*)_target), (nuint)_target);
 
-        _process.Dispose();
         _allocation?.Dispose();
         NativeMemory.Free(_jumpTarget);
+
+        _allocation = null;
     }
 }

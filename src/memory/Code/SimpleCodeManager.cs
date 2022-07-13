@@ -42,22 +42,25 @@ public sealed unsafe class SimpleCodeManager : CodeManager
         {
             _ = Node != null ? true : throw new ObjectDisposedException(GetType().Name);
 
-            Unsafe.As<SimpleCodeManager>(Manager).Commit(this);
+            _process.FlushInstructionCache(_address, _length);
+            _process.ProtectMemory(_address, _length, MemoryAccess.ReadExecute);
         }
 
         public override void Decommit()
         {
             _ = Node != null ? true : throw new ObjectDisposedException(GetType().Name);
 
-            Unsafe.As<SimpleCodeManager>(Manager).Decommit(this);
+            _process.ProtectMemory(_address, _length, MemoryAccess.ReadWrite);
         }
     }
 
+    static readonly ProcessObject _process = ProcessObject.Current;
+
     static readonly uint _alignment;
 
-    readonly ProcessObject _process = ProcessObject.OpenCurrent();
+    readonly object _lock = new();
 
-    readonly LinkedList<SimpleCodeAllocation> _allocations = new();
+    LinkedList<SimpleCodeAllocation>? _allocations = new();
 
     static SimpleCodeManager()
     {
@@ -68,17 +71,20 @@ public sealed unsafe class SimpleCodeManager : CodeManager
 
     public override void Dispose()
     {
-        lock (_allocations)
-            foreach (var alloc in _allocations.ToArray())
-                alloc.Dispose();
+        lock (_lock)
+        {
+            if (_allocations != null)
+                foreach (var alloc in _allocations.ToArray())
+                    alloc.Dispose();
 
-        _process.Dispose();
+            _allocations = null;
+        }
     }
 
     public override CodeAllocation Allocate(nint length, CodeRequirements requirements = default)
     {
         _ = length > 0 ? true : throw new ArgumentOutOfRangeException(nameof(length));
-        _ = !_process.IsDisposed ? true : throw new ObjectDisposedException(GetType().Name);
+        _ = _allocations != null ? true : throw new ObjectDisposedException(GetType().Name);
 
         var low = (nuint)requirements.LowestAddress;
 
@@ -99,7 +105,7 @@ public sealed unsafe class SimpleCodeManager : CodeManager
         {
             var alloc = new SimpleCodeAllocation(this, (byte*)ptr, length);
 
-            lock (_allocations)
+            lock (_lock)
                 alloc.Node = _allocations.AddLast(alloc);
 
             return alloc;
@@ -114,22 +120,11 @@ public sealed unsafe class SimpleCodeManager : CodeManager
 
     void Deallocate(SimpleCodeAllocation allocation, void* address)
     {
-        lock (_allocations)
-            _allocations.Remove(allocation.Node!);
+        lock (_lock)
+            _allocations!.Remove(allocation.Node!);
 
         allocation.Node = null;
 
         _process.FreeMemory(address);
-    }
-
-    void Commit(SimpleCodeAllocation allocation)
-    {
-        _process.FlushInstructionCache(allocation.Code, allocation.Length);
-        _process.ProtectMemory(allocation.Code, allocation.Length, MemoryAccess.ReadExecute);
-    }
-
-    void Decommit(SimpleCodeAllocation allocation)
-    {
-        _process.ProtectMemory(allocation.Code, allocation.Length, MemoryAccess.ReadWrite);
     }
 }
