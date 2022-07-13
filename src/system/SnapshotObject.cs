@@ -51,7 +51,7 @@ public sealed unsafe class SnapshotObject : KernelObject
                 if (Marshal.GetLastPInvokeError() != (int)WIN32_ERROR.ERROR_NO_MORE_FILES)
                     throw new Win32Exception();
 
-                yield break;
+                break;
             }
 
             if (entry.dwSize == Unsafe.SizeOf<PROCESSENTRY32W>())
@@ -78,17 +78,18 @@ public sealed unsafe class SnapshotObject : KernelObject
                 if (Marshal.GetLastPInvokeError() != (int)WIN32_ERROR.ERROR_NO_MORE_FILES)
                     throw new Win32Exception();
 
-                yield break;
+                break;
             }
 
-            static ModuleSnapshot CreateModule(ref MODULEENTRY32W entry)
+            static ModuleSnapshot CreateModule(in MODULEENTRY32W entry)
             {
                 // Cannot use unsafe code in iterators...
+
                 return new((int)entry.th32ProcessID, entry.hModule, entry.modBaseAddr, (int)entry.modBaseSize);
             }
 
             if (entry.dwSize == Unsafe.SizeOf<MODULEENTRY32W>())
-                yield return CreateModule(ref entry);
+                yield return CreateModule(entry);
 
             result = Win32.Module32NextW(handle, ref entry);
         }
@@ -111,7 +112,7 @@ public sealed unsafe class SnapshotObject : KernelObject
                 if (Marshal.GetLastPInvokeError() != (int)WIN32_ERROR.ERROR_NO_MORE_FILES)
                     throw new Win32Exception();
 
-                yield break;
+                break;
             }
 
             if (entry.dwSize == Unsafe.SizeOf<THREADENTRY32>())
@@ -138,7 +139,7 @@ public sealed unsafe class SnapshotObject : KernelObject
                 if (Marshal.GetLastPInvokeError() != (int)WIN32_ERROR.ERROR_NO_MORE_FILES)
                     throw new Win32Exception();
 
-                yield break;
+                break;
             }
 
             if (entry.dwSize == (uint)Unsafe.SizeOf<HEAPLIST32>())
