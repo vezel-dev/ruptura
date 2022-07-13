@@ -1,3 +1,5 @@
+using Win32 = Windows.Win32.WindowsPInvoke;
+
 namespace Vezel.Ruptura.Memory.Code;
 
 public sealed unsafe class SimpleCodeManager : CodeManager
@@ -51,12 +53,18 @@ public sealed unsafe class SimpleCodeManager : CodeManager
         }
     }
 
-    // TODO: Retrieve this with GetSystemInfo.
-    const int AllocationGranularity = 0x10000;
+    static readonly uint _alignment;
 
     readonly ProcessObject _process = ProcessObject.OpenCurrent();
 
     readonly LinkedList<SimpleCodeAllocation> _allocations = new();
+
+    static SimpleCodeManager()
+    {
+        Win32.GetSystemInfo(out var info);
+
+        _alignment = info.dwAllocationGranularity;
+    }
 
     public override void Dispose()
     {
@@ -74,14 +82,14 @@ public sealed unsafe class SimpleCodeManager : CodeManager
 
         var low = (nuint)requirements.LowestAddress;
 
-        if (low % AllocationGranularity is var rem and not 0)
-            low += AllocationGranularity - rem;
+        if (low % _alignment is var rem and not 0)
+            low += _alignment - rem;
 
         var high = (nuint)requirements.HighestAddress;
 
         if (high != 0)
         {
-            high -= high % AllocationGranularity;
+            high -= high % _alignment;
             high -= 1;
         }
 
