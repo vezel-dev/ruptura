@@ -9,7 +9,7 @@ sealed class InjectedProgram : IInjectedProgram
 
         Console.WriteLine("Starting conhost.exe...");
 
-        using var proc = new Process()
+        using var proc = new Process
         {
             StartInfo = new()
             {
