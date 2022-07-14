@@ -113,8 +113,23 @@ public sealed unsafe class CallTrace
 
             _rtlCaptureContext(context);
 
-            // TODO: Avoid the dependency on the native module for this.
-            InjectedNativeModule.Instance.ExtractContext(context, out var ip, out var sp, out var fp);
+            void* ip;
+            void* sp;
+            void* fp;
+
+            // Hardcoded CONTEXT offsets to avoid needing platform-specific CONTEXT structs.
+            if (Environment.Is64BitProcess)
+            {
+                ip = context + 248; // rip
+                sp = context + 152; // rsp
+                fp = context + 160; // rbp
+            }
+            else
+            {
+                ip = context + 184; // eip
+                sp = context + 196; // esp
+                fp = context + 180; // ebp
+            }
 
             var frame = new STACKFRAME_EX
             {

@@ -16,40 +16,11 @@ public sealed unsafe class InjectedNativeModule
 
     public static InjectedNativeModule Instance { get; private set; } = new(0);
 
-    public nint ModuleHandle => _moduleHandle;
-
-    readonly delegate* unmanaged[Cdecl]<void*, out void*, out void*, out void*, void> _extractContext;
-
-    volatile nint _moduleHandle;
+    public nint ModuleHandle { get; }
 
     InjectedNativeModule(nint moduleHandle)
     {
-        if (moduleHandle == 0)
-        {
-            moduleHandle = NativeLibrary.Load(
-                $"ruptura-{RuntimeInformation.ProcessArchitecture.ToString().ToLowerInvariant()}.dll");
-
-            // TODO: Is there a better place we can do this?
-            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-            {
-                var handle = _moduleHandle;
-
-                _moduleHandle = 0;
-
-                NativeLibrary.Free(handle);
-            };
-        }
-
-        _moduleHandle = moduleHandle;
-
-        nint GetExport(string name)
-        {
-            return NativeLibrary.GetExport(moduleHandle, name);
-        }
-
-        _extractContext =
-            (delegate* unmanaged[Cdecl]<void*, out void*, out void*, out void*, void>)GetExport(
-                "ruptura_helper_extract_context");
+        ModuleHandle = moduleHandle;
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
@@ -80,10 +51,5 @@ public sealed unsafe class InjectedNativeModule
         }
 
         return 0;
-    }
-
-    internal void ExtractContext(void* context, out void* ip, out void* sp, out void* fp)
-    {
-        _extractContext(context, out ip, out sp, out fp);
     }
 }
