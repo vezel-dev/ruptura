@@ -66,9 +66,6 @@ public sealed unsafe class SimpleCodeManager : CodeManager
     {
         Win32.GetSystemInfo(out var info);
 
-        Console.WriteLine("Min app address: {0:x}", (nuint)info.lpMinimumApplicationAddress);
-        Console.WriteLine("Max app address: {0:x}", (nuint)info.lpMaximumApplicationAddress);
-
         _alignment = info.dwAllocationGranularity;
     }
 
@@ -101,8 +98,6 @@ public sealed unsafe class SimpleCodeManager : CodeManager
             high -= high % _alignment;
             high -= 1;
         }
-
-        Console.WriteLine("Low: {0:x} High: {1:x}", low, high);
 
         var ptr = _process.AllocateMemoryInRange((void*)low, (void*)high, length, MemoryAccess.ReadWrite);
 
