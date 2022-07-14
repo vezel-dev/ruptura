@@ -28,11 +28,13 @@ sealed class InjectedProgram : IInjectedProgram
 
             await injector.InjectAssemblyAsync();
 
-            Console.WriteLine("Injected.");
+            Console.WriteLine("Injected. Waiting for idle...");
 
             // This should complete when the WakeUp call above happens.
             if (!proc.WaitForInputIdle(_timeout))
                 throw new TimeoutException();
+
+            Console.WriteLine("Now idle. Waiting...");
 
             var code = await injector.WaitForCompletionAsync();
 

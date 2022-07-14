@@ -39,7 +39,7 @@ sealed class InjectedProgram : IInjectedProgram
 
             await injector.InjectAssemblyAsync();
 
-            Console.WriteLine("Injected.");
+            Console.WriteLine("Injected. Waiting...");
 
             var counter = await injector.WaitForCompletionAsync();
 
