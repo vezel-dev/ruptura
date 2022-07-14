@@ -17,6 +17,12 @@ by injected programs.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
+        <None Include="buildTransitive/**"
+              Pack="true"
+              PackagePath="%(Identity)" />
+    </ItemGroup>
+
+    <ItemGroup>
         <EmbeddedResource Include="memory.descriptors.xml"
                           LogicalName="ILLink.Descriptors.xml" />
     </ItemGroup>

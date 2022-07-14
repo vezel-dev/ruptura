@@ -11,7 +11,7 @@ This package provides the hosting model for injected programs.</PackageDescripti
     </PropertyGroup>
 
     <ItemGroup>
-        <None Include="build/**"
+        <None Include="buildTransitive/**"
               Pack="true"
               PackagePath="%(Identity)" />
     </ItemGroup>

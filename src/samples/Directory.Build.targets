@@ -1,12 +1,5 @@
 <Project>
     <ItemGroup>
-        <Using Include="Vezel.Ruptura.Hosting" />
-        <Using Include="Vezel.Ruptura.Injection" />
-        <Using Include="Vezel.Ruptura.Memory.Code" />
-        <Using Include="Vezel.Ruptura.Memory.Diagnostics" />
-    </ItemGroup>
-
-    <ItemGroup>
         <!--
         This reference is required since we are not consuming the library as a
         PackageReference item.
@@ -16,7 +9,18 @@
                           ReferenceOutputAssembly="false" />
         <ProjectReference Include="$(MSBuildThisFileDirectory)../hosting/hosting.csproj" />
         <ProjectReference Include="$(MSBuildThisFileDirectory)../injection/injection.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../memory/memory.csproj" />
+        <ProjectReference Include="$(MSBuildThisFileDirectory)../system/system.csproj" />
     </ItemGroup>
+
+    <!--
+    These imports are required here since we are not consuming the library as a
+    PackageReference item.
+    -->
+    <Import Project="../hosting/buildTransitive/Vezel.Ruptura.Hosting.targets" />
+    <Import Project="../injection/buildTransitive/Vezel.Ruptura.Injection.targets" />
+    <Import Project="../memory/buildTransitive/Vezel.Ruptura.Memory.targets" />
+    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
 
     <Import Project="$([MSBuild]::GetPathOfFileAbove('$(MSBuildThisFile)', '$(MSBuildThisFileDirectory)..'))" />
 </Project>
