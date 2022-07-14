@@ -92,7 +92,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
             address,
             (nuint)length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
-            (uint)access,
+            (uint)(access == MemoryAccess.None ? PAGE_PROTECTION_FLAGS.PAGE_NOACCESS : (PAGE_PROTECTION_FLAGS)access),
             Span<MEM_EXTENDED_PARAMETER>.Empty) is var ptr and not null
             ? ptr
             : throw new Win32Exception();
@@ -122,7 +122,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
             null,
             (nuint)length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
-            (uint)access,
+            (uint)(access == MemoryAccess.None ? PAGE_PROTECTION_FLAGS.PAGE_NOACCESS : (PAGE_PROTECTION_FLAGS)access),
             new Span<MEM_EXTENDED_PARAMETER>(&param, 1)) is var ptr and not null
             ? ptr
             : throw new Win32Exception();
@@ -134,10 +134,16 @@ public sealed unsafe class ProcessObject : SynchronizationObject
             throw new Win32Exception();
     }
 
-    public void ProtectMemory(void* address, nint length, MemoryAccess access)
+    public MemoryAccess ProtectMemory(void* address, nint length, MemoryAccess access)
     {
-        if (!Win32.VirtualProtectEx(SafeHandle, address, (nuint)length, (PAGE_PROTECTION_FLAGS)access, out _))
-            throw new Win32Exception();
+        return Win32.VirtualProtectEx(
+            SafeHandle,
+            address,
+            (nuint)length,
+            access == MemoryAccess.None ? PAGE_PROTECTION_FLAGS.PAGE_NOACCESS : (PAGE_PROTECTION_FLAGS)access,
+            out var flags)
+            ? flags == PAGE_PROTECTION_FLAGS.PAGE_NOACCESS ? MemoryAccess.None : (MemoryAccess)((uint)flags & 0xff)
+            : throw new Win32Exception();
     }
 
     public void ReadMemory(void* source, void* destination, nint length)

@@ -8,7 +8,7 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
 {
     public static NativeCallFrameSymbolicator Instance { get; } = new();
 
-    static readonly SafeKernelHandle _processHandle = ProcessObject.Current.SafeHandle;
+    static readonly ProcessObject _process = ProcessObject.Current;
 
     NativeCallFrameSymbolicator()
     {
@@ -28,7 +28,7 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
 
         ulong disp;
 
-        if (!Win32.SymFromInlineContextW(_processHandle, ip, context, &disp, ref symInfo))
+        if (!Win32.SymFromInlineContextW(_process.SafeHandle, ip, context, &disp, ref symInfo))
             return null;
 
         var lineInfo = new IMAGEHLP_LINEW64
@@ -38,7 +38,7 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
         var column = 0u;
 
         _ = Win32.SymGetLineFromInlineContextW(
-            (HANDLE)_processHandle.DangerousGetHandle(), ip, context, 0, &column, &lineInfo);
+            (HANDLE)_process.SafeHandle.DangerousGetHandle(), ip, context, 0, &column, &lineInfo);
 
         fixed (char* p = &symInfo.Name[0])
             return new CallFrameSymbol(

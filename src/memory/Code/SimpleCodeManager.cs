@@ -44,14 +44,15 @@ public sealed unsafe class SimpleCodeManager : CodeManager
             _ = Node != null ? true : throw new ObjectDisposedException(GetType().Name);
 
             _process.FlushInstructionCache(_address, _length);
-            _process.ProtectMemory(_address, _length, MemoryAccess.ReadExecute);
+
+            _ = _process.ProtectMemory(_address, _length, MemoryAccess.ExecuteRead);
         }
 
         public override void Decommit()
         {
             _ = Node != null ? true : throw new ObjectDisposedException(GetType().Name);
 
-            _process.ProtectMemory(_address, _length, MemoryAccess.ReadWrite);
+            _ = _process.ProtectMemory(_address, _length, MemoryAccess.ReadWrite);
         }
     }
 

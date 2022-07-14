@@ -49,6 +49,8 @@ public sealed unsafe class FunctionHook : IDisposable
         }
     }
 
+    static readonly ProcessObject _process = ProcessObject.Current;
+
     readonly void* _target;
 
     readonly void* _hook;
@@ -152,11 +154,10 @@ public sealed unsafe class FunctionHook : IDisposable
             {
                 var asm = new CodeAssembler();
 
-                // It is possible that the original instructions contained one or more branches. On 64-bit, there is
-                // certainly a chance that those branch instructions will no longer assemble correctly here due to range
-                // issues. This is technically a solvable problem, but it would be a huge amount of work involving
-                // creation of further trampolines that sit at just the right positions in memory. For now, we just
-                // let a situation like this result in an exception when assembling.
+                // It is possible that the original instructions contained one or more displacements. On 64-bit, there
+                // is certainly a chance that those instructions will no longer assemble correctly here due to range
+                // issues. This is technically a solvable problem, but it would be a huge amount of work. For now, we
+                // just let a situation like this result in an exception when assembling.
                 foreach (var insn in prologue)
                     asm.AddInstruction(insn);
 
@@ -180,21 +181,25 @@ public sealed unsafe class FunctionHook : IDisposable
 
             alloc.Commit();
 
-            var process = ProcessObject.Current;
-
             // Finally, patch the function we are hooking.
             {
-                // TODO: Should we bother cleaning up the protection flags when we are done?
-                process.ProtectMemory(target, JumpInstructionSize, MemoryAccess.ReadWriteExecute);
+                var access = _process.ProtectMemory(target, JumpInstructionSize, MemoryAccess.ExecuteReadWrite);
 
-                var asm = new CodeAssembler();
+                try
+                {
+                    var asm = new CodeAssembler();
 
-                // 32-bit relative jump. This is always encoded as 5 bytes. The immediate has to be computed differently
-                // for 32-bit (simple 32-bit offset) and 64-bit (sign-extended to 64-bit offset), but Iced takes care of
-                // that for us.
-                asm.jmp((nuint)tramp->CallHook);
+                    // 32-bit relative jump. This is always encoded as 5 bytes. The immediate has to be computed
+                    // differently for 32-bit (simple 32-bit offset) and 64-bit (sign-extended to 64-bit offset), but
+                    // Iced takes care of that for us.
+                    asm.jmp((nuint)tramp->CallHook);
 
-                asm.Assemble(new RawCodeWriter((byte*)target), (nuint)target);
+                    asm.Assemble(new RawCodeWriter((byte*)target), (nuint)target);
+                }
+                finally
+                {
+                    _ = _process.ProtectMemory(target, JumpInstructionSize, access);
+                }
             }
 
             return new(target, hook, prologue.ToArray(), alloc, jumpTarget)
@@ -216,13 +221,22 @@ public sealed unsafe class FunctionHook : IDisposable
         if (_allocation == null)
             return;
 
-        var asm = new CodeAssembler();
+        var access = _process.ProtectMemory((byte*)_target, JumpInstructionSize, MemoryAccess.ExecuteReadWrite);
 
-        foreach (var insn in _prologue.Span)
-            asm.AddInstruction(insn);
+        try
+        {
+            var asm = new CodeAssembler();
 
-        // Restore the original prologue.
-        asm.Assemble(new RawCodeWriter((byte*)_target), (nuint)_target);
+            foreach (var insn in _prologue.Span)
+                asm.AddInstruction(insn);
+
+            // Restore the original prologue.
+            asm.Assemble(new RawCodeWriter((byte*)_target), (nuint)_target);
+        }
+        finally
+        {
+            _ = _process.ProtectMemory((byte*)_target, JumpInstructionSize, access);
+        }
 
         _allocation?.Dispose();
         NativeMemory.Free(_jumpTarget);
