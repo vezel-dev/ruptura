@@ -21,8 +21,6 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
 
         var symBuffer = (stackalloc byte[sizeof(SYMBOL_INFOW) + sizeof(char) * ((int)Win32.MAX_SYM_NAME + 1)]);
 
-        symBuffer.Clear();
-
         ref var symInfo = ref MemoryMarshal.AsRef<SYMBOL_INFOW>(symBuffer);
 
         symInfo.SizeOfStruct = (uint)sizeof(SYMBOL_INFOW);
