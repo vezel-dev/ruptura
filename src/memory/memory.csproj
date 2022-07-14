@@ -12,7 +12,6 @@ by injected programs.</PackageDescription>
 
     <ItemGroup>
         <Using Include="Iced.Intel" />
-        <Using Include="Vezel.Ruptura.System" />
         <Using Include="Vezel.Ruptura.System.SafeHandles" />
     </ItemGroup>
 
@@ -40,4 +39,6 @@ by injected programs.</PackageDescription>
         <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata"
                           PrivateAssets="all" />
     </ItemGroup>
+
+    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
 </Project>

@@ -41,4 +41,6 @@ This package provides the hosting model for injected programs.</PackageDescripti
                   PackagePath="analyzers/dotnet/cs" />
         </ItemGroup>
     </Target>
+
+    <Import Project="../memory/buildTransitive/Vezel.Ruptura.Memory.targets" />
 </Project>
