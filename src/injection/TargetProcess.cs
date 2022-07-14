@@ -106,8 +106,15 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public static TargetProcess Open(int id)
     {
-        // TODO: Can we reduce the level of access rights we demand here?
-        var handle = Win32.OpenProcess_SafeHandle(PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS, false, (uint)id);
+        // I am not sure why we can get away with not using PROCESS_CREATE_THREAD (CreateRemoteThread) and
+        // PROCESS_QUERY_LIMITED_INFORMATION (IsWow64Process2), but apparently we can. The below rights are the absolute
+        // minimum needed for successful injection (tested on Windows 11 22H2).
+        var handle = Win32.OpenProcess_SafeHandle(
+            PROCESS_ACCESS_RIGHTS.PROCESS_VM_OPERATION |
+            PROCESS_ACCESS_RIGHTS.PROCESS_VM_READ |
+            PROCESS_ACCESS_RIGHTS.PROCESS_VM_WRITE,
+            false,
+            (uint)id);
 
         return !handle.IsInvalid ? new(id, handle, null) : throw new Win32Exception();
     }
