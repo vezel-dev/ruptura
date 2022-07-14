@@ -1,3 +1,4 @@
+using Windows.Win32.System.SystemInformation;
 using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Code;
@@ -56,7 +57,7 @@ public sealed unsafe class SimpleCodeManager : CodeManager
 
     static readonly ProcessObject _process = ProcessObject.Current;
 
-    static readonly uint _alignment;
+    static readonly SYSTEM_INFO _info;
 
     readonly object _lock = new();
 
@@ -64,9 +65,7 @@ public sealed unsafe class SimpleCodeManager : CodeManager
 
     static SimpleCodeManager()
     {
-        Win32.GetSystemInfo(out var info);
-
-        _alignment = info.dwAllocationGranularity;
+        Win32.GetSystemInfo(out _info);
     }
 
     public override void Dispose()
@@ -86,18 +85,28 @@ public sealed unsafe class SimpleCodeManager : CodeManager
         _ = length > 0 ? true : throw new ArgumentOutOfRangeException(nameof(length));
         _ = _allocations != null ? true : throw new ObjectDisposedException(GetType().Name);
 
-        var low = (nuint)requirements.LowestAddress;
+        // VirtualAlloc2 requires that the lowest address is aligned to the allocation granularity, and that the highest
+        // address is aligned to the allocation granularity, minus one. Additionally, we must respect the minimum and
+        // maximum application-accessible addresses (both of which are guaranteed to satisfy the aforementioned
+        // constraints).
 
-        if (low % _alignment is var rem and not 0)
-            low += _alignment - rem;
+        var granularity = _info.dwAllocationGranularity;
+
+        var low = (nuint)requirements.LowestAddress;
+        var min = (nuint)_info.lpMinimumApplicationAddress;
+
+        if (low < min)
+            low = min;
+        else if (low % granularity is var rem and not 0)
+            low += granularity - rem;
 
         var high = (nuint)requirements.HighestAddress;
+        var max = (nuint)_info.lpMaximumApplicationAddress;
 
-        if (high != 0)
-        {
-            high -= high % _alignment;
-            high -= 1;
-        }
+        if (high > max)
+            high = max;
+        else if (high != 0)
+            high -= high % granularity + 1;
 
         var ptr = _process.AllocateMemoryInRange((void*)low, (void*)high, length, MemoryAccess.ReadWrite);
 
