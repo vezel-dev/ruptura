@@ -9,7 +9,18 @@ sealed class InjectedProgram : IInjectedProgram
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
     {
         if (context.InjectorProcessId != null)
-            return TestHooking();
+        {
+            try
+            {
+                return TestHooking();
+            }
+            catch (Exception ex)
+            {
+                await File.WriteAllTextAsync(args.Span[0], ex.ToString());
+
+                return 42;
+            }
+        }
 
         Console.WriteLine("Starting conhost.exe...");
 
@@ -30,10 +41,13 @@ sealed class InjectedProgram : IInjectedProgram
 
             Console.WriteLine("Started as {0}. Injecting...", proc.Id);
 
+            var tempFile = Path.GetTempFileName();
+
             using var target = TargetProcess.Open(proc.Id);
             using var injector = new AssemblyInjector(
                 target,
                 new AssemblyInjectorOptions(typeof(InjectedProgram).Assembly.Location)
+                    .WithArguments(new[] { tempFile })
                     .WithInjectionTimeout(_timeout)
                     .WithCompletionTimeout(_timeout));
 
@@ -44,6 +58,9 @@ sealed class InjectedProgram : IInjectedProgram
             var counter = await injector.WaitForCompletionAsync();
 
             Console.WriteLine("Returned counter {0}.", counter);
+
+            if (File.Exists(tempFile))
+                Console.WriteLine(await File.ReadAllTextAsync(tempFile));
 
             return counter == 1 ? 0 : 1;
         }
