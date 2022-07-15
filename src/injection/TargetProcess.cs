@@ -109,19 +109,11 @@ public sealed unsafe class TargetProcess : IDisposable
         // I am not sure why we can get away with not using PROCESS_CREATE_THREAD (CreateRemoteThread) and
         // PROCESS_QUERY_LIMITED_INFORMATION (IsWow64Process2), but apparently we can. The below rights are the absolute
         // minimum needed for successful injection (tested on Windows 11 22H2).
-        using var handle = Win32.OpenProcess_SafeHandle(
-            PROCESS_ACCESS_RIGHTS.PROCESS_VM_OPERATION |
-            PROCESS_ACCESS_RIGHTS.PROCESS_VM_READ |
-            PROCESS_ACCESS_RIGHTS.PROCESS_VM_WRITE,
-            false,
-            (uint)id);
-
-        var obj = ProcessObject.OpenHandle(handle.DangerousGetHandle());
-
-        // Transfer handle ownership to the process object.
-        handle.SetHandleAsInvalid();
-
-        return new(id, obj, null);
+        return new(
+            id,
+            ProcessObject.OpenId(
+                id, ProcessAccess.OperateMemory | ProcessAccess.ReadMemory | ProcessAccess.WriteMemory),
+            null);
     }
 
     public void Dispose()

@@ -46,16 +46,19 @@ public sealed unsafe class ProcessObject : SynchronizationObject
         return Win32.GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
     }
 
-    public static ProcessObject OpenId(int id)
+    public static ProcessObject OpenId(int id, ProcessAccess? access)
     {
-        return Win32.OpenProcess(PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS, false, (uint)id) is { IsNull: false } handle
+        return Win32.OpenProcess(
+            access is ProcessAccess acc ? (PROCESS_ACCESS_RIGHTS)acc : PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS,
+            false,
+            (uint)id) is { IsNull: false } handle
             ? new(handle)
             : throw new Win32Exception();
     }
 
     public static ProcessObject OpenCurrent()
     {
-        return OpenId(CurrentId);
+        return OpenId(CurrentId, null);
     }
 
     public static void FlushWriteBuffers()

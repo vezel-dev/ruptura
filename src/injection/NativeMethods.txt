@@ -2,7 +2,6 @@ CreateProcessW
 CreateRemoteThreadEx
 IsWow64Process2
 K32GetModuleBaseNameW
-OpenProcess
 
 WIN32_ERROR
 
