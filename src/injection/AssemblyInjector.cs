@@ -1,9 +1,6 @@
 using Vezel.Ruptura.Injection.IO;
 using Vezel.Ruptura.Injection.Threading;
-using Windows.Win32.Foundation;
-using Windows.Win32.System.Memory;
 using static Iced.Intel.AssemblerRegisters;
-using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Injection;
 
@@ -31,13 +28,15 @@ public sealed class AssemblyInjector : IDisposable
 
     bool _injecting;
 
+    bool _waiting;
+
     nuint _loadLibraryW;
 
     nuint _getProcAddress;
 
     nuint _getLastError;
 
-    SafeHandle? _threadHandle;
+    ThreadObject? _thread;
 
     public AssemblyInjector(TargetProcess process, AssemblyInjectorOptions options)
     {
@@ -63,7 +62,7 @@ public sealed class AssemblyInjector : IDisposable
 
     void DisposeCore()
     {
-        _threadHandle?.Dispose();
+        _thread?.Dispose();
     }
 
     string GetModulePath()
@@ -74,9 +73,9 @@ public sealed class AssemblyInjector : IDisposable
         return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
 
-    void PopulateMemoryArea(nuint area, nuint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
+    void PopulateMemoryArea(nuint area, nint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
     {
-        using var stream = new ProcessMemoryStream(_process, area, length);
+        using var stream = new ProcessMemoryStream(_process.Object, area, length);
         using var writer = new InjectionBinaryWriter(stream, true);
 
         action(stream, writer);
@@ -102,23 +101,20 @@ public sealed class AssemblyInjector : IDisposable
         {
             // Spawning a live thread in a process that was created suspended forces the Windows image loader to finish
             // loading the image so that, among other things, we will be able to resolve kernel32.dll exports.
-            using var threadHandle = _process.CreateThread(initializeShell, 0);
+            using var thread = _process.CreateThread(initializeShell, 0);
 
-            switch ((WIN32_ERROR)Win32.WaitForSingleObjectEx(
-                threadHandle, (uint)(long)_options.InjectionTimeout.TotalMilliseconds, false))
+            // TODO: Consider making this async with ThreadPool.UnsafeRegisterWaitForSingleObject().
+            switch (thread.Wait(_options.InjectionTimeout, false))
             {
-                case WIN32_ERROR.WAIT_OBJECT_0:
+                case WaitResult.Signaled:
                     break;
-                case WIN32_ERROR.WAIT_TIMEOUT:
+                case WaitResult.TimedOut:
                     throw new TimeoutException();
                 default:
-                    throw new Win32Exception();
+                    throw new UnreachableException();
             }
 
-            if (!Win32.GetExitCodeThread(threadHandle, out var code))
-                throw new Win32Exception();
-
-            if (code != 0)
+            if (thread.GetExitCode() is var code and not 0)
                 throw new InjectionException($"Failed to initialize the target process: 0x{code:x}");
         }
         finally
@@ -132,7 +128,7 @@ public sealed class AssemblyInjector : IDisposable
         if (_process.GetModule("kernel32.dll") is not (var k32Addr, var k32Size))
             throw new InjectionException("Could not locate 'kernel32.dll' in the target process.");
 
-        using var stream = new ProcessMemoryStream(_process, k32Addr, k32Size);
+        using var stream = new ProcessMemoryStream(_process.Object, k32Addr, k32Size);
 
         var exports = new PeFile(stream).ExportedFunctions;
 
@@ -148,7 +144,7 @@ public sealed class AssemblyInjector : IDisposable
         _getLastError = GetExport("GetLastError");
     }
 
-    unsafe (nuint Address, nuint Length) CreateParameterArea()
+    unsafe (nuint Address, nint Length) CreateParameterArea()
     {
         // Keep in sync with src/module/main.h.
 
@@ -159,12 +155,10 @@ public sealed class AssemblyInjector : IDisposable
         foreach (var arg in _options.Arguments.Prepend(_options.FileName))
             length += Encoding.Unicode.GetByteCount(arg) + sizeof(char);
 
-        var len = (nuint)length;
-
-        return (_process.AllocMemory((nuint)length, PAGE_PROTECTION_FLAGS.PAGE_READWRITE), len);
+        return (_process.AllocateMemory(length, MemoryAccess.ReadWrite), length);
     }
 
-    unsafe void PopulateParameterArea(nuint address, nuint length)
+    unsafe void PopulateParameterArea(nuint address, nint length)
     {
         // Keep in sync with src/module/main.h.
 
@@ -213,14 +207,14 @@ public sealed class AssemblyInjector : IDisposable
     {
         var nameAreaLength = Encoding.Unicode.GetByteCount(modulePath) + sizeof(char) +
             Encoding.ASCII.GetByteCount(NativeEntryPoint) + sizeof(byte);
-        var nameArea = _process.AllocMemory((uint)nameAreaLength, PAGE_PROTECTION_FLAGS.PAGE_READWRITE);
+        var nameArea = _process.AllocateMemory(nameAreaLength, MemoryAccess.ReadWrite);
 
         try
         {
             nuint modulePathPtr = 0;
             nuint entryPointPtr = 0;
 
-            PopulateMemoryArea(nameArea, (uint)nameAreaLength, (stream, writer) =>
+            PopulateMemoryArea(nameArea, nameAreaLength, (stream, writer) =>
             {
                 modulePathPtr = nameArea + (nuint)stream.Position;
 
@@ -300,7 +294,7 @@ public sealed class AssemblyInjector : IDisposable
 
             try
             {
-                var threadHandle = _process.CreateThread(injectShell, parameterArea);
+                var thread = _process.CreateThread(injectShell, parameterArea);
 
                 try
                 {
@@ -312,24 +306,22 @@ public sealed class AssemblyInjector : IDisposable
                         // Did injection complete successfully?
                         if (accessor.ReadBoolean(0))
                         {
-                            _threadHandle = threadHandle;
+                            _thread = thread;
 
                             break;
                         }
 
                         // Did the thread exit with an error?
-                        switch ((WIN32_ERROR)Win32.WaitForSingleObjectEx(threadHandle, 0, false))
+                        switch (thread.Wait(TimeSpan.Zero, false))
                         {
-                            case WIN32_ERROR.WAIT_OBJECT_0:
-                                if (!Win32.GetExitCodeThread(threadHandle, out var code))
-                                    throw new Win32Exception();
-
+                            case WaitResult.Signaled:
                                 throw new InjectionException(
-                                    $"Failed to inject the native module into the target process: 0x{code:x}");
-                            case WIN32_ERROR.WAIT_TIMEOUT:
+                                    $"Failed to inject the native module into the target process: " +
+                                    $"0x{thread.GetExitCode():x}");
+                            case WaitResult.TimedOut:
                                 break;
                             default:
-                                throw new Win32Exception();
+                                throw new UnreachableException();
                         }
 
                         await Task.Delay(100);
@@ -340,12 +332,12 @@ public sealed class AssemblyInjector : IDisposable
                 }
                 catch (Exception)
                 {
-                    threadHandle.Dispose();
+                    thread.Dispose();
 
                     throw;
                 }
 
-                _threadHandle = threadHandle;
+                _thread = thread;
             }
             finally
             {
@@ -399,32 +391,41 @@ public sealed class AssemblyInjector : IDisposable
 
     public Task<int> WaitForCompletionAsync()
     {
-        _ = _threadHandle is not null and { IsInvalid: false } ? true : throw new InvalidOperationException();
+        _ = _thread != null && !_waiting ? true : throw new InvalidOperationException();
+
+        _waiting = true;
 
         return Task.Run(async () =>
         {
-            using var waitHandle = new ThreadWaitHandle(new(_threadHandle.DangerousGetHandle(), true));
-
-            // Transfer ownership of the native handle from _threadHandle to waitHandle so that it stays alive until the
-            // injected assembly returns, allowing us to retrieve the exit code.
-            _threadHandle.SetHandleAsInvalid();
+            // This is safe because the lambda below captures the thread object and keeps it alive.
+            using var waitHandle = new ThreadWaitHandle(new(_thread.SafeHandle.DangerousGetHandle(), false));
 
             var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var registration = ThreadPool.UnsafeRegisterWaitForSingleObject(
                 waitHandle,
                 (_, timeout) =>
                 {
-                    var ex = default(Exception);
-
                     if (timeout)
-                        ex = new TimeoutException();
-                    else if (!Win32.GetExitCodeThread(waitHandle.SafeWaitHandle, out var code))
-                        ex = new Win32Exception();
-                    else
-                        tcs.SetResult((int)code);
+                    {
+                        tcs.SetException(ExceptionDispatchInfo.SetCurrentStackTrace(new TimeoutException()));
 
-                    if (ex != null)
-                        tcs.SetException(ExceptionDispatchInfo.SetCurrentStackTrace(ex));
+                        return;
+                    }
+
+                    int code;
+
+                    try
+                    {
+                        code = _thread.GetExitCode();
+                    }
+                    catch (Win32Exception ex)
+                    {
+                        tcs.SetException(ex);
+
+                        return;
+                    }
+
+                    tcs.SetResult(code);
                 },
                 null,
                 _options.CompletionTimeout,

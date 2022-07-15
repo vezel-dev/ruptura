@@ -25,6 +25,7 @@ assemblies into processes.</PackageDescription>
     <ItemGroup>
         <ProjectReference Include="../module/module.cproj"
                           ReferenceOutputAssembly="false" />
+        <ProjectReference Include="../system/system.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -69,4 +70,6 @@ assemblies into processes.</PackageDescription>
                     ItemName="Content" />
         </MSBuild>
     </Target>
+
+    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
 </Project>

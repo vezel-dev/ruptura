@@ -1,6 +1,6 @@
 namespace Vezel.Ruptura.Injection.IO;
 
-sealed class ProcessMemoryStream : Stream
+sealed unsafe class ProcessMemoryStream : Stream
 {
     // TODO: Review some of the casts here.
 
@@ -10,39 +10,39 @@ sealed class ProcessMemoryStream : Stream
 
     public override bool CanSeek => true;
 
-    public override long Length => (nint)_length;
+    public override long Length => _length;
 
     public override long Position
     {
-        get => (nint)_position;
+        get => _position;
         set
         {
             _ = value >= 0 ? true : throw new ArgumentOutOfRangeException(nameof(value));
 
-            _position = (nuint)value;
+            _position = (nint)value;
         }
     }
 
-    readonly TargetProcess _process;
+    readonly ProcessObject _process;
 
-    readonly nuint _address;
+    readonly void* _address;
 
-    readonly nuint _length;
+    readonly nint _length;
 
-    nuint _position;
+    nint _position;
 
     bool _wrote;
 
-    public ProcessMemoryStream(TargetProcess process, nuint address, nuint length)
+    public ProcessMemoryStream(ProcessObject process, nuint address, nint length)
     {
         _process = process;
-        _address = address;
+        _address = (void*)address;
         _length = length;
     }
 
     public override long Seek(long offset, SeekOrigin origin)
     {
-        var off = (nuint)offset;
+        var off = (nint)offset;
 
         switch (origin)
         {
@@ -68,13 +68,13 @@ sealed class ProcessMemoryStream : Stream
                 throw new ArgumentOutOfRangeException(nameof(origin));
         }
 
-        return (nint)_position;
+        return _position;
     }
 
     public override void Flush()
     {
         if (_wrote)
-            _process.FlushCache(_address, _length);
+            _process.FlushInstructionCache(_address, _length);
     }
 
     public override void SetLength(long value)
@@ -102,21 +102,22 @@ sealed class ProcessMemoryStream : Stream
 
     public override int Read(Span<byte> buffer)
     {
-        var len = (int)nuint.Min(_length - _position, (uint)buffer.Length);
+        var len = (int)nint.Min(_length - _position, buffer.Length);
 
         if (len <= 0)
             return 0;
 
         try
         {
-            _process.ReadMemory(_address + _position, buffer[..len]);
+            fixed (byte* p = buffer)
+                _process.ReadMemory((byte*)_address + (nuint)_position, p, len);
         }
         catch (Win32Exception ex)
         {
             throw new IOException(null, ex);
         }
 
-        _position += (uint)len;
+        _position += len;
 
         return len;
     }
@@ -126,7 +127,7 @@ sealed class ProcessMemoryStream : Stream
         return ValueTask.FromResult(Read(buffer.Span));
     }
 
-    public override unsafe int ReadByte()
+    public override int ReadByte()
     {
         byte value;
 
@@ -151,20 +152,21 @@ sealed class ProcessMemoryStream : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        _ = _position + (uint)buffer.Length <= _length ? true : throw new NotSupportedException();
+        _ = _position + buffer.Length <= _length ? true : throw new NotSupportedException();
 
         _wrote = true;
 
         try
         {
-            _process.WriteMemory(_address + _position, buffer);
+            fixed (byte* p = buffer)
+                _process.WriteMemory((byte*)_address + (nuint)_position, p, buffer.Length);
         }
         catch (Win32Exception ex)
         {
             throw new IOException(null, ex);
         }
 
-        _position += (uint)buffer.Length;
+        _position += buffer.Length;
     }
 
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)

@@ -1,19 +1,8 @@
 CreateProcessW
 CreateRemoteThreadEx
-CreateToolhelp32Snapshot
-FlushInstructionCache
-GetExitCodeThread
 IsWow64Process2
 K32GetModuleBaseNameW
-Module32FirstW
-Module32NextW
 OpenProcess
-ReadProcessMemory
-VirtualAlloc2
-VirtualFreeEx
-VirtualProtectEx
-WaitForSingleObjectEx
-WriteProcessMemory
 
 WIN32_ERROR
 
