@@ -113,7 +113,7 @@ public sealed unsafe class TargetProcess : IDisposable
         _object.Dispose();
     }
 
-    internal (nuint Address, nint Length)? GetModule(string name)
+    internal ModuleSnapshot? GetModule(string name)
     {
         SnapshotObject snapshot;
 
@@ -136,28 +136,9 @@ public sealed unsafe class TargetProcess : IDisposable
         }
 
         using (snapshot)
-        {
-            foreach (var mod in snapshot.EnumerateModules())
-            {
-                using var handle = new SafeFileHandle(mod.Handle, false);
-
-                var arr = new char[Win32.MAX_PATH];
-
-                uint len;
-
-                fixed (char* p = arr)
-                    while ((len = Win32.K32GetModuleBaseNameW(
-                        _object.SafeHandle, handle, p, (uint)arr.Length)) >= arr.Length)
-                        Array.Resize(ref arr, (int)len);
-
-                var baseName = arr.AsSpan(0, (int)len).ToString();
-
-                if (baseName.Equals(name, StringComparison.OrdinalIgnoreCase))
-                    return ((nuint)mod.Address, mod.Length);
-            }
-        }
-
-        return null;
+            return snapshot
+                .EnumerateModules()
+                .FirstOrDefault(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
     internal nuint AllocateMemory(nint length, MemoryAccess access)

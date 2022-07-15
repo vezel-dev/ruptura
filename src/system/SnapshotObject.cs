@@ -85,7 +85,12 @@ public sealed unsafe class SnapshotObject : KernelObject
             {
                 // Cannot use unsafe code in iterators...
 
-                return new((int)entry.th32ProcessID, entry.hModule, entry.modBaseAddr, (int)entry.modBaseSize);
+                return new(
+                    (int)entry.th32ProcessID,
+                    entry.szModule.ToString(),
+                    entry.hModule,
+                    entry.modBaseAddr,
+                    (int)entry.modBaseSize);
             }
 
             if (entry.dwSize == Unsafe.SizeOf<MODULEENTRY32W>())

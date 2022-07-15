@@ -123,19 +123,19 @@ public sealed class AssemblyInjector : IDisposable
         }
     }
 
-    void RetrieveKernel32Exports()
+    unsafe void RetrieveKernel32Exports()
     {
-        if (_process.GetModule("kernel32.dll") is not (var k32Addr, var k32Size))
+        if (_process.GetModule("kernel32.dll") is not ModuleSnapshot k32)
             throw new InjectionException("Could not locate 'kernel32.dll' in the target process.");
 
-        using var stream = new ProcessMemoryStream(_process.Object, k32Addr, k32Size);
+        using var stream = new ProcessMemoryStream(_process.Object, (nuint)k32.Address, k32.Length);
 
         var exports = new PeFile(stream).ExportedFunctions;
 
         nuint GetExport(string name)
         {
             return exports?.SingleOrDefault(f => f.Name == name)?.Address is uint offset
-                ? k32Addr + offset
+                ? (nuint)k32.Address + offset
                 : throw new InjectionException($"Could not locate '{name}' in the target process.");
         }
 

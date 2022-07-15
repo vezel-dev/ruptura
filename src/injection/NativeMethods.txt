@@ -1,7 +1,4 @@
 CreateProcessW
 CreateRemoteThreadEx
-K32GetModuleBaseNameW
 
 WIN32_ERROR
-
-MAX_PATH
