@@ -27,6 +27,7 @@ Heap32First
 Heap32ListFirst
 Heap32ListNext
 Heap32Next
+IsWow64Process2
 LocalFree
 Module32FirstW
 Module32NextW

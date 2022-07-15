@@ -1,0 +1,12 @@
+using Windows.Win32.System.SystemInformation;
+
+namespace Vezel.Ruptura.System;
+
+public enum ImageMachine : ushort
+{
+    Unknown = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN,
+    X86 = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386,
+    X64 = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64,
+    Arm = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM,
+    Arm64 = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64,
+}

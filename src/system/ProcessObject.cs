@@ -1,5 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Memory;
+using Windows.Win32.System.SystemInformation;
 using Windows.Win32.System.Threading;
 using Win32 = Windows.Win32.WindowsPInvoke;
 
@@ -69,6 +70,15 @@ public sealed unsafe class ProcessObject : SynchronizationObject
     public static void Exit(int code)
     {
         Win32.ExitProcess((uint)code);
+    }
+
+    public (ImageMachine System, ImageMachine Process) GetWow64Mode()
+    {
+        IMAGE_FILE_MACHINE system;
+
+        return Win32.IsWow64Process2(SafeHandle, out var process, &system)
+            ? ((ImageMachine)system, (ImageMachine)process)
+            : throw new Win32Exception();
     }
 
     public void GetTimes(

@@ -1,6 +1,5 @@
 using Vezel.Ruptura.Injection.IO;
 using Windows.Win32.Foundation;
-using Windows.Win32.System.SystemInformation;
 using Windows.Win32.System.Threading;
 using Win32 = Windows.Win32.WindowsPInvoke;
 
@@ -14,11 +13,11 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public ProcessObject Object => !_object.IsDisposed ? _object : throw new ObjectDisposedException(GetType().Name);
 
-    public Architecture Architecture { get; }
+    public ImageMachine Machine { get; }
 
     internal int? MainThreadId { get; }
 
-    internal bool IsSupported => Architecture == Architecture.X64;
+    internal bool IsSupported => Machine == ImageMachine.X64;
 
     readonly ProcessObject _object;
 
@@ -27,26 +26,12 @@ public sealed unsafe class TargetProcess : IDisposable
         Id = id;
         _object = @object;
         MainThreadId = mainThreadId;
-
-        IMAGE_FILE_MACHINE os;
-
-        if (!Win32.IsWow64Process2(@object.SafeHandle, out var proc, &os))
-            throw new Win32Exception();
-
-        Architecture = (os, proc) switch
+        Machine = @object.GetWow64Mode() switch
         {
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
-            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386) =>
-                Architecture.X86,
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
-            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64) =>
-                Architecture.X64,
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
-            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM) =>
-                Architecture.Arm,
-            (IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_UNKNOWN) or
-            (_, IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_ARM64) =>
-                Architecture.Arm64,
+            (ImageMachine.X86, ImageMachine.Unknown) or (_, ImageMachine.X86) => ImageMachine.X86,
+            (ImageMachine.X64, ImageMachine.Unknown) or (_, ImageMachine.X64) => ImageMachine.X64,
+            (ImageMachine.Arm, ImageMachine.Unknown) or (_, ImageMachine.Arm) => ImageMachine.Arm,
+            (ImageMachine.Arm64, ImageMachine.Unknown) or (_, ImageMachine.Arm64) => ImageMachine.Arm64,
             _ => throw new UnreachableException(),
         };
     }
@@ -187,10 +172,10 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal nuint CreateFunction(Action<Assembler> action)
     {
-        var asm = new Assembler(Architecture switch
+        var asm = new Assembler(Machine switch
         {
-            Architecture.X86 => 32,
-            Architecture.X64 => 64,
+            ImageMachine.X86 => 32,
+            ImageMachine.X64 => 64,
             _ => throw new UnreachableException(),
         });
 

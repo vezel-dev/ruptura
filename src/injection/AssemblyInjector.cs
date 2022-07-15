@@ -68,7 +68,7 @@ public sealed class AssemblyInjector : IDisposable
     string GetModulePath()
     {
         var path = Path.Combine(
-            _options.ModuleDirectory, $"ruptura-{_process.Architecture.ToString().ToLowerInvariant()}.dll");
+            _options.ModuleDirectory, $"ruptura-{_process.Machine.ToString().ToLowerInvariant()}.dll");
 
         return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
