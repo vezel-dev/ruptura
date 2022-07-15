@@ -55,6 +55,7 @@ VirtualFreeEx
 VirtualProtectEx
 WaitForMultipleObjectsEx
 WaitForSingleObjectEx
+Wow64SuspendThread
 WriteProcessMemory
 
 MEM_ADDRESS_REQUIREMENTS

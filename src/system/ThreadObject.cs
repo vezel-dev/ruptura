@@ -151,6 +151,13 @@ public sealed unsafe class ThreadObject : SynchronizationObject
         return Win32.SuspendThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
     }
 
+    public int SuspendWow64()
+    {
+        return Win32.Wow64SuspendThread(SafeHandle) is var ret and not uint.MaxValue
+            ? (int)ret
+            : throw new Win32Exception();
+    }
+
     public int Resume()
     {
         return Win32.ResumeThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
