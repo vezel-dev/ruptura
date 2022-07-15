@@ -5,21 +5,13 @@
 
 typedef struct
 {
-    // Keep in sync with src/memory/InjectedNativeModule.cs.
-
-    size_t size;
-    uint32_t injector_process_id;
-    HMODULE module_handle;
-} ruptura_module_parameters;
-
-typedef struct
-{
     // Keep in sync with src/hosting/InjectedProgramContext.cs.
 
     size_t size;
     uint32_t injector_process_id;
     uint32_t main_thread_id;
-} ruptura_context_parameters;
+    HMODULE module_handle;
+} ruptura_state;
 
 static volatile atomic(HMODULE) ruptura_module;
 
@@ -85,22 +77,12 @@ uint32_t ruptura_main(ruptura_parameters *nonnull parameters)
     if ((rc = ruptura_host_initialize(host, (const wchar_t **)argv, argc)))
         goto failure;
 
-    ruptura_module_parameters module_params =
+    ruptura_state context_params =
     {
-        .size = sizeof(ruptura_module_parameters),
-        .injector_process_id = parameters->injector_process_id,
-        .module_handle = ruptura_module,
-    };
-
-    if ((rc = ruptura_host_call(
-        host, L"Vezel.Ruptura.Memory.InjectedNativeModule, Vezel.Ruptura.Memory", L"Initialize", &module_params)))
-        goto failure;
-
-    ruptura_context_parameters context_params =
-    {
-        .size = sizeof(ruptura_context_parameters),
+        .size = sizeof(ruptura_state),
         .injector_process_id = parameters->injector_process_id,
         .main_thread_id = parameters->main_thread_id,
+        .module_handle = ruptura_module,
     };
 
     if ((rc = ruptura_host_call(

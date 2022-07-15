@@ -5,10 +5,4 @@
             <method name="GetMethodFromNativeIP" />
         </type>
     </assembly>
-
-    <assembly fullname="Vezel.Ruptura.Memory">
-        <type fullname="Vezel.Ruptura.Memory.InjectedNativeModule">
-            <method name="Initialize" />
-        </type>
-    </assembly>
 </linker>

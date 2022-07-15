@@ -24,7 +24,7 @@ This package provides the hosting model for injected programs.</PackageDescripti
     <ItemGroup>
         <ProjectReference Include="../analyzers/analyzers.csproj"
                           ReferenceOutputAssembly="false" />
-        <ProjectReference Include="../memory/memory.csproj" />
+        <ProjectReference Include="../system/system.csproj" />
     </ItemGroup>
 
     <Target Name="_PackAnalyzer">
@@ -42,5 +42,5 @@ This package provides the hosting model for injected programs.</PackageDescripti
         </ItemGroup>
     </Target>
 
-    <Import Project="../memory/buildTransitive/Vezel.Ruptura.Memory.targets" />
+    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
 </Project>

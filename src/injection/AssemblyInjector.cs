@@ -310,7 +310,7 @@ public sealed class AssemblyInjector : IDisposable
                     while (true)
                     {
                         // Did injection complete successfully?
-                        if (accessor.ReadBoolean(0) && accessor.ReadBoolean(1))
+                        if (accessor.ReadBoolean(0))
                         {
                             _threadHandle = threadHandle;
 
@@ -370,10 +370,9 @@ public sealed class AssemblyInjector : IDisposable
             {
                 var modulePath = GetModulePath();
 
-                // InjectedNativeModule writes at offset 0, and InjectedProgramContext at offset 1.
                 using var mmf = MemoryMappedFile.CreateNew(
                     $"ruptura-{Environment.ProcessId}-{_process.Id}", sizeof(bool));
-                using var accessor = mmf.CreateViewAccessor(0, sizeof(bool) * 2, MemoryMappedFileAccess.Read);
+                using var accessor = mmf.CreateViewAccessor(0, sizeof(bool), MemoryMappedFileAccess.Read);
 
                 ForceLoaderInitialization();
                 RetrieveKernel32Exports();
