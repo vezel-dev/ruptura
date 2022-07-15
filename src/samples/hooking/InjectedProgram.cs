@@ -59,7 +59,7 @@ sealed class InjectedProgram : IInjectedProgram
 
             Console.WriteLine("Returned counter {0}.", counter);
 
-            if (File.Exists(tempFile))
+            if (new FileInfo(tempFile).Length != 0)
                 Console.WriteLine(await File.ReadAllTextAsync(tempFile));
 
             return counter == 1 ? 0 : 1;
