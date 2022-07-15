@@ -7,7 +7,7 @@ namespace Vezel.Ruptura.Memory.Diagnostics;
 
 public sealed unsafe class CallTrace
 {
-    public ImmutableArray<CallFrame> Frames { get; }
+    public IReadOnlyList<CallFrame> Frames { get; }
 
     static readonly object _lock = new();
 
@@ -79,7 +79,7 @@ public sealed unsafe class CallTrace
         }
     }
 
-    CallTrace(ImmutableArray<CallFrame> frames)
+    CallTrace(IReadOnlyList<CallFrame> frames)
     {
         Frames = frames;
     }
@@ -156,7 +156,7 @@ public sealed unsafe class CallTrace
             var processHandle = ProcessObject.Current.SafeHandle;
             var threadHandle = thread.SafeHandle;
 
-            var cfs = ImmutableArray.CreateBuilder<CallFrame>(64);
+            var cfs = new List<CallFrame>(64);
 
             while (Win32.StackWalkEx(
                 (uint)_machine,
@@ -196,7 +196,7 @@ public sealed unsafe class CallTrace
             // The first 3 frames are always RtlCaptureContext, CallTrace.CaptureCore, and CallTrace.Capture.
             cfs.RemoveRange(0, 3);
 
-            return new(cfs.ToImmutable());
+            return new(cfs.ToArray());
         }
     }
 
@@ -236,11 +236,11 @@ public sealed unsafe class CallTrace
     {
         var sb = new StringBuilder();
 
-        for (var i = 0; i < Frames.Length; i++)
+        for (var i = 0; i < Frames.Count; i++)
         {
             _ = sb.Append(Frames[i]);
 
-            if (i != Frames.Length - 1)
+            if (i != Frames.Count - 1)
                 _ = sb.AppendLine();
         }
 

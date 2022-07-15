@@ -6,6 +6,6 @@ static class Program
 
         Console.WriteLine(trace);
 
-        return trace.Frames.Length > 20 && trace.Frames[0].ManagedMethod?.Name == nameof(Main) ? 0 : 1;
+        return trace.Frames.Count > 20 && trace.Frames[0].ManagedMethod?.Name == nameof(Main) ? 0 : 1;
     }
 }
