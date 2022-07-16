@@ -82,7 +82,7 @@ public sealed unsafe class FunctionHook : IDisposable
 
         try
         {
-            var reqs = default(CodeRequirements);
+            var placement = CodePlacement.Anywhere;
 
             // The trampoline is always reachable on 32-bit, so no requirements in that case.
             if (Environment.Is64BitProcess)
@@ -99,7 +99,7 @@ public sealed unsafe class FunctionHook : IDisposable
                 if (high < baseAddr)
                     high = (byte*)null - 1; // Overflow, i.e. the top of the address space is reachable.
 
-                reqs = new(low, high);
+                placement = CodePlacement.Range(low, high);
             }
 
             var prologue = new List<Instruction>();
@@ -120,7 +120,7 @@ public sealed unsafe class FunctionHook : IDisposable
                 }
             }
 
-            alloc = manager.Allocate(sizeof(HookTrampoline), reqs);
+            alloc = manager.Allocate(sizeof(HookTrampoline), placement);
             jumpTarget = (void**)NativeMemory.Alloc((nuint)sizeof(void**));
 
             var tramp = (HookTrampoline*)alloc.Code;

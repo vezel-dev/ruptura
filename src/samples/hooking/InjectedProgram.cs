@@ -80,7 +80,7 @@ sealed class InjectedProgram : IInjectedProgram
         {
             var func = (delegate* unmanaged[Stdcall]<void>)NativeLibrary.GetExport(lib, "FlushProcessWriteBuffers");
 
-            using var manager = new SimpleCodeManager();
+            using var manager = new PageCodeManager();
 
             using (_hook = FunctionHook.Create(
                 manager, func, (delegate* unmanaged[Stdcall]<void>)&FlushProcessWriteBuffersHook))

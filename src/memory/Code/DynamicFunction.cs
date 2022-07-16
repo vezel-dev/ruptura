@@ -12,7 +12,7 @@ public sealed unsafe class DynamicFunction : IDisposable
     }
 
     public static DynamicFunction Create(
-        CodeManager manager, Action<Assembler> assembler, CodeRequirements requirements = default)
+        CodeManager manager, Action<Assembler> assembler, CodePlacement? placement = null)
     {
         ArgumentNullException.ThrowIfNull(manager);
         ArgumentNullException.ThrowIfNull(assembler);
@@ -27,7 +27,7 @@ public sealed unsafe class DynamicFunction : IDisposable
         asm.Assemble(nullWriter, 0);
 
         var len = nullWriter.Length * 2; // Usually way too much, but safe.
-        var alloc = manager.Allocate(len, requirements);
+        var alloc = manager.Allocate(len, placement ?? CodePlacement.Anywhere);
 
         try
         {
