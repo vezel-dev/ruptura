@@ -1,5 +1,19 @@
 {
   "version": "0.2.0",
+  "inputs": [
+    {
+      "id": "pickSample",
+      "description": "Select the sample to launch",
+      "type": "pickString",
+      "options": [
+        "attach",
+        "fdd",
+        "hooking",
+        "suspesion",
+        "trace"
+      ]
+    }
+  ],
   "configurations": [
     {
       "name": ".NET: Launch (External)",
@@ -16,8 +30,8 @@
         "searchNuGetOrgSymbolServer": true
       },
       "console": "integratedTerminal",
-      "cwd": "${workspaceFolder}/src/sample",
-      "program": "${workspaceFolder}/src/sample/bin/Debug/sample.dll"
+      "cwd": "${workspaceFolder}/src/samples/${input:pickSample}",
+      "program": "${workspaceFolder}/src/samples/${input:pickSample}/bin/Debug/${input:pickSample}.dll"
     },
     {
       "name": ".NET: Launch (Integrated)",
@@ -34,8 +48,8 @@
         "searchNuGetOrgSymbolServer": true
       },
       "console": "externalTerminal",
-      "cwd": "${workspaceFolder}/src/sample",
-      "program": "${workspaceFolder}/src/sample/bin/Debug/sample.dll"
+      "cwd": "${workspaceFolder}/src/samples/${input:pickSample}",
+      "program": "${workspaceFolder}/src/samples/${input:pickSample}/bin/Debug/${input:pickSample}.dll"
     },
     {
       "name": ".NET: Attach",
