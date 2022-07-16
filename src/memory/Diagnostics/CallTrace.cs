@@ -1,6 +1,5 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;
-using Windows.Win32.System.SystemInformation;
 using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Diagnostics;
@@ -28,7 +27,7 @@ public sealed unsafe class CallTrace
                 BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
             ?.CreateDelegate<Func<nint, MethodBase?>>();
 
-    static readonly IMAGE_FILE_MACHINE _machine;
+    static readonly ImageMachine _machine;
 
     static readonly delegate* unmanaged[Stdcall]<HANDLE, ulong, void*> _functionTableAccess;
 
@@ -42,13 +41,13 @@ public sealed unsafe class CallTrace
         {
             if (Environment.Is64BitProcess)
             {
-                _machine = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_AMD64;
+                _machine = ImageMachine.X64;
                 _functionTableAccess = &FunctionTableAccess64;
                 _getModuleBase = &GetModuleBase64;
             }
             else
             {
-                _machine = IMAGE_FILE_MACHINE.IMAGE_FILE_MACHINE_I386;
+                _machine = ImageMachine.X86;
                 _functionTableAccess = &FunctionTableAccess32;
                 _getModuleBase = &GetModuleBase32;
             }
