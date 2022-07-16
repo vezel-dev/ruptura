@@ -1,5 +1,7 @@
 GetModuleFileNameW
 GetSystemInfo
+StackWalkEx
+SymCleanup
 SymFromInlineContextW
 SymFunctionTableAccess64
 SymGetLineFromInlineContextW
@@ -7,8 +9,6 @@ SymGetModuleBase64
 SymGetOptions
 SymInitializeW
 SymSetOptions
-StackWalkEx
-SymCleanup
 
 MAX_PATH
 MAX_SYM_NAME
