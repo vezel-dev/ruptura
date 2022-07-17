@@ -247,36 +247,42 @@ public sealed unsafe class PageCodeManager : CodeManager
                     return alloc;
 
         var granularity = _info.dwAllocationGranularity;
-
-        var low = (nuint)placement.LowestAddress;
-        var min = (nuint)_info.lpMinimumApplicationAddress;
-
-        // VirtualAlloc2 requires that LowestStartingAddress is aligned to the allocation granularity (i.e. it is the
-        // first accessible byte in the range). Additionally, it must not exceed lpMinimumApplicationAddress which
-        // itself satisfies the former requirement.
-        if (low < min)
-            low = min;
-        else if (low % granularity is var lowRem and not 0)
-            low += granularity - lowRem;
-
-        var high = (nuint)placement.HighestAddress;
-        var max = (nuint)_info.lpMaximumApplicationAddress;
-
-        // VirtualAlloc2 requires that HighestEndingAddress is aligned to the allocation granularity minus one (i.e. it
-        // is the last accessible byte in the range). Additionally, it must not exceed lpMaximumApplicationAddress which
-        // itself satisfies the former requirement.
-        if (high > max)
-            high = max;
-        else
-            high -= high % granularity + 1;
-
         var fullLength = (nuint)length;
 
         // Align region length to the allocation granularity to reduce fragmentation.
         if (fullLength % granularity is var allocRem and not 0)
             fullLength += granularity - allocRem;
 
-        var ptr = _process.AllocateMemoryInRange((void*)low, (void*)high, (nint)fullLength, MemoryAccess.ReadWrite);
+        void* ptr;
+
+        if (placement.IsRange)
+        {
+            var low = (nuint)placement.LowestAddress;
+            var min = (nuint)_info.lpMinimumApplicationAddress;
+
+            // VirtualAlloc2 requires that LowestStartingAddress is aligned to the allocation granularity (i.e. it is
+            // the first accessible byte in the range). Additionally, it must not exceed lpMinimumApplicationAddress
+            // which itself satisfies the former requirement.
+            if (low < min)
+                low = min;
+            else if (low % granularity is var lowRem and not 0)
+                low += granularity - lowRem;
+
+            var high = (nuint)placement.HighestAddress;
+            var max = (nuint)_info.lpMaximumApplicationAddress;
+
+            // VirtualAlloc2 requires that HighestEndingAddress is aligned to the allocation granularity minus one (i.e.
+            // it is the last accessible byte in the range). Additionally, it must not exceed
+            // lpMaximumApplicationAddress which itself satisfies the former requirement.
+            if (high > max)
+                high = max;
+            else
+                high -= high % granularity + 1;
+
+            ptr = _process.AllocateMemoryInRange((void*)low, (void*)high, (nint)fullLength, MemoryAccess.ReadWrite);
+        }
+        else
+            ptr = _process.AllocateMemory(placement.LowestAddress, (nint)fullLength, MemoryAccess.ReadWrite);
 
         lock (_lock)
         {

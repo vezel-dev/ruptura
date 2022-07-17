@@ -12,12 +12,19 @@ public readonly unsafe struct CodePlacement
 
     public void* HighestAddress { get; }
 
+    public bool IsRange => LowestAddress != HighestAddress;
+
     CodePlacement(void* lowestAddress, void* highestAddress)
     {
         _ = lowestAddress <= highestAddress ? true : throw new ArgumentException(null);
 
         LowestAddress = lowestAddress;
         HighestAddress = highestAddress;
+    }
+
+    public static CodePlacement Fixed(void* address)
+    {
+        return new(address, address);
     }
 
     public static CodePlacement Range(void* lowestAddress, void* highestAddress)
