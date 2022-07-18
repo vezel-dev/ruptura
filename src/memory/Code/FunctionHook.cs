@@ -107,13 +107,13 @@ public sealed unsafe class FunctionHook : IDisposable
 
             // Save the original prologue. We need this to construct the trampoline and when disposing.
             {
-                var decoder = Iced.Intel.Decoder.Create(
-                    Environment.Is64BitProcess ? 64 : 32, new RawCodeReader((byte*)target), (nuint)target);
+                var disasm = new CodeDisassembler(new RawCodeReader((byte*)target), (nuint)target);
 
-                // Disassemble until we have at least 5 bytes for the jump instruction.
+                // Disassemble until we have at least 5 bytes for the jump instruction. Note that the jump may end up
+                // being smaller in the end since Iced optimizes it if possible.
                 while (prologueSize < JumpInstructionSize)
                 {
-                    decoder.Decode(out var insn);
+                    disasm.Disassemble(out var insn);
                     prologue.Add(insn);
 
                     prologueSize += insn.Length;
@@ -202,6 +202,8 @@ public sealed unsafe class FunctionHook : IDisposable
                 }
             }
 
+            // TODO: It is technically possible for an OutOfMemoryException to happen here, however unlikely. We should
+            // revert the patch to the target function in that case.
             return new(target, hook, prologue.ToArray(), alloc, jumpTarget)
             {
                 IsActive = false, // Initializes *jumpTarget to tramp->CallTarget.
