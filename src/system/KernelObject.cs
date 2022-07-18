@@ -6,8 +6,15 @@ namespace Vezel.Ruptura.System;
 
 public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEquatable<KernelObject>
 {
-    public SafeKernelHandle SafeHandle =>
-        !IsDisposed ? _safeHandle : throw new ObjectDisposedException(GetType().FullName);
+    public SafeKernelHandle SafeHandle
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(IsDisposed, this);
+
+            return _safeHandle;
+        }
+    }
 
     public bool IsDisposed => _safeHandle.IsClosed;
 

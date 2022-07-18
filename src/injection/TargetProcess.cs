@@ -11,7 +11,15 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public int Id { get; }
 
-    public ProcessObject Object => !_object.IsDisposed ? _object : throw new ObjectDisposedException(GetType().Name);
+    public ProcessObject Object
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_object.IsDisposed, this);
+
+            return _object;
+        }
+    }
 
     public ImageMachine Machine { get; }
 

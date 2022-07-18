@@ -23,27 +23,48 @@ public sealed unsafe class FunctionHook : IDisposable
 
     const int JumpInstructionSize = 5;
 
-    public void* TargetCode => _allocation != null ? _target : throw new ObjectDisposedException(GetType().Name);
+    public void* TargetCode
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
 
-    public void* HookCode => _allocation != null ? _hook : throw new ObjectDisposedException(GetType().Name);
+            return _target;
+        }
+    }
 
-    public void* TrampolineCode =>
-        _allocation != null
-            ? ((HookTrampoline*)_allocation.Code)->CallTarget
-            : throw new ObjectDisposedException(GetType().Name);
+    public void* HookCode
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
+
+            return _hook;
+        }
+    }
+
+    public void* TrampolineCode
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
+
+            return ((HookTrampoline*)_allocation.Code)->CallTarget;
+        }
+    }
 
     public bool IsActive
     {
         get
         {
-            _ = _allocation != null ? true : throw new ObjectDisposedException(GetType().Name);
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
 
             return Volatile.Read(ref *(nuint*)_jumpTarget) == (nuint)HookCode;
         }
 
         set
         {
-            _ = _allocation != null ? true : throw new ObjectDisposedException(GetType().Name);
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
 
             Volatile.Write(ref *(nuint*)_jumpTarget, (nuint)(value ? HookCode : TrampolineCode));
         }

@@ -2,7 +2,15 @@ namespace Vezel.Ruptura.Memory.Code;
 
 public sealed unsafe class DynamicFunction : IDisposable
 {
-    public void* Code => (_allocation ?? throw new ObjectDisposedException(GetType().Name)).Code;
+    public void* Code
+    {
+        get
+        {
+            ObjectDisposedException.ThrowIf(_allocation == null, this);
+
+            return _allocation.Code;
+        }
+    }
 
     CodeAllocation? _allocation;
 

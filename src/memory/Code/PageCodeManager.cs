@@ -290,7 +290,7 @@ public sealed unsafe class PageCodeManager : CodeManager
 
             try
             {
-                region = new CodeRegion(this, ptr, (nint)(fullLength / _info.dwPageSize));
+                region = new(this, ptr, (nint)(fullLength / _info.dwPageSize));
 
                 region.Node = _regions.AddLast(region);
             }
