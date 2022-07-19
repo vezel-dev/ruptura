@@ -182,22 +182,11 @@ public sealed unsafe class FunctionHook : IDisposable
                 foreach (var insn in prologue)
                     asm.AddInstruction(insn);
 
-                var remainder = (nuint)((byte*)target + prologueSize);
-
                 // We are now in the middle of the original code from the target function. We are extremely limited in
-                // what we can do here; all registers must be preserved.
-                if (asm.Is64Bit)
-                {
-                    var label = asm.CreateLabel("remainder");
-
-                    // Mixing instructions and data is not great for performance, but it does allow us to avoid dirtying
-                    // registers or violating ABI constraints by changing RSP.
-                    asm.jmp(__qword_ptr[label]);
-                    asm.Label(ref label);
-                    asm.dq(remainder);
-                }
-                else
-                    asm.jmp(remainder);
+                // what we can do here; all registers must be preserved. Iced will expand this to a jump that can reach
+                // the entire address space without dirtying registers, e.g. by embedding the jump target after the
+                // instruction and using an indirect jump if necessary.
+                asm.jmp((nuint)((byte*)target + prologueSize));
 
                 asm.Assemble(new RawCodeWriter(tramp->CallTarget), (nuint)tramp->CallTarget);
             }
