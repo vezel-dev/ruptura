@@ -188,11 +188,13 @@ public sealed unsafe class FunctionHook : IDisposable
                 // what we can do here; all registers must be preserved.
                 if (asm.Is64Bit)
                 {
-                    // Same push/xchg/ret trick as above.
-                    asm.push(rax);
-                    asm.mov(rax, remainder);
-                    asm.xchg(__qword_ptr[rsp], rax);
-                    asm.ret();
+                    var label = asm.CreateLabel("remainder");
+
+                    // Mixing instructions and data is not great for performance, but it does allow us to avoid dirtying
+                    // registers or violating ABI constraints by changing RSP.
+                    asm.jmp(__qword_ptr[label]);
+                    asm.Label(ref label);
+                    asm.dq(remainder);
                 }
                 else
                     asm.jmp(remainder);
