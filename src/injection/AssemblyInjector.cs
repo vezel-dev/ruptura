@@ -85,7 +85,7 @@ public sealed class AssemblyInjector : IDisposable
     {
         var initializeShell = _process.CreateFunction(asm =>
         {
-            if (asm.Bitness == 32)
+            if (asm.Bitness == 64)
             {
                 asm.mov(eax, 0);
                 asm.ret();
@@ -231,34 +231,7 @@ public sealed class AssemblyInjector : IDisposable
                 var done = asm.CreateLabel("done");
                 var failure = asm.CreateLabel("failure");
 
-                if (asm.Bitness == 32)
-                {
-                    asm.push((uint)modulePathPtr);
-                    asm.mov(eax, (uint)_loadLibraryW);
-                    asm.call(eax);
-                    asm.cmp(eax, 0);
-                    asm.je(failure);
-
-                    asm.push((uint)entryPointPtr);
-                    asm.push(eax);
-                    asm.mov(eax, (uint)_getProcAddress);
-                    asm.call(eax);
-                    asm.cmp(eax, 0);
-                    asm.je(failure);
-
-                    asm.push(__dword_ptr[esp + 4]);
-                    asm.call(eax);
-                    asm.add(esp, 4);
-                    asm.jmp(done);
-
-                    asm.Label(ref failure);
-                    asm.mov(eax, (uint)_getLastError);
-                    asm.call(eax);
-
-                    asm.Label(ref done);
-                    asm.ret(4);
-                }
-                else
+                if (asm.Bitness == 64)
                 {
                     asm.push(rbx);
                     asm.sub(rsp, 32);
@@ -289,6 +262,33 @@ public sealed class AssemblyInjector : IDisposable
                     asm.add(rsp, 32);
                     asm.pop(rbx);
                     asm.ret();
+                }
+                else
+                {
+                    asm.push((uint)modulePathPtr);
+                    asm.mov(eax, (uint)_loadLibraryW);
+                    asm.call(eax);
+                    asm.cmp(eax, 0);
+                    asm.je(failure);
+
+                    asm.push((uint)entryPointPtr);
+                    asm.push(eax);
+                    asm.mov(eax, (uint)_getProcAddress);
+                    asm.call(eax);
+                    asm.cmp(eax, 0);
+                    asm.je(failure);
+
+                    asm.push(__dword_ptr[esp + 4]);
+                    asm.call(eax);
+                    asm.add(esp, 4);
+                    asm.jmp(done);
+
+                    asm.Label(ref failure);
+                    asm.mov(eax, (uint)_getLastError);
+                    asm.call(eax);
+
+                    asm.Label(ref done);
+                    asm.ret(4);
                 }
             });
 
