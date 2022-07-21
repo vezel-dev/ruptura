@@ -146,6 +146,7 @@ dotnet_diagnostic.IDE0130.severity = error
 
 dotnet_diagnostic.SA0001.severity = none
 dotnet_diagnostic.SA1008.severity = none
+dotnet_diagnostic.SA1023.severity = none # TODO: https://github.com/DotNetAnalyzers/StyleCopAnalyzers/issues/3538
 dotnet_diagnostic.SA1101.severity = none
 dotnet_diagnostic.SA1118.severity = none
 dotnet_diagnostic.SA1200.severity = none
