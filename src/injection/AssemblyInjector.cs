@@ -233,8 +233,10 @@ public sealed class AssemblyInjector : IDisposable
 
                 if (asm.Bitness == 64)
                 {
+                    var shadowSpace = sizeof(ulong) * 4;
+
                     asm.push(rbx);
-                    asm.sub(rsp, 32);
+                    asm.sub(rsp, shadowSpace);
 
                     asm.mov(rbx, rcx);
                     asm.mov(rcx, modulePathPtr);
@@ -255,13 +257,17 @@ public sealed class AssemblyInjector : IDisposable
                     asm.jmp(done);
 
                     asm.Label(ref failure);
-                    asm.mov(rax, _getLastError);
-                    asm.call(rax);
+                    {
+                        asm.mov(rax, _getLastError);
+                        asm.call(rax);
+                    }
 
                     asm.Label(ref done);
-                    asm.add(rsp, 32);
-                    asm.pop(rbx);
-                    asm.ret();
+                    {
+                        asm.add(rsp, shadowSpace);
+                        asm.pop(rbx);
+                        asm.ret();
+                    }
                 }
                 else
                 {
@@ -278,17 +284,21 @@ public sealed class AssemblyInjector : IDisposable
                     asm.cmp(eax, 0);
                     asm.je(failure);
 
-                    asm.push(__dword_ptr[esp + 4]);
+                    asm.push(__dword_ptr[esp + sizeof(uint)]);
                     asm.call(eax);
-                    asm.add(esp, 4);
+                    asm.add(esp, sizeof(uint));
                     asm.jmp(done);
 
                     asm.Label(ref failure);
-                    asm.mov(eax, (uint)_getLastError);
-                    asm.call(eax);
+                    {
+                        asm.mov(eax, (uint)_getLastError);
+                        asm.call(eax);
+                    }
 
                     asm.Label(ref done);
-                    asm.ret(4);
+                    {
+                        asm.ret(sizeof(uint));
+                    }
                 }
             });
 
