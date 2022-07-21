@@ -235,6 +235,9 @@ public sealed unsafe class FunctionHook : IDisposable
         if (_allocation == null)
             return;
 
+        // Ensure that the code below cannot cause the hook to be invoked.
+        _active = false;
+
         var access = _process.ProtectMemory((byte*)_target, JumpInstructionSize, MemoryAccess.ExecuteReadWrite);
 
         try
