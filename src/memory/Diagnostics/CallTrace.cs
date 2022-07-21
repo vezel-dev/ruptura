@@ -1,3 +1,4 @@
+using Vezel.Ruptura.Memory.Code;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;
 using Win32 = Windows.Win32.WindowsPInvoke;
@@ -108,94 +109,96 @@ public sealed unsafe class CallTrace
 
         lock (_lock)
         {
-            var context = stackalloc byte[2048]; // Way more than enough.
-
-            _rtlCaptureContext(context);
-
-            void* ip;
-            void* sp;
-            void* fp;
-
-            // Hardcoded CONTEXT offsets to avoid needing platform-specific CONTEXT structs.
-            if (Environment.Is64BitProcess)
+            using (FunctionHookGate.NormalizeStack())
             {
-                ip = context + 248; // rip
-                sp = context + 152; // rsp
-                fp = context + 160; // rbp
-            }
-            else
-            {
-                ip = context + 184; // eip
-                sp = context + 196; // esp
-                fp = context + 180; // ebp
-            }
+                var context = stackalloc byte[2048]; // Way more than enough.
 
-            var frame = new STACKFRAME_EX
-            {
-                StackFrameSize = (uint)sizeof(STACKFRAME_EX),
-                AddrPC =
+                _rtlCaptureContext(context);
+
+                void* ip;
+                void* sp;
+                void* fp;
+
+                // Hardcoded CONTEXT offsets to avoid needing platform-specific CONTEXT structs.
+                if (Environment.Is64BitProcess)
                 {
-                    Offset = (nuint)ip,
-                    Mode = ADDRESS_MODE.AddrModeFlat,
-                },
-                AddrStack =
+                    ip = context + 248; // rip
+                    sp = context + 152; // rsp
+                    fp = context + 160; // rbp
+                }
+                else
                 {
-                    Offset = (nuint)sp,
-                    Mode = ADDRESS_MODE.AddrModeFlat,
-                },
-                AddrFrame =
-                {
-                    Offset = (nuint)fp,
-                    Mode = ADDRESS_MODE.AddrModeFlat,
-                },
-            };
-
-            using var thread = ThreadObject.OpenCurrent();
-
-            var processHandle = ProcessObject.Current.SafeHandle;
-            var threadHandle = thread.SafeHandle;
-
-            var cfs = new List<CallFrame>(64);
-
-            while (Win32.StackWalkEx(
-                (uint)_machine,
-                processHandle,
-                threadHandle,
-                ref frame,
-                context,
-                null,
-                _functionTableAccess,
-                _getModuleBase,
-                null,
-                Win32.SYM_STKWALK_DEFAULT))
-            {
-                var pc = frame.AddrPC.Offset;
-                var method = _getMethodFromNativeIP?.Invoke((nint)pc);
-
-                // Managed code does not have an associated module, so avoid wasting time.
-                var module = method == null
-                    ? (nint)_getModuleBase((HANDLE)processHandle.DangerousGetHandle(), pc)
-                    : 0;
-
-                var cf = new CallFrame(frame, module, method);
-
-                foreach (var symbolicator in symbolicators)
-                {
-                    if (symbolicator.Symbolicate(cf) is CallFrameSymbol sym)
-                    {
-                        cf.Symbol = sym;
-
-                        break;
-                    }
+                    ip = context + 184; // eip
+                    sp = context + 196; // esp
+                    fp = context + 180; // ebp
                 }
 
-                cfs.Add(cf);
+                var frame = new STACKFRAME_EX
+                {
+                    StackFrameSize = (uint)sizeof(STACKFRAME_EX),
+                    AddrPC =
+                    {
+                        Offset = (nuint)ip,
+                        Mode = ADDRESS_MODE.AddrModeFlat,
+                    },
+                    AddrStack =
+                    {
+                        Offset = (nuint)sp,
+                        Mode = ADDRESS_MODE.AddrModeFlat,
+                    },
+                    AddrFrame =
+                    {
+                        Offset = (nuint)fp,
+                        Mode = ADDRESS_MODE.AddrModeFlat,
+                    },
+                };
+
+                using var thread = ThreadObject.OpenCurrent();
+
+                var processHandle = ProcessObject.Current.SafeHandle;
+                var threadHandle = thread.SafeHandle;
+
+                var cfs = new List<CallFrame>(64);
+
+                while (Win32.StackWalkEx(
+                    (uint)_machine,
+                    processHandle,
+                    threadHandle,
+                    ref frame,
+                    context,
+                    null,
+                    _functionTableAccess,
+                    _getModuleBase,
+                    null,
+                    Win32.SYM_STKWALK_DEFAULT))
+                {
+                    var pc = frame.AddrPC.Offset;
+                    var method = _getMethodFromNativeIP?.Invoke((nint)pc);
+
+                    // Managed code does not have an associated module, so avoid wasting time.
+                    var cf = new CallFrame(
+                        frame,
+                        method == null ? (nint)_getModuleBase((HANDLE)processHandle.DangerousGetHandle(), pc) : 0,
+                        method);
+
+                    foreach (var symbolicator in symbolicators)
+                    {
+                        if (symbolicator.Symbolicate(cf) is CallFrameSymbol sym)
+                        {
+                            cf.Symbol = sym;
+
+                            break;
+                        }
+                    }
+
+                    cfs.Add(cf);
+                }
+
+                // The first 3 frames are always RtlCaptureContext, CallTrace.CaptureCore, and CallTrace.Capture.
+                cfs.RemoveRange(0, 3);
+
+                return new(cfs.ToArray());
             }
-
-            // The first 3 frames are always RtlCaptureContext, CallTrace.CaptureCore, and CallTrace.Capture.
-            cfs.RemoveRange(0, 3);
-
-            return new(cfs.ToArray());
         }
     }
 

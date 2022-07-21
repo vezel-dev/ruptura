@@ -5,23 +5,26 @@ namespace Vezel.Ruptura.Memory.Code;
 public sealed unsafe class FunctionHook : IDisposable
 {
     // Hijacks the prologue of a target function by replacing it with a relative jump to a trampoline. The trampoline
-    // performs an absolute jump to the hook function. Additionally, a separate section of the trampoline contains the
-    // destroyed prologue instructions and a jump to the remainder of the original function - this section can be used
-    // to call the original function unmodified. The hook can be atomically enabled/disabled without entirely removing
-    // it. It is the caller's responsibility to ensure that the target function can accommodate the relative jump to
-    // the trampoline, which requires 5 bytes.
+    // consists of two parts: The first is a hook gate that, among other things, guards against some common reentrancy
+    // and deadlock problems and makes the hook's state object (if any) available, after which it calls into the hook
+    // function. The second is a section of code that contains the destroyed prologue instructions from the target
+    // function and an absolute jump to the remainder of the target function - this can be used to call the original
+    // target function unhooked. The hook can be atomically enabled/disabled without entirely removing it. It is the
+    // caller's responsibility to ensure that the target function can accommodate the relative jump to the hook gate,
+    // which requires 5 bytes.
 
     [StructLayout(LayoutKind.Sequential)]
     struct HookTrampoline
     {
-        // This jumps to the address in _jumpTarget, which is either the target function or hook function.
-        public fixed byte CallHook[32];
+        public fixed byte CallGate[256];
 
-        // This always jumps to the target function (after running prologue instructions that were destroyed).
-        public fixed byte CallTarget[32];
+        public fixed byte CallOriginal[64];
     }
 
     const int JumpInstructionSize = 5;
+
+    public static FunctionHook Current =>
+        FunctionHookGate.Hook ?? throw new InvalidOperationException("Not currently executing a function hook.");
 
     public void* TargetCode
     {
@@ -43,15 +46,18 @@ public sealed unsafe class FunctionHook : IDisposable
         }
     }
 
-    public void* TrampolineCode
+    public void* OriginalCode
     {
         get
         {
             ObjectDisposedException.ThrowIf(_allocation == null, this);
 
-            return ((HookTrampoline*)_allocation.Code)->CallTarget;
+            return ((HookTrampoline*)_allocation.Code)->CallOriginal;
         }
     }
+
+    public object State =>
+        _state ?? throw new InvalidOperationException("No state was associated with this function hook.");
 
     public bool IsActive
     {
@@ -59,119 +65,240 @@ public sealed unsafe class FunctionHook : IDisposable
         {
             ObjectDisposedException.ThrowIf(_allocation == null, this);
 
-            return Volatile.Read(ref *(nuint*)_jumpTarget) == (nuint)HookCode;
+            return _active;
         }
 
         set
         {
             ObjectDisposedException.ThrowIf(_allocation == null, this);
 
-            Volatile.Write(ref *(nuint*)_jumpTarget, (nuint)(value ? HookCode : TrampolineCode));
+            _active = value;
         }
     }
 
     static readonly ProcessObject _process = ProcessObject.Current;
 
+    readonly GCHandle _handle;
+
     readonly void* _target;
 
     readonly void* _hook;
 
-    readonly ReadOnlyMemory<Instruction> _prologue;
+    readonly object? _state;
 
-    readonly void** _jumpTarget;
+    readonly ReadOnlyMemory<byte> _prologue;
 
     CodeAllocation? _allocation;
+
+    bool _active;
 
     FunctionHook(
         void* target,
         void* hook,
-        ReadOnlyMemory<Instruction> prologue,
-        CodeAllocation allocation,
-        void** jumpTarget)
+        object? state,
+        ReadOnlySpan<byte> prologue,
+        CodeAllocation allocation)
     {
+        _handle = GCHandle.Alloc(this, GCHandleType.Normal);
         _target = target;
         _hook = hook;
-        _prologue = prologue;
+        _state = state;
+        _prologue = prologue.ToArray();
         _allocation = allocation;
-        _jumpTarget = jumpTarget;
     }
 
-    public static FunctionHook Create(CodeManager manager, void* target, void* hook)
+    public static FunctionHook Create(CodeManager manager, void* target, void* hook, object? state = null)
     {
-        var alloc = default(CodeAllocation);
-        var jumpTarget = default(void**);
+        ArgumentNullException.ThrowIfNull(manager);
+        ArgumentNullException.ThrowIfNull(target);
+        ArgumentNullException.ThrowIfNull(hook);
+
+        var prologue = new List<Instruction>();
+        var prologueSize = 0;
+
+        {
+            var disasm = new CodeDisassembler(new RawCodeReader((byte*)target), (nuint)target);
+
+            // Disassemble until we have at least 5 bytes for the jump instruction. Note that the jump may end up
+            // being smaller in the end since Iced optimizes it if possible.
+            while (prologueSize < JumpInstructionSize)
+            {
+                disasm.Disassemble(out var insn);
+                prologue.Add(insn);
+
+                prologueSize += insn.Length;
+            }
+        }
+
+        var placement = CodePlacement.Anywhere;
+
+        // The trampoline is always reachable on 32-bit, so no requirements in that case.
+        if (Environment.Is64BitProcess)
+        {
+            var baseAddr = (byte*)target + JumpInstructionSize;
+
+            var low = baseAddr + int.MinValue;
+
+            if (low > baseAddr)
+                low = null; // Underflow, i.e. the bottom of the address space is reachable.
+
+            var high = baseAddr + int.MaxValue;
+
+            if (high < baseAddr)
+                high = (byte*)null - 1; // Overflow, i.e. the top of the address space is reachable.
+
+            placement = CodePlacement.Range(low, high);
+        }
+
+        var alloc = manager.Allocate(sizeof(HookTrampoline), placement);
+
+        FunctionHook obj;
 
         try
         {
-            var placement = CodePlacement.Anywhere;
+            obj = new FunctionHook(target, hook, state, new(target, prologueSize), alloc);
+        }
+        catch (Exception)
+        {
+            alloc.Dispose();
 
-            // The trampoline is always reachable on 32-bit, so no requirements in that case.
-            if (Environment.Is64BitProcess)
-            {
-                var baseAddr = (byte*)target + JumpInstructionSize;
+            throw;
+        }
 
-                var low = baseAddr + int.MinValue;
+        // From this point on, all resources are owned by obj.
 
-                if (low > baseAddr)
-                    low = null; // Underflow, i.e. the bottom of the address space is reachable.
-
-                var high = baseAddr + int.MaxValue;
-
-                if (high < baseAddr)
-                    high = (byte*)null - 1; // Overflow, i.e. the top of the address space is reachable.
-
-                placement = CodePlacement.Range(low, high);
-            }
-
-            var prologue = new List<Instruction>();
-            var prologueSize = 0;
-
-            // Save the original prologue. We need this to construct the trampoline and when disposing.
-            {
-                var disasm = new CodeDisassembler(new RawCodeReader((byte*)target), (nuint)target);
-
-                // Disassemble until we have at least 5 bytes for the jump instruction. Note that the jump may end up
-                // being smaller in the end since Iced optimizes it if possible.
-                while (prologueSize < JumpInstructionSize)
-                {
-                    disasm.Disassemble(out var insn);
-                    prologue.Add(insn);
-
-                    prologueSize += insn.Length;
-                }
-            }
-
-            alloc = manager.Allocate(sizeof(HookTrampoline), placement);
-            jumpTarget = (void**)NativeMemory.Alloc((nuint)sizeof(void**));
-
+        try
+        {
             var tramp = (HookTrampoline*)alloc.Code;
 
-            // Generate a code stub that jumps to whatever location is at *jumpTarget, which is either going to be the
-            // hook function or the stub for calling the original function (that we generate below).
             {
                 var asm = new CodeAssembler();
 
-                var jump = (nuint)jumpTarget;
+                var original = asm.CreateLabel("original");
+                var exit = asm.CreateLabel("exit");
+                var done = asm.CreateLabel("done");
 
                 if (asm.Is64Bit)
                 {
-                    // Abuse the ret instruction to jump to an absolute address that we put on the stack. The push and
-                    // xchg ensure that whatever was in rax is preserved.
-                    asm.push(rax);
-                    asm.mov(rax, jump);
-                    asm.mov(rax, __qword_ptr[rax]);
-                    asm.xchg(__qword_ptr[rsp], rax);
-                    asm.ret();
+                    // TODO: Support vectorcall (X/YMM0 - X/YMM5 for arguments, X/YMM0 - X/YMM3 for results)?
+
+                    // Alignment, shadow space, 4 saved GPRs, and 4 saved FPRs.
+                    var frameSize = sizeof(ulong) * 9 + sizeof(Vector128<float>) * 4;
+
+                    var gprs = sizeof(ulong) * 4; // Skip over shadow space.
+                    var fprs = gprs + sizeof(ulong) * 4; // Skip over shadow space and 4 saved GPRs.
+
+                    asm.sub(rsp, frameSize);
+
+                    // RCX, RDX, R8, R9, XMM0, XMM1, XMM2, and XMM3 are argument registers in the x64 ABI. We have no
+                    // idea how many parameters the target function has, so we have to just save all of them.
+                    asm.mov(__qword_ptr[rsp + gprs + sizeof(ulong) * 3], rcx);
+                    asm.mov(__qword_ptr[rsp + gprs + sizeof(ulong) * 2], rdx);
+                    asm.mov(__qword_ptr[rsp + gprs + sizeof(ulong) * 1], r8);
+                    asm.mov(__qword_ptr[rsp + gprs + sizeof(ulong) * 0], r9);
+                    asm.movaps(__xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 3], xmm0);
+                    asm.movaps(__xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 2], xmm1);
+                    asm.movaps(__xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 1], xmm2);
+                    asm.movaps(__xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 0], xmm3);
+
+                    // Are we holding the loader lock? We absolutely should not execute managed code (including the hook
+                    // gate code) in this case, so bail out early and call the original target function.
+                    asm.mov(rax, __.gs[0x60]);              // TEB->PEB
+                    asm.mov(rax, __qword_ptr[rax + 0x110]); // PEB->LoaderLock
+                    asm.mov(rax, __qword_ptr[rax + 0x16]);  // LoaderLock->OwningThread
+                    asm.cmp(rax, __.gs[0x48]);              // TEB->ClientId.UniqueThread
+                    asm.je(original);
+
+                    // Enter through the hook gate. It will return the address of the hook function if we are actually
+                    // going to call it, or null if we are going to call the original target function.
+                    asm.mov(rcx, (nint)obj._handle);
+                    asm.lea(rdx, __qword_ptr[rsp + frameSize]);
+                    asm.mov(rax, (nuint)(delegate* unmanaged[Cdecl]<nint, void**, void*>)&FunctionHookGate.Enter);
+                    asm.call(rax);
+                    asm.cmp(rax, 0);
+                    asm.je(original);
+
+                    // We now know that we are going to call the hook function. Hijack the current return address so
+                    // that the hook function returns to the code below. This gives us the opportunity to exit through
+                    // the gate. RAX contains the hook function address, so use RCX as scratch here.
+                    asm.lea(rcx, __qword_ptr[exit]);
+                    asm.mov(__qword_ptr[rsp + frameSize], rcx);
+                    asm.jmp(done);
+
+                    asm.Label(ref original);
+                    {
+                        asm.mov(rax, (nuint)tramp->CallOriginal);
+                    }
+
+                    asm.Label(ref done);
+                    {
+                        // We are about to tail call either the original target function or the hook function. Restore
+                        // the (potential) arguments we saved earlier.
+                        asm.mov(r9, __qword_ptr[rsp + gprs + sizeof(ulong) * 0]);
+                        asm.mov(r8, __qword_ptr[rsp + gprs + sizeof(ulong) * 1]);
+                        asm.mov(rdx, __qword_ptr[rsp + gprs + sizeof(ulong) * 2]);
+                        asm.mov(rcx, __qword_ptr[rsp + gprs + sizeof(ulong) * 3]);
+                        asm.movaps(xmm3, __xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 0]);
+                        asm.movaps(xmm2, __xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 1]);
+                        asm.movaps(xmm1, __xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 2]);
+                        asm.movaps(xmm0, __xmmword_ptr[rsp + fprs + sizeof(Vector128<float>) * 3]);
+
+                        asm.add(rsp, frameSize);
+
+                        // It should be noted that using a tail call here is semantically very important. While we can
+                        // restore the argument registers as we do above, we simply have no way of knowing how many
+                        // stack-based parameters the target function might have. So, here, we rely on the fact that any
+                        // code that has called us does know that and has allocated sufficient stack space.
+                        //
+                        // Using a call instruction here would mean pushing a return address on the stack (in addition
+                        // to the one that is already there), which would cause the target function to read its
+                        // stack-based arguments from the wrong stack locations.
+                        //
+                        // A separate, future version of this API might require the user to supply a function prototype
+                        // so that we can handle the calling convention precisely, and avoid the need for the tail call
+                        // and return address hijacking...
+                        asm.jmp(rax);
+                    }
+
+                    // This is where we end up when the hook function returns. Exit through the hook gate and return.
+                    asm.Label(ref exit);
+                    {
+                        // Alignment, shadow space, saved RAX, and saved XMM0.
+                        var exitFrameSize = sizeof(ulong) * 6 + sizeof(Vector128<float>);
+
+                        var exitXmm0 = sizeof(ulong) * 4; // Skip over shadow space.
+                        var exitRax = exitXmm0 + sizeof(ulong); // Skip over shadow space and saved XMM0.
+
+                        asm.sub(rsp, exitFrameSize);
+
+                        // RAX and XMM0 are return value registers in the x64 ABI. We need to save them here since the
+                        // hook gate exit function might mess with them, and we have no idea whether the target function
+                        // has a return value.
+                        asm.movaps(__xmmword_ptr[rsp + exitXmm0], xmm0);
+                        asm.mov(__qword_ptr[rsp + exitRax], rcx);
+
+                        // Exit through the hook gate. It will return the original return address that was captured
+                        // when entering through the hook gate.
+                        asm.mov(rax, (nuint)(delegate* unmanaged[Cdecl]<void*>)&FunctionHookGate.Exit);
+                        asm.call(rax);
+                        asm.mov(rcx, rax);
+
+                        // Restore the (potential) return value we saved earlier.
+                        asm.movaps(xmm0, __xmmword_ptr[rsp + exitXmm0]);
+                        asm.mov(rax, __qword_ptr[rsp + exitRax]);
+
+                        asm.add(rsp, exitFrameSize);
+
+                        // We are finally done. Return to whatever code called the target function.
+                        asm.jmp(rcx);
+                    }
                 }
                 else
-                    asm.jmp(__dword_ptr[jump]);
+                    throw new NotImplementedException(); // TODO: Implement 32-bit hook gate.
 
-                asm.Assemble(new RawCodeWriter(tramp->CallHook), (nuint)tramp->CallHook);
+                asm.Assemble(new RawCodeWriter(tramp->CallGate), (nuint)tramp->CallGate);
             }
 
-            // Assemble a code stub that, effectively, calls the original, unmodified target function. We execute the
-            // instructions that we are going to destroy in the prologue and then jump to the remainder of the target
-            // function.
             {
                 var asm = new CodeAssembler();
 
@@ -182,52 +309,43 @@ public sealed unsafe class FunctionHook : IDisposable
                 foreach (var insn in prologue)
                     asm.AddInstruction(insn);
 
-                // We are now in the middle of the original code from the target function. We are extremely limited in
-                // what we can do here; all registers must be preserved. Iced will expand this to a jump that can reach
-                // the entire address space without dirtying registers, e.g. by embedding the jump target after the
-                // instruction and using an indirect jump if necessary.
+                // We are now logically in the middle of the original code from the target function. We are extremely
+                // limited in what we can do here; all registers must be preserved. Iced will expand this to a jump that
+                // can reach the entire address space without dirtying registers, e.g. by embedding the jump target
+                // after the instruction and using an indirect jump if necessary.
                 asm.jmp((nuint)((byte*)target + prologueSize));
 
-                asm.Assemble(new RawCodeWriter(tramp->CallTarget), (nuint)tramp->CallTarget);
+                asm.Assemble(new RawCodeWriter(tramp->CallOriginal), (nuint)tramp->CallOriginal);
             }
 
             alloc.Commit();
 
-            // Finally, patch the function we are hooking.
+            var access = _process.ProtectMemory(target, JumpInstructionSize, MemoryAccess.ExecuteReadWrite);
+
+            try
             {
-                var access = _process.ProtectMemory(target, JumpInstructionSize, MemoryAccess.ExecuteReadWrite);
+                var asm = new CodeAssembler();
 
-                try
-                {
-                    var asm = new CodeAssembler();
+                // 32-bit relative jump. This is always encoded as 5 bytes. The immediate has to be computed
+                // differently for 32-bit (simple 32-bit offset) and 64-bit (sign-extended to 64-bit offset), but
+                // Iced takes care of that for us.
+                asm.jmp((nuint)tramp->CallGate);
 
-                    // 32-bit relative jump. This is always encoded as 5 bytes. The immediate has to be computed
-                    // differently for 32-bit (simple 32-bit offset) and 64-bit (sign-extended to 64-bit offset), but
-                    // Iced takes care of that for us.
-                    asm.jmp((nuint)tramp->CallHook);
-
-                    asm.Assemble(new RawCodeWriter((byte*)target), (nuint)target);
-                }
-                finally
-                {
-                    _ = _process.ProtectMemory(target, JumpInstructionSize, access);
-                }
+                asm.Assemble(new RawCodeWriter((byte*)target), (nuint)target);
             }
-
-            // TODO: It is technically possible for an OutOfMemoryException to happen here, however unlikely. We should
-            // revert the patch to the target function in that case.
-            return new(target, hook, prologue.ToArray(), alloc, jumpTarget)
+            finally
             {
-                IsActive = false, // Initializes *jumpTarget to tramp->CallTarget.
-            };
+                _ = _process.ProtectMemory(target, JumpInstructionSize, access);
+            }
         }
         catch (Exception)
         {
-            NativeMemory.Free(jumpTarget);
-            alloc?.Dispose();
+            obj.Dispose();
 
             throw;
         }
+
+        return obj;
     }
 
     public void Dispose()
@@ -242,21 +360,15 @@ public sealed unsafe class FunctionHook : IDisposable
 
         try
         {
-            var asm = new CodeAssembler();
-
-            foreach (var insn in _prologue.Span)
-                asm.AddInstruction(insn);
-
-            // Restore the original prologue.
-            asm.Assemble(new RawCodeWriter((byte*)_target), (nuint)_target);
+            _prologue.Span.CopyTo(new(_target, _prologue.Length));
         }
         finally
         {
             _ = _process.ProtectMemory((byte*)_target, JumpInstructionSize, access);
         }
 
-        _allocation?.Dispose();
-        NativeMemory.Free(_jumpTarget);
+        _allocation.Dispose();
+        _handle.Free();
 
         _allocation = null;
     }

@@ -18,6 +18,8 @@
         <Using Include="System.Runtime.ExceptionServices" />
         <Using Include="System.Runtime.InteropServices" />
         <Using Include="System.Runtime.InteropServices.ComTypes" />
+        <Using Include="System.Runtime.Intrinsics"
+               Condition="'$(TargetFramework)' != 'netstandard2.0'" />
         <Using Include="System.Text" />
         <Using Include="System.Threading" />
     </ItemGroup>

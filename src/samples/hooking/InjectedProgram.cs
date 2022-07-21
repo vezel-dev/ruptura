@@ -109,6 +109,6 @@ sealed class InjectedProgram : IInjectedProgram
     {
         _counter++;
 
-        ((delegate* unmanaged[Stdcall]<void>)_hook!.TrampolineCode)();
+        ((delegate* unmanaged[Stdcall]<void>)_hook!.OriginalCode)();
     }
 }
