@@ -19,8 +19,7 @@ This project offers the following packages:
   Provides the infrastructure to inject the .NET runtime and assemblies into
   processes.
 * [Vezel.Ruptura.Memory](https://www.nuget.org/packages/Vezel.Ruptura.Memory):
-  Provides function hooking and memory manipulation utilities for use by
-  injected programs.
+  Provides function hooking, memory manipulation, and call tracing utilities.
 * [Vezel.Ruptura.System](https://www.nuget.org/packages/Vezel.Ruptura.System):
   Provides lightweight managed wrappers around operating system objects such as
   processes and threads.

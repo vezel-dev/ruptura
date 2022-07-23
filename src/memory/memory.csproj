@@ -4,8 +4,8 @@
         <IsPackable>true</IsPackable>
         <PackageDescription>$(PackageDescription)
 
-This package provides function hooking and memory manipulation utilities for use
-by injected programs.</PackageDescription>
+This package provides function hooking, memory manipulation, and call tracing
+utilities.</PackageDescription>
         <PackageId>Vezel.Ruptura.Memory</PackageId>
         <RootNamespace>Vezel.Ruptura.Memory</RootNamespace>
     </PropertyGroup>
