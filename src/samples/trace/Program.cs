@@ -2,6 +2,8 @@ static unsafe class Program
 {
     static CallTrace? _trace;
 
+    static string? _result;
+
     public static int Main()
     {
         var lib = NativeLibrary.Load("kernel32.dll");
@@ -14,13 +16,15 @@ static unsafe class Program
                 lib, "SetThreadDescription");
 
             using var hook = FunctionHook.Create(
-                manager, func, (delegate* unmanaged[Stdcall]<nint, char*, int>)&SetThreadDescriptionHook);
+                manager, func, (delegate* unmanaged[Stdcall]<nint, char*, int>)&SetThreadDescriptionHook, "foo");
 
             hook.IsActive = true;
 
-            return func(-1, null) == 0 &&
-                _trace?.Frames is { Count: > 20 } &&
-                _trace.Frames[0].ManagedMethod?.Name == "CaptureTrace" ? 0 : 1;
+            fixed (char* ptr = "bar")
+                return func(-1, ptr) == 0 &&
+                    _result == "foobar" &&
+                    _trace?.Frames is { Count: > 20 } &&
+                    _trace.Frames[0].ManagedMethod?.Name == "CaptureTrace" ? 0 : 1;
         }
         finally
         {
@@ -31,9 +35,12 @@ static unsafe class Program
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     static int SetThreadDescriptionHook(nint hThread, char* lpThreadDescription)
     {
-        // Ensure that we can capture a trace involving DynamicMethod frames.
         try
         {
+            _result = FunctionHook.Current.State + new string(lpThreadDescription);
+
+            // Ensure that we can capture a trace involving DynamicMethod frames.
+
             var method = new DynamicMethod("CaptureTraceWrapper", typeof(void), Type.EmptyTypes, typeof(Program));
             var cil = method.GetILGenerator();
 
