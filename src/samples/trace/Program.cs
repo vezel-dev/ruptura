@@ -1,7 +1,5 @@
 static unsafe class Program
 {
-    static FunctionHook? _hook;
-
     static CallTrace? _trace;
 
     public static int Main()
@@ -15,31 +13,54 @@ static unsafe class Program
             var func = (delegate* unmanaged[Stdcall]<nint, char*, int>)NativeLibrary.GetExport(
                 lib, "SetThreadDescription");
 
-            using (_hook = FunctionHook.Create(
-                manager, func, (delegate* unmanaged[Stdcall]<nint, char*, int>)&SetThreadDescriptionHook))
-            {
-                _hook.IsActive = true;
+            using var hook = FunctionHook.Create(
+                manager, func, (delegate* unmanaged[Stdcall]<nint, char*, int>)&SetThreadDescriptionHook);
 
-                _ = func(-1, null);
-            }
+            hook.IsActive = true;
+
+            return func(-1, null) == 0 &&
+                _trace?.Frames is { Count: > 20 } &&
+                _trace.Frames[0].ManagedMethod?.Name == "CaptureTrace" ? 0 : 1;
         }
         finally
         {
             NativeLibrary.Free(lib);
         }
-
-        return _trace?.Frames is { Count: > 20 } && _trace.Frames[0].ManagedMethod?.Name == "SetThreadDescriptionHook"
-            ? 0
-            : 1;
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     static int SetThreadDescriptionHook(nint hThread, char* lpThreadDescription)
     {
+        // Ensure that we can capture a trace involving DynamicMethod frames.
+        try
+        {
+            var method = new DynamicMethod("CaptureTraceWrapper", typeof(void), Type.EmptyTypes, typeof(Program));
+            var cil = method.GetILGenerator();
+
+            cil.EmitCall(
+                OpCodes.Call,
+                typeof(Program).GetMethod(
+                    nameof(CaptureTrace),
+                    BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic)!,
+                null);
+            cil.Emit(OpCodes.Ret);
+
+            _ = method.Invoke(null, null);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+
+            return 1;
+        }
+
+        return 0;
+    }
+
+    static void CaptureTrace()
+    {
         _trace = CallTrace.Capture();
 
         Console.WriteLine(_trace);
-
-        return 0;
     }
 }

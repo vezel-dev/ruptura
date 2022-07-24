@@ -122,15 +122,15 @@ public sealed unsafe class CallTrace
                 // Hardcoded CONTEXT offsets to avoid needing platform-specific CONTEXT structs.
                 if (Environment.Is64BitProcess)
                 {
-                    ip = context + 248; // rip
-                    sp = context + 152; // rsp
-                    fp = context + 160; // rbp
+                    ip = context + 248; // RIP
+                    sp = context + 152; // RSP
+                    fp = context + 160; // RBP
                 }
                 else
                 {
-                    ip = context + 184; // eip
-                    sp = context + 196; // esp
-                    fp = context + 180; // ebp
+                    ip = context + 184; // EIP
+                    sp = context + 196; // ESP
+                    fp = context + 180; // EBP
                 }
 
                 var frame = new STACKFRAME_EX

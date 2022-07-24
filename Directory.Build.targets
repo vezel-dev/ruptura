@@ -13,6 +13,7 @@
         <Using Include="System.Globalization" />
         <Using Include="System.IO.MemoryMappedFiles" />
         <Using Include="System.Reflection" />
+        <Using Include="System.Reflection.Emit" />
         <Using Include="System.Runtime.CompilerServices" />
         <Using Include="System.Runtime.ConstrainedExecution" />
         <Using Include="System.Runtime.ExceptionServices" />

@@ -4,6 +4,20 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
 {
     public static ManagedCallFrameSymbolicator Instance { get; } = new();
 
+    // These are internal APIs that we are exploiting. They may or may not be present.
+
+    static readonly Func<DynamicMethod, RuntimeMethodHandle>? _getMethodDescriptor =
+        typeof(DynamicMethod)
+            .GetMethod(
+                "GetMethodDescriptor",
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+            ?.CreateDelegate<Func<DynamicMethod, RuntimeMethodHandle>>();
+
+    static readonly FieldInfo? _owner =
+        typeof(object).Assembly
+            .GetType("System.Reflection.Emit.DynamicMethod+RTDynamicMethod")
+            ?.GetField("m_owner", BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic);
+
     ManagedCallFrameSymbolicator()
     {
     }
@@ -51,7 +65,24 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
 
         _ = sb.Append(')');
 
+        RuntimeMethodHandle? rmh;
+
+        try
+        {
+            rmh = method.MethodHandle;
+        }
+        catch (InvalidOperationException)
+        {
+            // This gets thrown if we are dealing with a DynamicMethod. The trick, though, is that method is actually an
+            // instance of RTDynamicMethod, an internal class nested in DynamicMethod and deriving from MethodInfo. Do
+            // our best to get at its method handle, but if we cannot, we just use the frame IP below.
+
+            rmh = (_owner, _getMethodDescriptor) is (not null, not null)
+                ? _getMethodDescriptor((DynamicMethod)_owner.GetValue(method)!)
+                : null;
+        }
+
         // TODO: Figure out a way to get source location information.
-        return new((void*)method.MethodHandle.GetFunctionPointer(), sb.ToString(), null, 0, 0);
+        return new((void*)(rmh?.GetFunctionPointer() ?? (nint)frame.IP), sb.ToString(), null, 0, 0);
     }
 }
