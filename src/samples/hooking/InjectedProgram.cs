@@ -2,8 +2,6 @@ sealed class InjectedProgram : IInjectedProgram
 {
     static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
 
-    static FunctionHook? _hook;
-
     static int _counter;
 
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
@@ -82,21 +80,20 @@ sealed class InjectedProgram : IInjectedProgram
 
             using var manager = new PageCodeManager();
 
-            using (_hook = FunctionHook.Create(
-                manager, func, (delegate* unmanaged[Stdcall]<void>)&FlushProcessWriteBuffersHook))
-            {
-                func();
+            using var hook = FunctionHook.Create(
+                manager, func, (delegate* unmanaged[Stdcall]<void>)&FlushProcessWriteBuffersHook);
 
-                _hook.IsActive = true;
+            func();
 
-                func();
+            hook.IsActive = true;
 
-                _hook.IsActive = false;
+            func();
 
-                func();
+            hook.IsActive = false;
 
-                return _counter;
-            }
+            func();
+
+            return _counter;
         }
         finally
         {
@@ -109,6 +106,6 @@ sealed class InjectedProgram : IInjectedProgram
     {
         _counter++;
 
-        ((delegate* unmanaged[Stdcall]<void>)_hook!.OriginalCode)();
+        ((delegate* unmanaged[Stdcall]<void>)FunctionHook.Current.OriginalCode)();
     }
 }
