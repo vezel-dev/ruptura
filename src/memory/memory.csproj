@@ -22,11 +22,6 @@ utilities.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Include="memory.descriptors.xml"
-                          LogicalName="ILLink.Descriptors.xml" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="../system/system.csproj" />
     </ItemGroup>
 

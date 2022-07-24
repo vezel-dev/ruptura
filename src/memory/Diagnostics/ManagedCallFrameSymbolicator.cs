@@ -10,12 +10,12 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
         typeof(DynamicMethod)
             .GetMethod(
                 "GetMethodDescriptor",
-                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+                BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic)
             ?.CreateDelegate<Func<DynamicMethod, RuntimeMethodHandle>>();
 
     static readonly FieldInfo? _owner =
-        typeof(object).Assembly
-            .GetType("System.Reflection.Emit.DynamicMethod+RTDynamicMethod")
+        typeof(DynamicMethod)
+            .GetNestedType("RTDynamicMethod", BindingFlags.DeclaredOnly | BindingFlags.NonPublic)
             ?.GetField("m_owner", BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic);
 
     ManagedCallFrameSymbolicator()
