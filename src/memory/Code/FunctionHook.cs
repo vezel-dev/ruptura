@@ -275,7 +275,7 @@ public sealed unsafe class FunctionHook : IDisposable
                         // hook gate exit function might mess with them, and we have no idea whether the target function
                         // has a return value.
                         asm.movaps(__xmmword_ptr[rsp + exitXmm0], xmm0);
-                        asm.mov(__qword_ptr[rsp + exitRax], rcx);
+                        asm.mov(__qword_ptr[rsp + exitRax], rax);
 
                         // Exit through the hook gate. It will return the original return address that was captured
                         // when entering through the hook gate.
