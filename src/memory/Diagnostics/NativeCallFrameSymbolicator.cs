@@ -1,6 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Diagnostics;
 
@@ -19,16 +19,16 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
         var ip = (nuint)frame.IP;
         var context = frame.Frame.InlineFrameContext;
 
-        var symBuffer = (stackalloc byte[sizeof(SYMBOL_INFOW) + sizeof(char) * ((int)Win32.MAX_SYM_NAME + 1)]);
+        var symBuffer = (stackalloc byte[sizeof(SYMBOL_INFOW) + sizeof(char) * ((int)MAX_SYM_NAME + 1)]);
 
         ref var symInfo = ref MemoryMarshal.AsRef<SYMBOL_INFOW>(symBuffer);
 
         symInfo.SizeOfStruct = (uint)sizeof(SYMBOL_INFOW);
-        symInfo.MaxNameLen = Win32.MAX_SYM_NAME;
+        symInfo.MaxNameLen = MAX_SYM_NAME;
 
         ulong disp;
 
-        if (!Win32.SymFromInlineContextW(_process.SafeHandle, ip, context, &disp, ref symInfo))
+        if (!SymFromInlineContextW(_process.SafeHandle, ip, context, &disp, ref symInfo))
             return null;
 
         var lineInfo = new IMAGEHLP_LINEW64
@@ -37,7 +37,7 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
         };
         var column = 0u;
 
-        _ = Win32.SymGetLineFromInlineContextW(
+        _ = SymGetLineFromInlineContextW(
             (HANDLE)_process.SafeHandle.DangerousGetHandle(), ip, context, 0, &column, &lineInfo);
 
         fixed (char* p = &symInfo.Name[0])

@@ -99,7 +99,7 @@ public sealed unsafe class FunctionHook : IDisposable
         ReadOnlySpan<byte> prologue,
         CodeAllocation allocation)
     {
-        _handle = GCHandle.Alloc(this, GCHandleType.Normal);
+        _handle = GCHandle.Alloc(this);
         _target = target;
         _hook = hook;
         _state = state;

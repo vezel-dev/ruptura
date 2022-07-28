@@ -1,7 +1,7 @@
 using Vezel.Ruptura.Injection.IO;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Threading;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Injection;
 
@@ -64,7 +64,7 @@ public sealed unsafe class TargetProcess : IDisposable
         // CreateProcess can modify the command line arguments, so create a mutable array.
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
-        if (!Win32.CreateProcessW(
+        if (!CreateProcessW(
             null,
             ref args,
             null,
@@ -87,14 +87,14 @@ public sealed unsafe class TargetProcess : IDisposable
         catch (Exception)
         {
             // Not much can be done if this fails.
-            _ = Win32.CloseHandle(info.hProcess);
+            _ = CloseHandle(info.hProcess);
 
             throw;
         }
         finally
         {
             // Ditto.
-            _ = Win32.CloseHandle(info.hThread);
+            _ = CloseHandle(info.hThread);
         }
     }
 
@@ -200,7 +200,7 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal ThreadObject CreateThread(nuint address, nuint parameter)
     {
-        using var handle = Win32.CreateRemoteThreadEx(
+        using var handle = CreateRemoteThreadEx(
             _object.SafeHandle,
             null,
             0,

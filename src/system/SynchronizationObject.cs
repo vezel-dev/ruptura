@@ -1,6 +1,6 @@
 using Vezel.Ruptura.System.SafeHandles;
 using Windows.Win32.Foundation;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -14,7 +14,7 @@ public abstract class SynchronizationObject : KernelObject
     private static WIN32_ERROR WaitMultiple(
         ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
-        _ = objects.Length is > 0 and <= (int)Win32.MAXIMUM_WAIT_OBJECTS ?
+        _ = objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS ?
             true : throw new ArgumentException(null, nameof(objects));
 
         var count = objects.Length;
@@ -40,7 +40,7 @@ public abstract class SynchronizationObject : KernelObject
                 unsafeHandles[i] = (HANDLE)handle.DangerousGetHandle();
             }
 
-            return (WIN32_ERROR)Win32.WaitForMultipleObjectsEx(
+            return (WIN32_ERROR)WaitForMultipleObjectsEx(
                 unsafeHandles, all, (uint)timeout.TotalMilliseconds, alertable) switch
             {
                 WIN32_ERROR.WAIT_FAILED => throw new Win32Exception(),
@@ -85,7 +85,7 @@ public abstract class SynchronizationObject : KernelObject
 
     public WaitResult Wait(TimeSpan timeout, bool alertable)
     {
-        return (WIN32_ERROR)Win32.WaitForSingleObjectEx(SafeHandle, (uint)timeout.TotalMilliseconds, alertable) switch
+        return (WIN32_ERROR)WaitForSingleObjectEx(SafeHandle, (uint)timeout.TotalMilliseconds, alertable) switch
         {
             WIN32_ERROR.WAIT_TIMEOUT => WaitResult.TimedOut,
             WIN32_ERROR.WAIT_IO_COMPLETION => WaitResult.Alerted,

@@ -1,7 +1,7 @@
 using Vezel.Ruptura.Memory.Code;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Diagnostics;
 
@@ -53,12 +53,11 @@ public sealed unsafe class CallTrace
                 _getModuleBase = &GetModuleBase32;
             }
 
-            _ = Win32.SymSetOptions(
-                Win32.SymGetOptions() | Win32.SYMOPT_UNDNAME | Win32.SYMOPT_DEFERRED_LOADS | Win32.SYMOPT_LOAD_LINES);
+            _ = SymSetOptions(SymGetOptions() | SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_LOAD_LINES);
 
             var processHandle = ProcessObject.Current.SafeHandle;
 
-            if (!Win32.SymInitializeW(processHandle, null, true))
+            if (!SymInitializeW(processHandle, null, true))
             {
                 _error = Marshal.GetLastPInvokeError();
 
@@ -71,7 +70,7 @@ public sealed unsafe class CallTrace
                 lock (_lock)
                 {
                     // Nothing we can do if this fails.
-                    _ = Win32.SymCleanup(processHandle);
+                    _ = SymCleanup(processHandle);
 
                     NativeLibrary.Free(_kernel32);
                 }
@@ -161,7 +160,7 @@ public sealed unsafe class CallTrace
 
                 var cfs = new List<CallFrame>(64);
 
-                while (Win32.StackWalkEx(
+                while (StackWalkEx(
                     (uint)_machine,
                     processHandle,
                     threadHandle,
@@ -171,7 +170,7 @@ public sealed unsafe class CallTrace
                     _functionTableAccess,
                     _getModuleBase,
                     null,
-                    Win32.SYM_STKWALK_DEFAULT))
+                    SYM_STKWALK_DEFAULT))
                 {
                     var pc = frame.AddrPC.Offset;
                     var method = _getMethodFromNativeIP?.Invoke((nint)pc);
@@ -208,7 +207,7 @@ public sealed unsafe class CallTrace
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static void* FunctionTableAccess32(HANDLE process, ulong address)
     {
-        return Win32.SymFunctionTableAccess64(process, address);
+        return SymFunctionTableAccess64(process, address);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
@@ -222,7 +221,7 @@ public sealed unsafe class CallTrace
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
     private static ulong GetModuleBase32(HANDLE process, ulong address)
     {
-        return Win32.SymGetModuleBase64(process, address);
+        return SymGetModuleBase64(process, address);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]

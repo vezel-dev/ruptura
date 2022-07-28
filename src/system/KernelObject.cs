@@ -1,6 +1,6 @@
 using Vezel.Ruptura.System.SafeHandles;
 using Windows.Win32.Foundation;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -23,14 +23,14 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
     {
         [SuppressMessage("", "CA1065")]
         get =>
-            Win32.GetHandleInformation(SafeHandle, out var flags)
+            GetHandleInformation(SafeHandle, out var flags)
                 ? ((HANDLE_FLAGS)flags).HasFlag(HANDLE_FLAGS.HANDLE_FLAG_INHERIT)
                 : throw new Win32Exception();
         set
         {
             var flag = HANDLE_FLAGS.HANDLE_FLAG_INHERIT;
 
-            if (!Win32.SetHandleInformation(SafeHandle, (uint)flag, value ? flag : 0))
+            if (!SetHandleInformation(SafeHandle, (uint)flag, value ? flag : 0))
                 throw new Win32Exception();
         }
     }
@@ -66,7 +66,7 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
 
     public bool Equals(KernelObject? other)
     {
-        return other != null && Win32.CompareObjectHandles(SafeHandle, other.SafeHandle);
+        return other != null && CompareObjectHandles(SafeHandle, other.SafeHandle);
     }
 
     public override bool Equals([NotNullWhen(true)] object? obj)

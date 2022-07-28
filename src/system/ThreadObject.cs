@@ -1,25 +1,24 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Threading;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
 public sealed unsafe class ThreadObject : SynchronizationObject
 {
-    public static int CurrentId => (int)Win32.GetCurrentThreadId();
+    public static int CurrentId => (int)GetCurrentThreadId();
 
     [SuppressMessage("", "CA1065")]
-    public int ProcessId =>
-        Win32.GetProcessIdOfThread(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
+    public int ProcessId => GetProcessIdOfThread(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
     [SuppressMessage("", "CA1065")]
-    public int Id => Win32.GetThreadId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
+    public int Id => GetThreadId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
     public string Description
     {
         get
         {
-            _ = Win32.GetThreadDescription(SafeHandle, out var desc).ThrowOnFailure();
+            _ = GetThreadDescription(SafeHandle, out var desc).ThrowOnFailure();
 
             try
             {
@@ -27,22 +26,22 @@ public sealed unsafe class ThreadObject : SynchronizationObject
             }
             finally
             {
-                _ = Win32.LocalFree((nint)(char*)desc);
+                _ = LocalFree((nint)(char*)desc);
             }
         }
-        set => Win32.SetThreadDescription(SafeHandle, value).ThrowOnFailure();
+        set => SetThreadDescription(SafeHandle, value).ThrowOnFailure();
     }
 
     public PriorityLevel PriorityLevel
     {
         [SuppressMessage("", "CA1065")]
         get =>
-            Win32.GetThreadPriority(SafeHandle) is var prio and not (int)Win32.THREAD_PRIORITY_ERROR_RETURN
+            GetThreadPriority(SafeHandle) is var prio and not (int)THREAD_PRIORITY_ERROR_RETURN
                 ? (PriorityLevel)prio
                 : throw new Win32Exception();
         set
         {
-            if (!Win32.SetThreadPriority(SafeHandle, (THREAD_PRIORITY)value))
+            if (!SetThreadPriority(SafeHandle, (THREAD_PRIORITY)value))
                 throw new Win32Exception();
         }
     }
@@ -50,19 +49,16 @@ public sealed unsafe class ThreadObject : SynchronizationObject
     public bool PriorityBoostEnabled
     {
         [SuppressMessage("", "CA1065")]
-        get => Win32.GetThreadPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
+        get => GetThreadPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
         set
         {
-            if (!Win32.SetThreadPriorityBoost(SafeHandle, !value))
+            if (!SetThreadPriorityBoost(SafeHandle, !value))
                 throw new Win32Exception();
         }
     }
 
     [SuppressMessage("", "CA1065")]
-    public bool IsBlockingIO =>
-        Win32.GetThreadIOPendingFlag(SafeHandle, out var flag)
-            ? flag
-            : throw new Win32Exception();
+    public bool IsBlockingIO => GetThreadIOPendingFlag(SafeHandle, out var flag) ? flag : throw new Win32Exception();
 
     private ThreadObject(nint handle)
         : base(handle)
@@ -73,12 +69,12 @@ public sealed unsafe class ThreadObject : SynchronizationObject
     {
         uint unused;
 
-        return Win32.GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
+        return GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
     }
 
     public static ThreadObject OpenId(int id, ThreadAccess? access)
     {
-        return Win32.OpenThread(
+        return OpenThread(
             access is ThreadAccess acc ? (THREAD_ACCESS_RIGHTS)acc : THREAD_ACCESS_RIGHTS.THREAD_ALL_ACCESS,
             false,
             (uint)id) is { IsNull: false } handle
@@ -93,7 +89,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public static void GetStackBounds(out void* low, out void* high)
     {
-        Win32.GetCurrentThreadStackLimits(out var lowLimit, out var highLimit);
+        GetCurrentThreadStackLimits(out var lowLimit, out var highLimit);
 
         low = (void*)lowLimit;
         high = (void*)highLimit;
@@ -101,23 +97,23 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public static bool Yield()
     {
-        return Win32.SwitchToThread();
+        return SwitchToThread();
     }
 
     public static bool Sleep(TimeSpan duration, bool alertable)
     {
-        return Win32.SleepEx((uint)duration.TotalMilliseconds, alertable) == 0;
+        return SleepEx((uint)duration.TotalMilliseconds, alertable) == 0;
     }
 
     public static void Exit(int code)
     {
-        Win32.ExitThread((uint)code);
+        ExitThread((uint)code);
     }
 
     public void GetTimes(
         out DateTime creationTime, out DateTime exitTime, out TimeSpan kernelTime, out TimeSpan userTime)
     {
-        if (!Win32.GetThreadTimes(SafeHandle, out var creation, out var exit, out var kernel, out var user))
+        if (!GetThreadTimes(SafeHandle, out var creation, out var exit, out var kernel, out var user))
             throw new Win32Exception();
 
         static long ToTicks(FILETIME time)
@@ -133,47 +129,45 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public void BeginBackgroundMode()
     {
-        if (!Win32.SetThreadPriority(SafeHandle, THREAD_PRIORITY.THREAD_MODE_BACKGROUND_BEGIN))
+        if (!SetThreadPriority(SafeHandle, THREAD_PRIORITY.THREAD_MODE_BACKGROUND_BEGIN))
             throw new Win32Exception();
     }
 
     public void EndBackgroundMode()
     {
-        if (!Win32.SetThreadPriority(SafeHandle, THREAD_PRIORITY.THREAD_MODE_BACKGROUND_END))
+        if (!SetThreadPriority(SafeHandle, THREAD_PRIORITY.THREAD_MODE_BACKGROUND_END))
             throw new Win32Exception();
     }
 
     public bool CancelSynchronousIO()
     {
-        return Win32.CancelSynchronousIo(SafeHandle) ||
+        return CancelSynchronousIo(SafeHandle) ||
             (Marshal.GetLastPInvokeError() == (int)WIN32_ERROR.ERROR_NOT_FOUND ? false : throw new Win32Exception());
     }
 
     public int Suspend()
     {
-        return Win32.SuspendThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
+        return SuspendThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
     }
 
     public int SuspendWow64()
     {
-        return Win32.Wow64SuspendThread(SafeHandle) is var ret and not uint.MaxValue
-            ? (int)ret
-            : throw new Win32Exception();
+        return Wow64SuspendThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
     }
 
     public int Resume()
     {
-        return Win32.ResumeThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
+        return ResumeThread(SafeHandle) is var ret and not uint.MaxValue ? (int)ret : throw new Win32Exception();
     }
 
     public void Terminate(int code)
     {
-        if (!Win32.TerminateThread(SafeHandle, (uint)code))
+        if (!TerminateThread(SafeHandle, (uint)code))
             throw new Win32Exception();
     }
 
     public int GetExitCode()
     {
-        return Win32.GetExitCodeThread(SafeHandle, out var code) ? (int)code : throw new Win32Exception();
+        return GetExitCodeThread(SafeHandle, out var code) ? (int)code : throw new Win32Exception();
     }
 }

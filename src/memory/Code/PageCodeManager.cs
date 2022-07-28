@@ -1,5 +1,5 @@
 using Windows.Win32.System.SystemInformation;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Code;
 
@@ -220,7 +220,7 @@ public sealed unsafe class PageCodeManager : CodeManager
 
     static PageCodeManager()
     {
-        Win32.GetSystemInfo(out _info);
+        GetSystemInfo(out _info);
     }
 
     public override void Dispose()

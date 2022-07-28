@@ -1,6 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.ToolHelp;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -27,7 +27,7 @@ public readonly struct HeapSnapshot
             dwSize = (uint)Unsafe.SizeOf<HEAPENTRY32>(),
         };
 
-        var result = Win32.Heap32First(ref entry, (uint)ProcessId, (nuint)Id);
+        var result = Heap32First(ref entry, (uint)ProcessId, (nuint)Id);
 
         while (true)
         {
@@ -54,7 +54,7 @@ public readonly struct HeapSnapshot
 
             yield return CreateHeapBlock(entry);
 
-            result = Win32.Heap32Next(ref entry);
+            result = Heap32Next(ref entry);
         }
     }
 }

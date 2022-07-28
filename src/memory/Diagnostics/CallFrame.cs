@@ -1,6 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Memory.Diagnostics;
 
@@ -53,14 +53,14 @@ public sealed unsafe class CallFrame
         else if (ModuleHandle != 0)
         {
             var handle = (HINSTANCE)ModuleHandle;
-            var length = Win32.MAX_PATH;
+            var length = MAX_PATH;
             var buffer = (char*)NativeMemory.Alloc(sizeof(char) * length); // TODO: Remove this cast.
 
             try
             {
                 uint ret;
 
-                while ((ret = Win32.GetModuleFileNameW(handle, buffer, length)) == length)
+                while ((ret = GetModuleFileNameW(handle, buffer, length)) == length)
                 {
                     length *= 2;
 

@@ -1,4 +1,4 @@
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -6,6 +6,6 @@ namespace Vezel.Ruptura.System;
 [SuppressMessage("", "CA1711")]
 public enum HeapSnapshotFlags : uint
 {
-    Default = Win32.HF32_DEFAULT,
-    Shared = Win32.HF32_SHARED,
+    Default = HF32_DEFAULT,
+    Shared = HF32_SHARED,
 }

@@ -1,8 +1,9 @@
+using Windows.Win32;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Memory;
 using Windows.Win32.System.SystemInformation;
 using Windows.Win32.System.Threading;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -10,19 +11,18 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 {
     public static ProcessObject Current { get; } = OpenCurrent();
 
-    public static int CurrentId => (int)Win32.GetCurrentProcessId();
+    public static int CurrentId => (int)GetCurrentProcessId();
 
     [SuppressMessage("", "CA1065")]
-    public int Id => Win32.GetProcessId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
+    public int Id => GetProcessId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
     public PriorityClass PriorityClass
     {
         [SuppressMessage("", "CA1065")]
-        get =>
-            Win32.GetPriorityClass(SafeHandle) is var cls and not 0 ? (PriorityClass)cls : throw new Win32Exception();
+        get => GetPriorityClass(SafeHandle) is var cls and not 0 ? (PriorityClass)cls : throw new Win32Exception();
         set
         {
-            if (!Win32.SetPriorityClass(SafeHandle, (PROCESS_CREATION_FLAGS)value))
+            if (!SetPriorityClass(SafeHandle, (PROCESS_CREATION_FLAGS)value))
                 throw new Win32Exception();
         }
     }
@@ -30,10 +30,10 @@ public sealed unsafe class ProcessObject : SynchronizationObject
     public bool PriorityBoostEnabled
     {
         [SuppressMessage("", "CA1065")]
-        get => Win32.GetProcessPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
+        get => GetProcessPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
         set
         {
-            if (!Win32.SetProcessPriorityBoost(SafeHandle, !value))
+            if (!SetProcessPriorityBoost(SafeHandle, !value))
                 throw new Win32Exception();
         }
     }
@@ -47,12 +47,12 @@ public sealed unsafe class ProcessObject : SynchronizationObject
     {
         uint unused;
 
-        return Win32.GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
+        return GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
     }
 
     public static ProcessObject OpenId(int id, ProcessAccess? access)
     {
-        return Win32.OpenProcess(
+        return OpenProcess(
             access is ProcessAccess acc ? (PROCESS_ACCESS_RIGHTS)acc : PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS,
             false,
             (uint)id) is { IsNull: false } handle
@@ -67,19 +67,19 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public static void FlushWriteBuffers()
     {
-        Win32.FlushProcessWriteBuffers();
+        FlushProcessWriteBuffers();
     }
 
     public static void Exit(int code)
     {
-        Win32.ExitProcess((uint)code);
+        ExitProcess((uint)code);
     }
 
     public (ImageMachine System, ImageMachine Process) GetWow64Mode()
     {
         IMAGE_FILE_MACHINE system;
 
-        return Win32.IsWow64Process2(SafeHandle, out var process, &system)
+        return IsWow64Process2(SafeHandle, out var process, &system)
             ? ((ImageMachine)system, (ImageMachine)process)
             : throw new Win32Exception();
     }
@@ -87,7 +87,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
     public void GetTimes(
         out DateTime creationTime, out DateTime exitTime, out TimeSpan kernelTime, out TimeSpan userTime)
     {
-        if (!Win32.GetProcessTimes(SafeHandle, out var creation, out var exit, out var kernel, out var user))
+        if (!GetProcessTimes(SafeHandle, out var creation, out var exit, out var kernel, out var user))
             throw new Win32Exception();
 
         static long ToTicks(FILETIME time)
@@ -103,7 +103,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public void* AllocateMemory(void* address, nint length, MemoryAccess access)
     {
-        return Win32.VirtualAlloc2(
+        return VirtualAlloc2(
             SafeHandle,
             address,
             (nuint)length,
@@ -133,7 +133,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
             },
         };
 
-        return Win32.VirtualAlloc2(
+        return VirtualAlloc2(
             SafeHandle,
             null,
             (nuint)length,
@@ -146,13 +146,13 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public void FreeMemory(void* address)
     {
-        if (!Win32.VirtualFreeEx(SafeHandle, address, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE))
+        if (!VirtualFreeEx(SafeHandle, address, 0, VIRTUAL_FREE_TYPE.MEM_RELEASE))
             throw new Win32Exception();
     }
 
     public MemoryAccess ProtectMemory(void* address, nint length, MemoryAccess access)
     {
-        return Win32.VirtualProtectEx(
+        return VirtualProtectEx(
             SafeHandle,
             address,
             (nuint)length,
@@ -164,42 +164,42 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public void ReadMemory(void* source, void* destination, nint length)
     {
-        if (!Win32.ReadProcessMemory(SafeHandle, source, destination, (nuint)length, null))
+        if (!ReadProcessMemory(SafeHandle, source, destination, (nuint)length, null))
             throw new Win32Exception();
     }
 
     public void WriteMemory(void* destination, void* source, nint length)
     {
-        if (!Win32.WriteProcessMemory(SafeHandle, destination, source, (nuint)length, null))
+        if (!WriteProcessMemory(SafeHandle, destination, source, (nuint)length, null))
             throw new Win32Exception();
     }
 
     public void FlushInstructionCache(void* address, nint length)
     {
-        if (!Win32.FlushInstructionCache(SafeHandle, address, (nuint)length))
+        if (!WindowsPInvoke.FlushInstructionCache(SafeHandle, address, (nuint)length))
             throw new Win32Exception();
     }
 
     public void BeginBackgroundMode()
     {
-        if (!Win32.SetPriorityClass(SafeHandle, PROCESS_CREATION_FLAGS.PROCESS_MODE_BACKGROUND_BEGIN))
+        if (!SetPriorityClass(SafeHandle, PROCESS_CREATION_FLAGS.PROCESS_MODE_BACKGROUND_BEGIN))
             throw new Win32Exception();
     }
 
     public void EndBackgroundMode()
     {
-        if (!Win32.SetPriorityClass(SafeHandle, PROCESS_CREATION_FLAGS.PROCESS_MODE_BACKGROUND_END))
+        if (!SetPriorityClass(SafeHandle, PROCESS_CREATION_FLAGS.PROCESS_MODE_BACKGROUND_END))
             throw new Win32Exception();
     }
 
     public void Terminate(int code)
     {
-        if (!Win32.TerminateProcess(SafeHandle, (uint)code))
+        if (!TerminateProcess(SafeHandle, (uint)code))
             throw new Win32Exception();
     }
 
     public int GetExitCode()
     {
-        return Win32.GetExitCodeProcess(SafeHandle, out var code) ? (int)code : throw new Win32Exception();
+        return GetExitCodeProcess(SafeHandle, out var code) ? (int)code : throw new Win32Exception();
     }
 }

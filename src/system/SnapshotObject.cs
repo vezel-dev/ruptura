@@ -1,6 +1,6 @@
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.ToolHelp;
-using Win32 = Windows.Win32.WindowsPInvoke;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
@@ -13,8 +13,7 @@ public sealed unsafe class SnapshotObject : KernelObject
 
     public static SnapshotObject Create(SnapshotFlags flags, int processId)
     {
-        using var handle = Win32.CreateToolhelp32Snapshot_SafeHandle(
-            (CREATE_TOOLHELP_SNAPSHOT_FLAGS)flags, (uint)processId);
+        using var handle = CreateToolhelp32Snapshot_SafeHandle((CREATE_TOOLHELP_SNAPSHOT_FLAGS)flags, (uint)processId);
 
         if (handle.IsInvalid)
             throw new Win32Exception();
@@ -31,7 +30,7 @@ public sealed unsafe class SnapshotObject : KernelObject
     {
         uint unused;
 
-        return Win32.GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
+        return GetHandleInformation((HANDLE)handle, &unused) ? new(handle) : throw new Win32Exception();
     }
 
     public IEnumerable<ProcessSnapshot> EnumerateProcesses()
@@ -42,7 +41,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             dwSize = (uint)Unsafe.SizeOf<PROCESSENTRY32W>(),
         };
 
-        var result = Win32.Process32FirstW(handle, ref entry);
+        var result = Process32FirstW(handle, ref entry);
 
         while (true)
         {
@@ -57,7 +56,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             if (entry.dwSize == Unsafe.SizeOf<PROCESSENTRY32W>())
                 yield return new((int)entry.th32ParentProcessID, (int)entry.th32ProcessID);
 
-            result = Win32.Process32NextW(handle, ref entry);
+            result = Process32NextW(handle, ref entry);
         }
     }
 
@@ -69,7 +68,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             dwSize = (uint)Unsafe.SizeOf<MODULEENTRY32W>(),
         };
 
-        var result = Win32.Module32FirstW(handle, ref entry);
+        var result = Module32FirstW(handle, ref entry);
 
         while (true)
         {
@@ -96,7 +95,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             if (entry.dwSize == Unsafe.SizeOf<MODULEENTRY32W>())
                 yield return CreateModule(entry);
 
-            result = Win32.Module32NextW(handle, ref entry);
+            result = Module32NextW(handle, ref entry);
         }
     }
 
@@ -108,7 +107,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             dwSize = (uint)Unsafe.SizeOf<THREADENTRY32>(),
         };
 
-        var result = Win32.Thread32First(handle, ref entry);
+        var result = Thread32First(handle, ref entry);
 
         while (true)
         {
@@ -123,7 +122,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             if (entry.dwSize == Unsafe.SizeOf<THREADENTRY32>())
                 yield return new((int)entry.th32ThreadID, (int)entry.th32OwnerProcessID);
 
-            result = Win32.Thread32Next(handle, ref entry);
+            result = Thread32Next(handle, ref entry);
         }
     }
 
@@ -135,7 +134,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             dwSize = (uint)Unsafe.SizeOf<HEAPLIST32>(),
         };
 
-        var result = Win32.Heap32ListFirst(handle, ref entry);
+        var result = Heap32ListFirst(handle, ref entry);
 
         while (true)
         {
@@ -150,7 +149,7 @@ public sealed unsafe class SnapshotObject : KernelObject
             if (entry.dwSize == (uint)Unsafe.SizeOf<HEAPLIST32>())
                 yield return new((int)entry.th32ProcessID, (nint)entry.th32HeapID, (HeapSnapshotFlags)entry.dwFlags);
 
-            result = Win32.Heap32ListNext(handle, ref entry);
+            result = Heap32ListNext(handle, ref entry);
         }
     }
 }
