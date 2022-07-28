@@ -13,11 +13,11 @@ is available for use by the injected assembly.
 
 This project offers the following packages:
 
-* [Vezel.Ruptura.Hosting](https://www.nuget.org/packages/Vezel.Ruptura.Hosting):
-  Provides the hosting model for injected programs.
 * [Vezel.Ruptura.Injection](https://www.nuget.org/packages/Vezel.Ruptura.Injection):
   Provides the infrastructure to inject the .NET runtime and assemblies into
   processes.
+* [Vezel.Ruptura.Hosting](https://www.nuget.org/packages/Vezel.Ruptura.Hosting):
+  Provides the hosting model for injected programs.
 * [Vezel.Ruptura.Memory](https://www.nuget.org/packages/Vezel.Ruptura.Memory):
   Provides function hooking, memory manipulation, and call tracing utilities.
 * [Vezel.Ruptura.System](https://www.nuget.org/packages/Vezel.Ruptura.System):
