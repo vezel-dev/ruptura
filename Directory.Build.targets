@@ -25,6 +25,10 @@
         <Using Include="System.Threading" />
     </ItemGroup>
 
+    <ItemGroup Condition="'$(UsingVezelZigSdk)' != 'true'">
+        <AdditionalFiles Include="$(MSBuildThisFileDirectory).stylecop.json" />
+    </ItemGroup>
+
     <Choose>
         <When Condition="'$(IsPackable)' == 'true'">
             <PropertyGroup>

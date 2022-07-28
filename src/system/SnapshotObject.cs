@@ -6,7 +6,7 @@ namespace Vezel.Ruptura.System;
 
 public sealed unsafe class SnapshotObject : KernelObject
 {
-    SnapshotObject(nint handle)
+    private SnapshotObject(nint handle)
         : base(handle)
     {
     }

@@ -3,7 +3,7 @@ namespace Vezel.Ruptura.Hosting;
 public sealed class InjectedProgramContext
 {
     [StructLayout(LayoutKind.Sequential)]
-    struct RupturaState
+    private struct RupturaState
     {
         // Keep in sync with src/module/main.c.
 
@@ -22,9 +22,9 @@ public sealed class InjectedProgramContext
 
     public nint ModuleHandle { get; }
 
-    readonly uint _mainThreadId;
+    private readonly uint _mainThreadId;
 
-    InjectedProgramContext(int? injectorProcessId, uint mainThreadId, nint moduleHandle)
+    private InjectedProgramContext(int? injectorProcessId, uint mainThreadId, nint moduleHandle)
     {
         InjectorProcessId = injectorProcessId;
         _mainThreadId = mainThreadId;
@@ -32,6 +32,7 @@ public sealed class InjectedProgramContext
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
+    [SuppressMessage("", "CA1031")]
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static unsafe uint Initialize(void* parameter)
     {

@@ -6,19 +6,19 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
 
     // These are internal APIs that we are exploiting. They may or may not be present.
 
-    static readonly Func<DynamicMethod, RuntimeMethodHandle>? _getMethodDescriptor =
+    private static readonly Func<DynamicMethod, RuntimeMethodHandle>? _getMethodDescriptor =
         typeof(DynamicMethod)
             .GetMethod(
                 "GetMethodDescriptor",
                 BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic)
             ?.CreateDelegate<Func<DynamicMethod, RuntimeMethodHandle>>();
 
-    static readonly FieldInfo? _owner =
+    private static readonly FieldInfo? _owner =
         typeof(DynamicMethod)
             .GetNestedType("RTDynamicMethod", BindingFlags.DeclaredOnly | BindingFlags.NonPublic)
             ?.GetField("m_owner", BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic);
 
-    ManagedCallFrameSymbolicator()
+    private ManagedCallFrameSymbolicator()
     {
     }
 

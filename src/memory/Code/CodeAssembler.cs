@@ -1,6 +1,6 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-sealed class CodeAssembler : Assembler
+internal sealed class CodeAssembler : Assembler
 {
     public bool Is64Bit => Bitness == 64;
 

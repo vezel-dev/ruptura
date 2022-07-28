@@ -12,9 +12,9 @@ public sealed unsafe class DynamicFunction : IDisposable
         }
     }
 
-    CodeAllocation? _allocation;
+    private CodeAllocation? _allocation;
 
-    DynamicFunction(CodeAllocation allocation)
+    private DynamicFunction(CodeAllocation allocation)
     {
         _allocation = allocation;
     }

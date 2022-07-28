@@ -20,7 +20,7 @@ public sealed unsafe class CallFrame
 
     internal ref STACKFRAME_EX Frame => ref _frame;
 
-    STACKFRAME_EX _frame;
+    private STACKFRAME_EX _frame;
 
     internal CallFrame(in STACKFRAME_EX frame, nint moduleHandle, MethodBase? managedMethod)
     {
@@ -29,6 +29,7 @@ public sealed unsafe class CallFrame
         ManagedMethod = managedMethod;
     }
 
+    [SuppressMessage("", "CA1308")]
     public override string ToString()
     {
         var sb = new StringBuilder();
@@ -53,7 +54,7 @@ public sealed unsafe class CallFrame
         {
             var handle = (HINSTANCE)ModuleHandle;
             var length = Win32.MAX_PATH;
-            var buffer = (char*)NativeMemory.Alloc((UIntPtr)(int)(sizeof(char) * length)); // TODO: Remove this cast.
+            var buffer = (char*)NativeMemory.Alloc(sizeof(char) * length); // TODO: Remove this cast.
 
             try
             {
@@ -63,7 +64,7 @@ public sealed unsafe class CallFrame
                 {
                     length *= 2;
 
-                    buffer = (char*)NativeMemory.Realloc(buffer, (UIntPtr)(int)(sizeof(char) * length));
+                    buffer = (char*)NativeMemory.Realloc(buffer, sizeof(char) * length);
                 }
 
                 if (ret != 0)

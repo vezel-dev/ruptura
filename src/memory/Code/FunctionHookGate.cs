@@ -1,14 +1,14 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-sealed unsafe class FunctionHookGate
+internal static unsafe class FunctionHookGate
 {
-    sealed class GateContext
+    private sealed class GateContext
     {
         public ref struct HookGuard
         {
             public bool IsOwned => _context != null;
 
-            readonly GateContext? _context;
+            private readonly GateContext? _context;
 
             public HookGuard(GateContext context)
             {
@@ -27,14 +27,14 @@ sealed unsafe class FunctionHookGate
             }
         }
 
-        sealed class StackNormalizer : IDisposable
+        private sealed class StackNormalizer : IDisposable
         {
             // This is used by CallTrace to restore the stack to a walkable state. This is done by setting the return
             // address slot for each gate frame to the real return address that the hook function will eventually return
             // to (disregarding the exit detour through the gate). Once the stack has been walked, the Dispose method
             // restores the stack to the (unwalkable) state where hook functions will exit through the gate.
 
-            readonly (GateFrame, nuint)[] _frames;
+            private readonly (GateFrame, nuint)[] _frames;
 
             public StackNormalizer(GateContext context)
             {
@@ -59,9 +59,9 @@ sealed unsafe class FunctionHookGate
 
         public GateFrame? Current => _frames.TryPeek(out var frame) ? frame : null;
 
-        readonly Stack<GateFrame> _frames = new(5);
+        private readonly Stack<GateFrame> _frames = new(5);
 
-        bool _guarded;
+        private bool _guarded;
 
         public HookGuard AcquireGuard()
         {
@@ -96,7 +96,7 @@ sealed unsafe class FunctionHookGate
         }
     }
 
-    readonly struct GateFrame
+    private readonly struct GateFrame
     {
         public FunctionHook Hook { get; }
 
@@ -115,7 +115,7 @@ sealed unsafe class FunctionHookGate
     public static FunctionHook? Hook => _context?.Current?.Hook;
 
     [ThreadStatic]
-    static GateContext? _context;
+    private static GateContext? _context;
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
     public static void* Enter(nint handle, void** rsp)

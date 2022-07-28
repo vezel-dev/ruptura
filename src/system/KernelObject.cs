@@ -4,6 +4,7 @@ using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
+[SuppressMessage("", "CA1063")]
 public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEquatable<KernelObject>
 {
     public SafeKernelHandle SafeHandle
@@ -20,6 +21,7 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
 
     public bool IsInheritable
     {
+        [SuppressMessage("", "CA1065")]
         get =>
             Win32.GetHandleInformation(SafeHandle, out var flags)
                 ? ((HANDLE_FLAGS)flags).HasFlag(HANDLE_FLAGS.HANDLE_FLAG_INHERIT)
@@ -33,7 +35,7 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
         }
     }
 
-    readonly SafeKernelHandle _safeHandle;
+    private readonly SafeKernelHandle _safeHandle;
 
     private protected KernelObject(nint handle)
     {
@@ -52,20 +54,15 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
         GC.SuppressFinalize(this);
     }
 
-    void Close()
+    private void Close()
     {
         _safeHandle.Dispose();
     }
 
-    public static bool operator ==(KernelObject? left, KernelObject? right)
-    {
-        return EqualityComparer<KernelObject>.Default.Equals(left, right);
-    }
+    public static bool operator ==(KernelObject? left, KernelObject? right) =>
+        EqualityComparer<KernelObject>.Default.Equals(left, right);
 
-    public static bool operator !=(KernelObject? left, KernelObject? right)
-    {
-        return !(left == right);
-    }
+    public static bool operator !=(KernelObject? left, KernelObject? right) => !(left == right);
 
     public bool Equals(KernelObject? other)
     {

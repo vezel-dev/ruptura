@@ -1,8 +1,9 @@
-static unsafe class Program
+[SuppressMessage("", "CA1812")]
+internal static unsafe class Program
 {
-    static CallTrace? _trace;
+    private static CallTrace? _trace;
 
-    static string? _result;
+    private static string? _result;
 
     public static int Main()
     {
@@ -32,8 +33,9 @@ static unsafe class Program
         }
     }
 
+    [SuppressMessage("", "CA1031")]
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static int SetThreadDescriptionHook(nint hThread, char* lpThreadDescription)
+    private static int SetThreadDescriptionHook(nint hThread, char* lpThreadDescription)
     {
         try
         {
@@ -64,7 +66,7 @@ static unsafe class Program
         return 0;
     }
 
-    static void CaptureTrace()
+    private static void CaptureTrace()
     {
         _trace = CallTrace.Capture();
 

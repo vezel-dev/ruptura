@@ -16,7 +16,7 @@ public sealed class AssemblyInjectorOptions
 
     public TimeSpan CompletionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
 
-    AssemblyInjectorOptions()
+    private AssemblyInjectorOptions()
     {
     }
 
@@ -27,7 +27,7 @@ public sealed class AssemblyInjectorOptions
         FileName = fileName;
     }
 
-    AssemblyInjectorOptions Clone()
+    private AssemblyInjectorOptions Clone()
     {
         return new()
         {
@@ -50,6 +50,7 @@ public sealed class AssemblyInjectorOptions
         return options;
     }
 
+    [SuppressMessage("", "CA1851")]
     public AssemblyInjectorOptions WithArguments(IEnumerable<string> arguments)
     {
         ArgumentNullException.ThrowIfNull(arguments);

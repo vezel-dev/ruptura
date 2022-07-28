@@ -9,32 +9,32 @@ public sealed unsafe class CallTrace
 {
     public IReadOnlyList<CallFrame> Frames { get; }
 
-    static readonly object _lock = new();
+    private static readonly object _lock = new();
 
-    static readonly nint _kernel32 = NativeLibrary.Load("kernel32.dll");
+    private static readonly nint _kernel32 = NativeLibrary.Load("kernel32.dll");
 
-    static readonly delegate* unmanaged[Stdcall]<void*, void> _rtlCaptureContext =
+    private static readonly delegate* unmanaged[Stdcall]<void*, void> _rtlCaptureContext =
         (delegate* unmanaged[Stdcall]<void*, void>)NativeLibrary.GetExport(_kernel32, "RtlCaptureContext");
 
-    static readonly delegate* unmanaged[Stdcall]<ulong, ulong*, void*, void*> _rtlLookupFunctionEntry =
+    private static readonly delegate* unmanaged[Stdcall]<ulong, ulong*, void*, void*> _rtlLookupFunctionEntry =
         (delegate* unmanaged[Stdcall]<ulong, ulong*, void*, void*>)NativeLibrary.GetExport(
             _kernel32, "RtlLookupFunctionEntry");
 
     // This is an internal API that we are exploiting. It may or may not be present.
-    static readonly Func<nint, MethodBase?>? _getMethodFromNativeIP =
+    private static readonly Func<nint, MethodBase?>? _getMethodFromNativeIP =
         typeof(StackFrame)
             .GetMethod(
                 "GetMethodFromNativeIP",
                 BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public)
             ?.CreateDelegate<Func<nint, MethodBase?>>();
 
-    static readonly ImageMachine _machine;
+    private static readonly ImageMachine _machine;
 
-    static readonly delegate* unmanaged[Stdcall]<HANDLE, ulong, void*> _functionTableAccess;
+    private static readonly delegate* unmanaged[Stdcall]<HANDLE, ulong, void*> _functionTableAccess;
 
-    static readonly delegate* unmanaged[Stdcall]<HANDLE, ulong, ulong> _getModuleBase;
+    private static readonly delegate* unmanaged[Stdcall]<HANDLE, ulong, ulong> _getModuleBase;
 
-    static readonly int _error;
+    private static readonly int _error;
 
     static CallTrace()
     {
@@ -79,7 +79,7 @@ public sealed unsafe class CallTrace
         }
     }
 
-    CallTrace(IReadOnlyList<CallFrame> frames)
+    private CallTrace(IReadOnlyList<CallFrame> frames)
     {
         Frames = frames;
     }
@@ -101,7 +101,8 @@ public sealed unsafe class CallTrace
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    static CallTrace CaptureCore(IEnumerable<CallFrameSymbolicator> symbolicators)
+    [SuppressMessage("", "CA1851")]
+    private static CallTrace CaptureCore(IEnumerable<CallFrameSymbolicator> symbolicators)
     {
         ArgumentNullException.ThrowIfNull(symbolicators);
         _ = symbolicators.All(s => s != null) ? true : throw new ArgumentException(null, nameof(symbolicators));
@@ -205,13 +206,13 @@ public sealed unsafe class CallTrace
     // Use RtlLookupFunctionEntry on 64-bit since it can pick up JIT'd code.
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static void* FunctionTableAccess32(HANDLE process, ulong address)
+    private static void* FunctionTableAccess32(HANDLE process, ulong address)
     {
         return Win32.SymFunctionTableAccess64(process, address);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static void* FunctionTableAccess64(HANDLE process, ulong address)
+    private static void* FunctionTableAccess64(HANDLE process, ulong address)
     {
         ulong unused;
 
@@ -219,13 +220,13 @@ public sealed unsafe class CallTrace
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static ulong GetModuleBase32(HANDLE process, ulong address)
+    private static ulong GetModuleBase32(HANDLE process, ulong address)
     {
         return Win32.SymGetModuleBase64(process, address);
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static ulong GetModuleBase64(HANDLE process, ulong address)
+    private static ulong GetModuleBase64(HANDLE process, ulong address)
     {
         ulong result;
 

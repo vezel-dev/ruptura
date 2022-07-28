@@ -2,6 +2,7 @@ using Windows.Win32.System.Memory;
 
 namespace Vezel.Ruptura.System;
 
+[SuppressMessage("", "CA1027")]
 public enum MemoryAccess : uint
 {
     None = 0x0,

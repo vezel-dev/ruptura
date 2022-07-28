@@ -1,9 +1,9 @@
 namespace Vezel.Ruptura.Analyzers;
 
-static class DiagnosticDescriptors
+internal static class DiagnosticDescriptors
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = false)]
-    sealed class DiagnosticAttribute : Attribute
+    private sealed class DiagnosticAttribute : Attribute
     {
         public string Title { get; }
 

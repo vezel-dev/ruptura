@@ -14,14 +14,14 @@ public sealed unsafe class FunctionHook : IDisposable
     // which requires 5 bytes.
 
     [StructLayout(LayoutKind.Sequential)]
-    struct HookTrampoline
+    private struct HookTrampoline
     {
         public fixed byte CallGate[256];
 
         public fixed byte CallOriginal[64];
     }
 
-    const int JumpInstructionSize = 5;
+    private const int JumpInstructionSize = 5;
 
     public static FunctionHook Current =>
         FunctionHookGate.Hook ?? throw new InvalidOperationException("Not currently executing a function hook.");
@@ -76,23 +76,23 @@ public sealed unsafe class FunctionHook : IDisposable
         }
     }
 
-    static readonly ProcessObject _process = ProcessObject.Current;
+    private static readonly ProcessObject _process = ProcessObject.Current;
 
-    readonly GCHandle _handle;
+    private readonly GCHandle _handle;
 
-    readonly void* _target;
+    private readonly void* _target;
 
-    readonly void* _hook;
+    private readonly void* _hook;
 
-    readonly object? _state;
+    private readonly object? _state;
 
-    readonly ReadOnlyMemory<byte> _prologue;
+    private readonly ReadOnlyMemory<byte> _prologue;
 
-    CodeAllocation? _allocation;
+    private CodeAllocation? _allocation;
 
-    bool _active;
+    private bool _active;
 
-    FunctionHook(
+    private FunctionHook(
         void* target,
         void* hook,
         object? state,

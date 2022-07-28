@@ -2,6 +2,8 @@ using Windows.Win32.System.Threading;
 
 namespace Vezel.Ruptura.System;
 
+[SuppressMessage("", "CA1008")]
+[SuppressMessage("", "CA1027")]
 public enum PriorityClass : uint
 {
     Normal = PROCESS_CREATION_FLAGS.NORMAL_PRIORITY_CLASS,

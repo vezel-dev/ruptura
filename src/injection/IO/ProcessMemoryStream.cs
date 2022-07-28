@@ -1,6 +1,6 @@
 namespace Vezel.Ruptura.Injection.IO;
 
-sealed unsafe class ProcessMemoryStream : Stream
+internal sealed unsafe class ProcessMemoryStream : Stream
 {
     // TODO: Review some of the casts here.
 
@@ -23,15 +23,15 @@ sealed unsafe class ProcessMemoryStream : Stream
         }
     }
 
-    readonly ProcessObject _process;
+    private readonly ProcessObject _process;
 
-    readonly void* _address;
+    private readonly void* _address;
 
-    readonly nint _length;
+    private readonly nint _length;
 
-    nint _position;
+    private nint _position;
 
-    bool _wrote;
+    private bool _wrote;
 
     public ProcessMemoryStream(ProcessObject process, nuint address, nint length)
     {

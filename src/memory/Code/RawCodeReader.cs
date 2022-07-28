@@ -1,8 +1,8 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-sealed unsafe class RawCodeReader : CodeReader
+internal sealed unsafe class RawCodeReader : CodeReader
 {
-    byte* _address;
+    private byte* _address;
 
     public RawCodeReader(byte* address)
     {

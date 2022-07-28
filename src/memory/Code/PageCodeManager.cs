@@ -5,7 +5,7 @@ namespace Vezel.Ruptura.Memory.Code;
 
 public sealed unsafe class PageCodeManager : CodeManager
 {
-    readonly struct AllocationInfo
+    private readonly struct AllocationInfo
     {
         public void* Address { get; }
 
@@ -20,17 +20,17 @@ public sealed unsafe class PageCodeManager : CodeManager
         }
     }
 
-    sealed class CodeRegion : IDisposable
+    private sealed class CodeRegion : IDisposable
     {
         public void* Address { get; }
 
         public LinkedListNode<CodeRegion>? Node { get; set; }
 
-        readonly PageCodeManager _manager;
+        private readonly PageCodeManager _manager;
 
-        readonly LinkedList<PageCodeAllocation> _allocationList = new();
+        private readonly LinkedList<PageCodeAllocation> _allocationList = new();
 
-        readonly LinkedList<AllocationInfo> _freeList = new();
+        private readonly LinkedList<AllocationInfo> _freeList = new();
 
         public CodeRegion(PageCodeManager manager, void* address, nint pageCount)
         {
@@ -94,7 +94,7 @@ public sealed unsafe class PageCodeManager : CodeManager
             Coalesce();
         }
 
-        void Coalesce()
+        private void Coalesce()
         {
             bool changed;
 
@@ -142,7 +142,7 @@ public sealed unsafe class PageCodeManager : CodeManager
         }
     }
 
-    sealed class PageCodeAllocation : CodeAllocation
+    private sealed class PageCodeAllocation : CodeAllocation
     {
         public CodeRegion Region { get; }
 
@@ -174,9 +174,9 @@ public sealed unsafe class PageCodeManager : CodeManager
             set => _node = value;
         }
 
-        readonly nint _length;
+        private readonly nint _length;
 
-        volatile LinkedListNode<PageCodeAllocation>? _node;
+        private volatile LinkedListNode<PageCodeAllocation>? _node;
 
         public PageCodeAllocation(
             PageCodeManager manager, CodeRegion region, AllocationInfo info, nint length)
@@ -189,7 +189,7 @@ public sealed unsafe class PageCodeManager : CodeManager
 
         public override void Dispose()
         {
-            if (Node != null)
+            if (_node != null)
                 Unsafe.As<PageCodeManager>(Manager).Deallocate(this);
         }
 
@@ -210,13 +210,13 @@ public sealed unsafe class PageCodeManager : CodeManager
         }
     }
 
-    static readonly ProcessObject _process = ProcessObject.Current;
+    private static readonly ProcessObject _process = ProcessObject.Current;
 
-    static readonly SYSTEM_INFO _info;
+    private static readonly SYSTEM_INFO _info;
 
-    readonly object _lock = new();
+    private readonly object _lock = new();
 
-    LinkedList<CodeRegion>? _regions = new();
+    private LinkedList<CodeRegion>? _regions = new();
 
     static PageCodeManager()
     {
@@ -306,7 +306,7 @@ public sealed unsafe class PageCodeManager : CodeManager
         }
     }
 
-    void Deallocate(PageCodeAllocation allocation)
+    private void Deallocate(PageCodeAllocation allocation)
     {
         lock (_lock)
             allocation.Region.Deallocate(allocation);

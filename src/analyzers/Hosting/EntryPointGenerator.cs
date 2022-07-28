@@ -3,12 +3,12 @@ namespace Vezel.Ruptura.Analyzers.Hosting;
 [Generator(LanguageNames.CSharp)]
 public sealed class EntryPointGenerator : ISourceGenerator
 {
-    sealed class InjectedProgramTypeSyntaxReceiver : ISyntaxContextReceiver
+    private sealed class InjectedProgramTypeSyntaxReceiver : ISyntaxContextReceiver
     {
         public ImmutableArray<INamedTypeSymbol> InjectedProgramSymbols { get; private set; } =
             ImmutableArray<INamedTypeSymbol>.Empty;
 
-        INamedTypeSymbol? _interface;
+        private INamedTypeSymbol? _interface;
 
         public void OnVisitSyntaxNode(GeneratorSyntaxContext context)
         {

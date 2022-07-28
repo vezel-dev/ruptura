@@ -3,6 +3,7 @@ using Windows.Win32.System.Diagnostics.ToolHelp;
 namespace Vezel.Ruptura.System;
 
 [Flags]
+[SuppressMessage("", "CA1711")]
 public enum SnapshotFlags : uint
 {
     Heaps = CREATE_TOOLHELP_SNAPSHOT_FLAGS.TH32CS_SNAPHEAPLIST,

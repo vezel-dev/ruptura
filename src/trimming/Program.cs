@@ -1,11 +1,3 @@
-namespace Vezel.Ruptura.Trimming;
+Console.WriteLine("What are you doing? 👀");
 
-static class Program
-{
-    static int Main()
-    {
-        Console.WriteLine("What are you doing? 👀");
-
-        return 1;
-    }
-}
+return 1;

@@ -12,10 +12,12 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public static int CurrentId => (int)Win32.GetCurrentProcessId();
 
+    [SuppressMessage("", "CA1065")]
     public int Id => Win32.GetProcessId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
     public PriorityClass PriorityClass
     {
+        [SuppressMessage("", "CA1065")]
         get =>
             Win32.GetPriorityClass(SafeHandle) is var cls and not 0 ? (PriorityClass)cls : throw new Win32Exception();
         set
@@ -27,6 +29,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public bool PriorityBoostEnabled
     {
+        [SuppressMessage("", "CA1065")]
         get => Win32.GetProcessPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
         set
         {
@@ -35,7 +38,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
         }
     }
 
-    ProcessObject(nint handle)
+    private ProcessObject(nint handle)
         : base(handle)
     {
     }

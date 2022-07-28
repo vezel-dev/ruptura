@@ -11,7 +11,7 @@ public abstract class SynchronizationObject : KernelObject
     {
     }
 
-    static WIN32_ERROR WaitMultiple(
+    private static WIN32_ERROR WaitMultiple(
         ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
         _ = objects.Length is > 0 and <= (int)Win32.MAXIMUM_WAIT_OBJECTS ?

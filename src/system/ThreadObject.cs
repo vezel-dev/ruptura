@@ -8,11 +8,11 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 {
     public static int CurrentId => (int)Win32.GetCurrentThreadId();
 
+    [SuppressMessage("", "CA1065")]
     public int ProcessId =>
-        Win32.GetProcessIdOfThread(SafeHandle) is var id and not 0
-            ? (int)id
-            : throw new Win32Exception();
+        Win32.GetProcessIdOfThread(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
+    [SuppressMessage("", "CA1065")]
     public int Id => Win32.GetThreadId(SafeHandle) is var id and not 0 ? (int)id : throw new Win32Exception();
 
     public string Description
@@ -35,6 +35,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public PriorityLevel PriorityLevel
     {
+        [SuppressMessage("", "CA1065")]
         get =>
             Win32.GetThreadPriority(SafeHandle) is var prio and not (int)Win32.THREAD_PRIORITY_ERROR_RETURN
                 ? (PriorityLevel)prio
@@ -48,6 +49,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public bool PriorityBoostEnabled
     {
+        [SuppressMessage("", "CA1065")]
         get => Win32.GetThreadPriorityBoost(SafeHandle, out var state) ? !state : throw new Win32Exception();
         set
         {
@@ -56,12 +58,13 @@ public sealed unsafe class ThreadObject : SynchronizationObject
         }
     }
 
+    [SuppressMessage("", "CA1065")]
     public bool IsBlockingIO =>
         Win32.GetThreadIOPendingFlag(SafeHandle, out var flag)
             ? flag
             : throw new Win32Exception();
 
-    ThreadObject(nint handle)
+    private ThreadObject(nint handle)
         : base(handle)
     {
     }

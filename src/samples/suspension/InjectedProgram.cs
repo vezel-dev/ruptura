@@ -1,6 +1,7 @@
-sealed class InjectedProgram : IInjectedProgram
+[SuppressMessage("", "CA1812")]
+internal sealed class InjectedProgram : IInjectedProgram
 {
-    static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
 
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
     {

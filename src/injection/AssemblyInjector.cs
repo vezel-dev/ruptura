@@ -7,7 +7,7 @@ namespace Vezel.Ruptura.Injection;
 public sealed class AssemblyInjector : IDisposable
 {
     [StructLayout(LayoutKind.Sequential)]
-    unsafe struct RupturaParameters
+    private unsafe struct RupturaParameters
     {
         public nuint Size;
 
@@ -20,23 +20,23 @@ public sealed class AssemblyInjector : IDisposable
         public uint MainThreadId;
     }
 
-    const string NativeEntryPoint = "ruptura_main";
+    private const string NativeEntryPoint = "ruptura_main";
 
-    readonly TargetProcess _process;
+    private readonly TargetProcess _process;
 
-    readonly AssemblyInjectorOptions _options;
+    private readonly AssemblyInjectorOptions _options;
 
-    bool _injecting;
+    private bool _injecting;
 
-    bool _waiting;
+    private bool _waiting;
 
-    nuint _loadLibraryW;
+    private nuint _loadLibraryW;
 
-    nuint _getProcAddress;
+    private nuint _getProcAddress;
 
-    nuint _getLastError;
+    private nuint _getLastError;
 
-    ThreadObject? _thread;
+    private ThreadObject? _thread;
 
     public AssemblyInjector(TargetProcess process, AssemblyInjectorOptions options)
     {
@@ -60,12 +60,13 @@ public sealed class AssemblyInjector : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    void DisposeCore()
+    private void DisposeCore()
     {
         _thread?.Dispose();
     }
 
-    string GetModulePath()
+    [SuppressMessage("", "CA1308")]
+    private string GetModulePath()
     {
         var path = Path.Combine(
             _options.ModuleDirectory, $"ruptura-{_process.Machine.ToString().ToLowerInvariant()}.dll");
@@ -73,7 +74,7 @@ public sealed class AssemblyInjector : IDisposable
         return File.Exists(path) ? path : throw new InjectionException("Could not locate the Ruptura native module.");
     }
 
-    void PopulateMemoryArea(nuint area, nint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
+    private void PopulateMemoryArea(nuint area, nint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
     {
         using var stream = new ProcessMemoryStream(_process.Object, area, length);
         using var writer = new InjectionBinaryWriter(stream, true);
@@ -81,7 +82,7 @@ public sealed class AssemblyInjector : IDisposable
         action(stream, writer);
     }
 
-    void ForceLoaderInitialization()
+    private void ForceLoaderInitialization()
     {
         var initializeShell = _process.CreateFunction(asm =>
         {
@@ -123,7 +124,7 @@ public sealed class AssemblyInjector : IDisposable
         }
     }
 
-    unsafe void RetrieveKernel32Exports()
+    private unsafe void RetrieveKernel32Exports()
     {
         if (_process.GetModule("kernel32.dll") is not ModuleSnapshot k32)
             throw new InjectionException("Could not locate 'kernel32.dll' in the target process.");
@@ -144,7 +145,7 @@ public sealed class AssemblyInjector : IDisposable
         _getLastError = GetExport("GetLastError");
     }
 
-    unsafe (nuint Address, nint Length) CreateParameterArea()
+    private unsafe (nuint Address, nint Length) CreateParameterArea()
     {
         // Keep in sync with src/module/main.h.
 
@@ -158,7 +159,7 @@ public sealed class AssemblyInjector : IDisposable
         return (_process.AllocateMemory(length, MemoryAccess.ReadWrite), length);
     }
 
-    unsafe void PopulateParameterArea(nuint address, nint length)
+    private unsafe void PopulateParameterArea(nuint address, nint length)
     {
         // Keep in sync with src/module/main.h.
 
@@ -203,7 +204,8 @@ public sealed class AssemblyInjector : IDisposable
         });
     }
 
-    async Task InjectModuleAsync(string modulePath, nuint parameterArea, MemoryMappedViewAccessor accessor)
+    [SuppressMessage("", "CA2000")]
+    private async Task InjectModuleAsync(string modulePath, nuint parameterArea, MemoryMappedViewAccessor accessor)
     {
         var nameAreaLength = Encoding.Unicode.GetByteCount(modulePath) + sizeof(char) +
             Encoding.ASCII.GetByteCount(NativeEntryPoint) + sizeof(byte);
@@ -315,11 +317,7 @@ public sealed class AssemblyInjector : IDisposable
                     {
                         // Did injection complete successfully?
                         if (accessor.ReadBoolean(0))
-                        {
-                            _thread = thread;
-
                             break;
-                        }
 
                         // Did the thread exit with an error?
                         switch (thread.Wait(TimeSpan.Zero, false))
@@ -334,7 +332,8 @@ public sealed class AssemblyInjector : IDisposable
                                 throw new UnreachableException();
                         }
 
-                        await Task.Delay(100);
+                        // TODO: Is this a reasonable polling interval?
+                        await Task.Delay(100).ConfigureAwait(false);
 
                         if ((long)timeout.TotalMilliseconds != Timeout.Infinite && sw.Elapsed >= timeout)
                             throw new TimeoutException();
@@ -443,7 +442,7 @@ public sealed class AssemblyInjector : IDisposable
 
             try
             {
-                return await tcs.Task;
+                return await tcs.Task.ConfigureAwait(false);
             }
             finally
             {

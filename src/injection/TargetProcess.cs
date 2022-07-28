@@ -27,9 +27,9 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal bool IsSupported => Machine == ImageMachine.X64;
 
-    readonly ProcessObject _object;
+    private readonly ProcessObject _object;
 
-    TargetProcess(int id, ProcessObject @object, int? mainThreadId)
+    private TargetProcess(int id, ProcessObject @object, int? mainThreadId)
     {
         Id = id;
         _object = @object;
@@ -49,6 +49,7 @@ public sealed unsafe class TargetProcess : IDisposable
         DisposeCore();
     }
 
+    [SuppressMessage("", "CA2000")]
     public static TargetProcess Create(string fileName, string arguments, string? workingDirectory, bool suspended)
     {
         ArgumentNullException.ThrowIfNull(fileName);
@@ -116,7 +117,7 @@ public sealed unsafe class TargetProcess : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    void DisposeCore()
+    private void DisposeCore()
     {
         _object.Dispose();
     }

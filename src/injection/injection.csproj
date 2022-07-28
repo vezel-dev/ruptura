@@ -2,7 +2,10 @@
     <PropertyGroup>
         <AssemblyName>Vezel.Ruptura.Injection</AssemblyName>
         <IsPackable>true</IsPackable>
-        <NoWarn>NU5100</NoWarn>
+        <NoWarn>
+            $(NoWarn);
+            NU5100
+        </NoWarn>
         <PackageDescription>$(PackageDescription)
 
 This package provides the infrastructure to inject the .NET runtime and

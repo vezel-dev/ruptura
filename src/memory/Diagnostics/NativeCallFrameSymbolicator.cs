@@ -8,9 +8,9 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
 {
     public static NativeCallFrameSymbolicator Instance { get; } = new();
 
-    static readonly ProcessObject _process = ProcessObject.Current;
+    private static readonly ProcessObject _process = ProcessObject.Current;
 
-    NativeCallFrameSymbolicator()
+    private NativeCallFrameSymbolicator()
     {
     }
 

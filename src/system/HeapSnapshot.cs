@@ -4,6 +4,7 @@ using Win32 = Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
+[SuppressMessage("", "CA1815")]
 public readonly struct HeapSnapshot
 {
     public int ProcessId { get; }

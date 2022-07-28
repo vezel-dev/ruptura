@@ -1,5 +1,6 @@
 namespace Vezel.Ruptura.Memory.Code;
 
+[SuppressMessage("", "CA1063")]
 public abstract unsafe class CodeAllocation : IDisposable
 {
     public CodeManager Manager { get; }

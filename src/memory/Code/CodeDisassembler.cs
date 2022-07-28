@@ -1,8 +1,8 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-sealed class CodeDisassembler
+internal sealed class CodeDisassembler
 {
-    readonly Iced.Intel.Decoder _decoder;
+    private readonly Iced.Intel.Decoder _decoder;
 
     public CodeDisassembler(CodeReader reader, nuint ip)
     {

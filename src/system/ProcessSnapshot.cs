@@ -1,5 +1,6 @@
 namespace Vezel.Ruptura.System;
 
+[SuppressMessage("", "CA1815")]
 public readonly struct ProcessSnapshot
 {
     public int ParentId { get; }

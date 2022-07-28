@@ -1,9 +1,11 @@
-sealed class InjectedProgram : IInjectedProgram
+[SuppressMessage("", "CA1812")]
+internal sealed class InjectedProgram : IInjectedProgram
 {
-    static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
+    private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
 
-    static int _counter;
+    private static int _counter;
 
+    [SuppressMessage("", "CA1031")]
     public static async Task<int> RunAsync(InjectedProgramContext context, ReadOnlyMemory<string> args)
     {
         if (context.InjectorProcessId != null)
@@ -70,7 +72,7 @@ sealed class InjectedProgram : IInjectedProgram
         }
     }
 
-    static unsafe int TestHooking()
+    private static unsafe int TestHooking()
     {
         var lib = NativeLibrary.Load("kernel32.dll");
 
@@ -102,7 +104,7 @@ sealed class InjectedProgram : IInjectedProgram
     }
 
     [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
-    static unsafe void FlushProcessWriteBuffersHook()
+    private static unsafe void FlushProcessWriteBuffersHook()
     {
         _counter++;
 

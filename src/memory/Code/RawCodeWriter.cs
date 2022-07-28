@@ -1,8 +1,8 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-sealed unsafe class RawCodeWriter : CodeWriter
+internal sealed unsafe class RawCodeWriter : CodeWriter
 {
-    byte* _address;
+    private byte* _address;
 
     public RawCodeWriter(byte* address)
     {

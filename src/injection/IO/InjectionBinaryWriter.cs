@@ -1,8 +1,8 @@
 namespace Vezel.Ruptura.Injection.IO;
 
-sealed class InjectionBinaryWriter : BinaryWriter
+internal sealed class InjectionBinaryWriter : BinaryWriter
 {
-    readonly bool _is64Bit;
+    private readonly bool _is64Bit;
 
     public InjectionBinaryWriter(Stream stream, bool is64Bit)
         : base(stream)
