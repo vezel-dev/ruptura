@@ -8,7 +8,7 @@ public sealed class AssemblyInjectorOptions
 
     public string ModuleDirectory { get; private set; } =
         Path.GetDirectoryName(
-            Assembly.GetExecutingAssembly().Location is var location and not ""
+            typeof(ThisAssembly).Assembly.Location is var location and not ""
                 ? location
                 : Environment.ProcessPath) ?? Environment.CurrentDirectory;
 
