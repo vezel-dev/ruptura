@@ -2,7 +2,7 @@
     <ItemGroup>
         <PackageVersion Include="Iced"
                         Version="1.17.0" />
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces"
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp"
                         Version="4.2.0" />
         <PackageVersion Include="Microsoft.SourceLink.GitHub"
                         Version="1.1.1" />
