@@ -10,7 +10,6 @@
         <OutputType>Exe</OutputType>
         <PublishTrimmed>true</PublishTrimmed>
         <RootNamespace>Vezel.Ruptura.Trimming</RootNamespace>
-        <TrimmerDefaultAction>link</TrimmerDefaultAction>
         <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     </PropertyGroup>
 
