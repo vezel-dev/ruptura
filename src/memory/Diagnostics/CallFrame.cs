@@ -54,7 +54,7 @@ public sealed unsafe class CallFrame
         {
             var handle = (HINSTANCE)ModuleHandle;
             var length = MAX_PATH;
-            var buffer = (char*)NativeMemory.Alloc(sizeof(char) * length); // TODO: Remove this cast.
+            var buffer = (char*)NativeMemory.Alloc(sizeof(char) * length);
 
             try
             {
