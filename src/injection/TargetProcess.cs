@@ -1,5 +1,6 @@
 using Vezel.Ruptura.Injection.IO;
 using Windows.Win32.Foundation;
+using Windows.Win32.Security;
 using Windows.Win32.System.Threading;
 using static Windows.Win32.WindowsPInvoke;
 
@@ -64,9 +65,9 @@ public sealed unsafe class TargetProcess : IDisposable
         // CreateProcess can modify the command line arguments, so create a mutable array.
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
-        if (!CreateProcessW(
+        if (!CreateProcessWWorkaround(
             null,
-            ref args,
+            args,
             null,
             null,
             false,
@@ -95,6 +96,50 @@ public sealed unsafe class TargetProcess : IDisposable
         {
             // Ditto.
             _ = CloseHandle(info.hThread);
+        }
+    }
+
+    // TODO: Remove this in .NET 7 RC 2.
+    private static unsafe BOOL CreateProcessWWorkaround(
+        string? lpApplicationName,
+        Span<char> lpCommandLine,
+        SECURITY_ATTRIBUTES? lpProcessAttributes,
+        SECURITY_ATTRIBUTES? lpThreadAttributes,
+        BOOL bInheritHandles,
+        PROCESS_CREATION_FLAGS dwCreationFlags,
+        void* lpEnvironment,
+        string? lpCurrentDirectory,
+        in STARTUPINFOW lpStartupInfo,
+        out PROCESS_INFORMATION lpProcessInformation)
+    {
+        fixed (PROCESS_INFORMATION* lpProcessInformationLocal = &lpProcessInformation)
+        {
+            fixed (STARTUPINFOW* lpStartupInfoLocal = &lpStartupInfo)
+            {
+                fixed (char* lpCurrentDirectoryLocal = lpCurrentDirectory)
+                {
+                    fixed (char* plpCommandLine = lpCommandLine)
+                    {
+                        fixed (char* lpApplicationNameLocal = lpApplicationName)
+                        {
+                            var lpProcessAttributesLocal = lpProcessAttributes ?? default;
+                            var lpThreadAttributesLocal = lpThreadAttributes ?? default;
+
+                            return CreateProcessW(
+                                lpApplicationNameLocal,
+                                plpCommandLine,
+                                lpProcessAttributes != null ? &lpProcessAttributesLocal : null,
+                                lpThreadAttributes != null ? &lpThreadAttributesLocal : null,
+                                bInheritHandles,
+                                dwCreationFlags,
+                                lpEnvironment,
+                                lpCurrentDirectoryLocal,
+                                lpStartupInfoLocal,
+                                lpProcessInformationLocal);
+                        }
+                    }
+                }
+            }
         }
     }
 
