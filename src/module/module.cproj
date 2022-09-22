@@ -23,13 +23,11 @@
 
     <ItemGroup>
         <PreludeHeader Include="ruptura.h" />
-        <LibraryIncludeDirectory Include="../../lib" />
-        <LibraryReference Include="../../lib/libnethost.lib" />
-        <LinkerReference Include="advapi32" />
     </ItemGroup>
 
-    <!--
-    TODO: Switch to this in .NET 7 Preview 7.
+    <ItemGroup>
+        <LinkerReference Include="advapi32" />
+    </ItemGroup>
 
     <PropertyGroup>
         <_AppHostPackage Condition="'$(RuntimeIdentifier)' == 'win-x86'">$(Pkgruntime_win-x86_Microsoft_NETCore_DotNetAppHost)/</_AppHostPackage>
@@ -51,5 +49,4 @@
         <PackageReference Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
                           GeneratePathProperty="true" />
     </ItemGroup>
-    -->
 </Project>
