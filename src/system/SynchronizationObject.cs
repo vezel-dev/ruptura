@@ -40,7 +40,7 @@ public abstract class SynchronizationObject : KernelObject
                 unsafeHandles[i] = (HANDLE)handle.DangerousGetHandle();
             }
 
-            return (WIN32_ERROR)WaitForMultipleObjectsEx(
+            return WaitForMultipleObjectsEx(
                 unsafeHandles, all, (uint)timeout.TotalMilliseconds, alertable) switch
             {
                 WIN32_ERROR.WAIT_FAILED => throw new Win32Exception(),
@@ -85,7 +85,7 @@ public abstract class SynchronizationObject : KernelObject
 
     public WaitResult Wait(TimeSpan timeout, bool alertable)
     {
-        return (WIN32_ERROR)WaitForSingleObjectEx(SafeHandle, (uint)timeout.TotalMilliseconds, alertable) switch
+        return WaitForSingleObjectEx(SafeHandle, (uint)timeout.TotalMilliseconds, alertable) switch
         {
             WIN32_ERROR.WAIT_TIMEOUT => WaitResult.TimedOut,
             WIN32_ERROR.WAIT_IO_COMPLETION => WaitResult.Alerted,
