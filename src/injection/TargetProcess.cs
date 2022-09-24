@@ -99,7 +99,7 @@ public sealed unsafe class TargetProcess : IDisposable
         }
     }
 
-    // TODO: Remove this in .NET 7 RC 2.
+    // TODO: https://github.com/microsoft/CsWin32/issues/697
     private static unsafe BOOL CreateProcessWWorkaround(
         string? lpApplicationName,
         Span<char> lpCommandLine,
