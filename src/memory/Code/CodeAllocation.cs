@@ -11,7 +11,7 @@ public abstract unsafe class CodeAllocation : IDisposable
 
     protected CodeAllocation(CodeManager manager)
     {
-        ArgumentNullException.ThrowIfNull(manager);
+        Check.Null(manager);
 
         Manager = manager;
     }

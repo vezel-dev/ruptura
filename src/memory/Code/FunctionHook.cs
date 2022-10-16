@@ -30,7 +30,7 @@ public sealed unsafe class FunctionHook : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             return _target;
         }
@@ -40,7 +40,7 @@ public sealed unsafe class FunctionHook : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             return _hook;
         }
@@ -50,7 +50,7 @@ public sealed unsafe class FunctionHook : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             return ((HookTrampoline*)_allocation.Code)->CallOriginal;
         }
@@ -63,14 +63,14 @@ public sealed unsafe class FunctionHook : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             return _active;
         }
 
         set
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             _active = value;
         }
@@ -109,9 +109,9 @@ public sealed unsafe class FunctionHook : IDisposable
 
     public static FunctionHook Create(CodeManager manager, void* target, void* hook, object? state = null)
     {
-        ArgumentNullException.ThrowIfNull(manager);
-        ArgumentNullException.ThrowIfNull(target);
-        ArgumentNullException.ThrowIfNull(hook);
+        Check.Null(manager);
+        Check.Null(target);
+        Check.Null(hook);
 
         var prologue = new List<Instruction>();
         var prologueSize = 0;

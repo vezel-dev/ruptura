@@ -152,7 +152,7 @@ public sealed unsafe class PageCodeManager : CodeManager
         {
             get
             {
-                ObjectDisposedException.ThrowIf(_node == null, this);
+                Check.Usable(_node != null, this);
 
                 return Info.Address;
             }
@@ -162,7 +162,7 @@ public sealed unsafe class PageCodeManager : CodeManager
         {
             get
             {
-                ObjectDisposedException.ThrowIf(_node == null, this);
+                Check.Usable(_node != null, this);
 
                 return _length;
             }
@@ -195,7 +195,7 @@ public sealed unsafe class PageCodeManager : CodeManager
 
         public override void Commit()
         {
-            ObjectDisposedException.ThrowIf(_node == null, this);
+            Check.Usable(_node != null, this);
 
             _process.FlushInstructionCache(Info.Address, _length);
 
@@ -204,7 +204,7 @@ public sealed unsafe class PageCodeManager : CodeManager
 
         public override void Decommit()
         {
-            ObjectDisposedException.ThrowIf(_node == null, this);
+            Check.Usable(_node != null, this);
 
             _ = _process.ProtectMemory(Info.Address, _length, MemoryAccess.ReadWrite);
         }
@@ -237,8 +237,8 @@ public sealed unsafe class PageCodeManager : CodeManager
 
     public override CodeAllocation Allocate(nint length, CodePlacement placement)
     {
-        _ = length > 0 ? true : throw new ArgumentOutOfRangeException(nameof(length));
-        ObjectDisposedException.ThrowIf(_regions == null, this);
+        Check.Range(length > 0, length);
+        Check.Usable(_regions != null, this);
 
         // Most allocation requests will fit into an existing region.
         lock (_lock)

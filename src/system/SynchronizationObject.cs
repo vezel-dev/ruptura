@@ -14,8 +14,7 @@ public abstract class SynchronizationObject : KernelObject
     private static WIN32_ERROR WaitMultiple(
         ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
-        _ = objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS ?
-            true : throw new ArgumentException(null, nameof(objects));
+        Check.Argument(objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS, nameof(objects));
 
         var count = objects.Length;
         var safeHandles = new SafeKernelHandle[count];
@@ -27,8 +26,7 @@ public abstract class SynchronizationObject : KernelObject
             {
                 var handle = objects[i]?.SafeHandle;
 
-                if (handle == null)
-                    throw new ArgumentException(null, nameof(objects));
+                Check.Argument(handle != null, nameof(objects));
 
                 var unused = false;
 

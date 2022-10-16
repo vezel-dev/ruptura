@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <AssemblyName>Vezel.Ruptura.Common</AssemblyName>
+        <IsPackable>true</IsPackable>
+        <PackageDescription>$(PackageDescription)
+
+This package provides common functionality used by all Ruptura packages.</PackageDescription>
+        <PackageId>Vezel.Ruptura.Common</PackageId>
+        <RootNamespace>Vezel.Ruptura</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="Vezel.Ruptura.Hosting" />
+        <InternalsVisibleTo Include="Vezel.Ruptura.Injection" />
+        <InternalsVisibleTo Include="Vezel.Ruptura.Memory" />
+        <InternalsVisibleTo Include="Vezel.Ruptura.System" />
+    </ItemGroup>
+</Project>

@@ -34,6 +34,7 @@ jobs:
               uses: SmartsquareGmbH/delete-old-packages@v0.5.0
               with:
                   names: |
+                      Vezel.Ruptura.Common
                       Vezel.Ruptura.Hosting
                       Vezel.Ruptura.Injection
                       Vezel.Ruptura.Memory

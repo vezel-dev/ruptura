@@ -17,6 +17,7 @@ assemblies into processes.</PackageDescription>
     <ItemGroup>
         <Using Include="Iced.Intel" />
         <Using Include="PeNet" />
+        <Using Include="Vezel.Ruptura.Diagnostics" />
     </ItemGroup>
 
     <ItemGroup>

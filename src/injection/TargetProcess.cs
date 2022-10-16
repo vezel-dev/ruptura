@@ -16,7 +16,7 @@ public sealed unsafe class TargetProcess : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_object.IsDisposed, this);
+            Check.Usable(!_object.IsDisposed, this);
 
             return _object;
         }
@@ -53,8 +53,8 @@ public sealed unsafe class TargetProcess : IDisposable
     [SuppressMessage("", "CA2000")]
     public static TargetProcess Create(string fileName, string arguments, string? workingDirectory, bool suspended)
     {
-        ArgumentNullException.ThrowIfNull(fileName);
-        ArgumentNullException.ThrowIfNull(arguments);
+        Check.Null(fileName);
+        Check.Null(arguments);
 
         // TODO: Support redirecting standard I/O handles?
         var startupInfo = new STARTUPINFOW

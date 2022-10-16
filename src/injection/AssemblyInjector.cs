@@ -40,9 +40,9 @@ public sealed class AssemblyInjector : IDisposable
 
     public AssemblyInjector(TargetProcess process, AssemblyInjectorOptions options)
     {
-        ArgumentNullException.ThrowIfNull(process);
-        ArgumentNullException.ThrowIfNull(options);
-        _ = process.IsSupported ? true : throw new PlatformNotSupportedException();
+        Check.Null(process);
+        Check.Null(options);
+        Check.PlatformSupported(process.IsSupported);
 
         _process = process;
         _options = options;
@@ -361,7 +361,7 @@ public sealed class AssemblyInjector : IDisposable
 
     public Task InjectAssemblyAsync()
     {
-        _ = !_injecting ? true : throw new InvalidOperationException();
+        Check.Operation(!_injecting);
 
         _injecting = true;
 
@@ -400,7 +400,7 @@ public sealed class AssemblyInjector : IDisposable
 
     public Task<int> WaitForCompletionAsync()
     {
-        _ = _thread != null && !_waiting ? true : throw new InvalidOperationException();
+        Check.Operation(_thread != null && !_waiting);
 
         _waiting = true;
 

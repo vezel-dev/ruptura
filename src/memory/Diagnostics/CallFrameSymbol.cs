@@ -14,10 +14,10 @@ public sealed unsafe class CallFrameSymbol
 
     public CallFrameSymbol(void* address, string name, string? fileName, int line, int column)
     {
-        ArgumentNullException.ThrowIfNull(address);
-        ArgumentNullException.ThrowIfNull(name);
-        _ = line >= 0 ? true : throw new ArgumentOutOfRangeException(nameof(line));
-        _ = column >= 0 ? true : throw new ArgumentOutOfRangeException(nameof(column));
+        Check.Null(address);
+        Check.Null(name);
+        Check.Range(line >= 0, line);
+        Check.Range(column >= 0, column);
 
         Address = address;
         Name = name;

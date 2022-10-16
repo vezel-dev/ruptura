@@ -6,7 +6,7 @@ public sealed unsafe class DynamicFunction : IDisposable
     {
         get
         {
-            ObjectDisposedException.ThrowIf(_allocation == null, this);
+            Check.Usable(_allocation != null, this);
 
             return _allocation.Code;
         }
@@ -22,8 +22,8 @@ public sealed unsafe class DynamicFunction : IDisposable
     public static DynamicFunction Create(
         CodeManager manager, Action<Assembler> assembler, CodePlacement? placement = null)
     {
-        ArgumentNullException.ThrowIfNull(manager);
-        ArgumentNullException.ThrowIfNull(assembler);
+        Check.Null(manager);
+        Check.Null(assembler);
 
         var asm = new CodeAssembler();
 

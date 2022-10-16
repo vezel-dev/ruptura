@@ -16,7 +16,7 @@ public readonly unsafe struct CodePlacement : IEquatable<CodePlacement>
 
     private CodePlacement(void* lowestAddress, void* highestAddress)
     {
-        _ = lowestAddress <= highestAddress ? true : throw new ArgumentException(null);
+        Check.Argument(lowestAddress <= highestAddress);
 
         LowestAddress = lowestAddress;
         HighestAddress = highestAddress;

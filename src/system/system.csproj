@@ -11,9 +11,17 @@ objects such as processes and threads.</PackageDescription>
     </PropertyGroup>
 
     <ItemGroup>
+        <Using Include="Vezel.Ruptura.Diagnostics" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="buildTransitive/**"
               Pack="true"
               PackagePath="%(Identity)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../common/common.csproj" />
     </ItemGroup>
 
     <ItemGroup>

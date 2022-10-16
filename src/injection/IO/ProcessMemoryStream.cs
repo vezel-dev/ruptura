@@ -17,7 +17,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
         get => _position;
         set
         {
-            _ = value >= 0 ? true : throw new ArgumentOutOfRangeException(nameof(value));
+            Check.Range(value >= 0, value);
 
             _position = (nint)value;
         }
@@ -152,7 +152,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
 
     public override void Write(ReadOnlySpan<byte> buffer)
     {
-        _ = _position + buffer.Length <= _length ? true : throw new NotSupportedException();
+        Check.OperationSupported(_position + buffer.Length <= _length);
 
         _wrote = true;
 

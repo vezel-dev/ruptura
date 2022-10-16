@@ -12,6 +12,7 @@ utilities.</PackageDescription>
 
     <ItemGroup>
         <Using Include="Iced.Intel" />
+        <Using Include="Vezel.Ruptura.Diagnostics" />
         <Using Include="Vezel.Ruptura.System.SafeHandles" />
     </ItemGroup>
 

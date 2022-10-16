@@ -11,6 +11,10 @@ This package provides the hosting model for injected programs.</PackageDescripti
     </PropertyGroup>
 
     <ItemGroup>
+        <Using Include="Vezel.Ruptura.Diagnostics" />
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="buildTransitive/**"
               Pack="true"
               PackagePath="%(Identity)" />

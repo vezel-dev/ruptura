@@ -11,7 +11,7 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
     {
         get
         {
-            ObjectDisposedException.ThrowIf(IsDisposed, this);
+            Check.Usable(!IsDisposed, this);
 
             return _safeHandle;
         }

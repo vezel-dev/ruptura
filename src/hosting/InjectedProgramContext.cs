@@ -62,11 +62,10 @@ public sealed class InjectedProgramContext
 
     public void WakeUp()
     {
-        _ = _mainThreadId != 0 ? true : throw new InvalidOperationException("This process was not created suspended.");
+        Check.Operation(_mainThreadId != 0, "This process was not created suspended.");
 
         using var thread = ThreadObject.OpenId((int)_mainThreadId, null);
 
-        if (thread.Resume() == 0)
-            throw new InvalidOperationException("The process appears to have been resumed already.");
+        Check.Operation(thread.Resume() != 0, "The process appears to have been resumed already.");
     }
 }

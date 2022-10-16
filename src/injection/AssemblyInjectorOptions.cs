@@ -6,11 +6,14 @@ public sealed class AssemblyInjectorOptions
 
     public IReadOnlyList<string> Arguments { get; private set; } = Array.Empty<string>();
 
+    // TODO: https://github.com/dotnet/Nerdbank.GitVersioning/issues/555
+#pragma warning disable CS0436
     public string ModuleDirectory { get; private set; } =
         Path.GetDirectoryName(
             typeof(ThisAssembly).Assembly.Location is var location and not ""
                 ? location
                 : Environment.ProcessPath) ?? Environment.CurrentDirectory;
+#pragma warning restore CS0436
 
     public TimeSpan InjectionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
 
@@ -22,7 +25,7 @@ public sealed class AssemblyInjectorOptions
 
     public AssemblyInjectorOptions(string fileName)
     {
-        ArgumentNullException.ThrowIfNull(fileName);
+        Check.Null(fileName);
 
         FileName = fileName;
     }
@@ -41,7 +44,7 @@ public sealed class AssemblyInjectorOptions
 
     public AssemblyInjectorOptions WithFileName(string fileName)
     {
-        ArgumentNullException.ThrowIfNull(fileName);
+        Check.Null(fileName);
 
         var options = Clone();
 
@@ -53,8 +56,8 @@ public sealed class AssemblyInjectorOptions
     [SuppressMessage("", "CA1851")]
     public AssemblyInjectorOptions WithArguments(IEnumerable<string> arguments)
     {
-        ArgumentNullException.ThrowIfNull(arguments);
-        _ = arguments.All(s => s != null) ? true : throw new ArgumentException(null, nameof(arguments));
+        Check.Null(arguments);
+        Check.ForEach(arguments, arg => Check.Argument(arg != null, arguments));
 
         var options = Clone();
 
@@ -65,7 +68,7 @@ public sealed class AssemblyInjectorOptions
 
     public AssemblyInjectorOptions WithModuleDirectory(string moduleDirectory)
     {
-        ArgumentNullException.ThrowIfNull(moduleDirectory);
+        Check.Null(moduleDirectory);
 
         var options = Clone();
 
@@ -76,8 +79,7 @@ public sealed class AssemblyInjectorOptions
 
     public AssemblyInjectorOptions WithInjectionTimeout(TimeSpan timeout)
     {
-        _ = (long)timeout.TotalMilliseconds is >= -1 and <= int.MaxValue ?
-            true : throw new ArgumentOutOfRangeException(nameof(timeout));
+        Check.Range((long)timeout.TotalMilliseconds is >= -1 and <= int.MaxValue, timeout);
 
         var options = Clone();
 
@@ -88,8 +90,7 @@ public sealed class AssemblyInjectorOptions
 
     public AssemblyInjectorOptions WithCompletionTimeout(TimeSpan timeout)
     {
-        _ = (long)timeout.TotalMilliseconds is >= -1 and <= int.MaxValue ?
-            true : throw new ArgumentOutOfRangeException(nameof(timeout));
+        Check.Range((long)timeout.TotalMilliseconds is >= -1 and <= int.MaxValue, timeout);
 
         var options = Clone();
 

@@ -103,9 +103,11 @@ public sealed unsafe class CallTrace
     [SuppressMessage("", "CA1851")]
     private static CallTrace CaptureCore(IEnumerable<CallFrameSymbolicator> symbolicators)
     {
-        ArgumentNullException.ThrowIfNull(symbolicators);
-        _ = symbolicators.All(s => s != null) ? true : throw new ArgumentException(null, nameof(symbolicators));
-        _ = _error == 0 ? true : throw new Win32Exception(_error);
+        Check.Null(symbolicators);
+        Check.ForEach(symbolicators, sym => Check.Argument(sym != null, symbolicators));
+
+        if (_error != 0)
+            throw new Win32Exception(_error);
 
         lock (_lock)
         {
