@@ -2,6 +2,16 @@ namespace Vezel.Ruptura.Diagnostics;
 
 internal static class Check
 {
+    public static class Always
+    {
+        public static void Assert(
+            [DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression("condition")] string? expression = null)
+        {
+            if (!condition)
+                throw new UnreachableException($"Hard assertion '{expression}' failed.");
+        }
+    }
+
     public static class Debug
     {
         [Conditional("DEBUG")]
@@ -9,7 +19,18 @@ internal static class Check
             [DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression("condition")] string? expression = null)
         {
             if (!condition)
-                throw new UnreachableException($"Assertion '{expression}' failed.");
+                throw new UnreachableException($"Debug assertion '{expression}' failed.");
+        }
+    }
+
+    public static class Release
+    {
+        [Conditional("RELEASE")]
+        public static void Assert(
+            [DoesNotReturnIf(false)] bool condition, [CallerArgumentExpression("condition")] string? expression = null)
+        {
+            if (!condition)
+                throw new UnreachableException($"Release assertion '{expression}' failed.");
         }
     }
 
