@@ -157,6 +157,3 @@ get a much better call trace:
 0x7fff79193fed: BaseThreadInitThunk+0x1d in kernel32.dll+0x13fed
 0x7fff7a6142a8: RtlUserThreadStart+0x28 in ntdll.dll+0x42a8
 ```
-
-**Note:** This currently only works in self-contained mode due to
-[this CsWin32 issue](https://github.com/microsoft/CsWin32/issues/617).
