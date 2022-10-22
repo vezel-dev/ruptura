@@ -9,8 +9,7 @@
 
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <!-- TODO: Switch to latest-all in .NET 7. -->
-        <AnalysisLevel>preview-all</AnalysisLevel>
+        <AnalysisLevel>latest-all</AnalysisLevel>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
         <DebugType>none</DebugType>
@@ -19,8 +18,7 @@
         <ImplicitUsings>true</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <IsPublishable>false</IsPublishable>
-        <!-- TODO: Switch to latest in .NET 7. -->
-        <LangVersion>preview</LangVersion>
+        <LangVersion>latest</LangVersion>
         <LanguageStandard>gnu2x</LanguageStandard>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <MicrosoftExtensions>true</MicrosoftExtensions>
@@ -38,7 +36,6 @@ is available for use by the injected assembly.</PackageDescription>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <RepositoryUrl>https://github.com/vezel-dev/ruptura.git</RepositoryUrl>
-        <!-- TODO: Remove in .NET 7. -->
         <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
         <SymbolVisibility>Hidden</SymbolVisibility>
         <TargetFramework>net7.0</TargetFramework>
