@@ -2,6 +2,83 @@ namespace Vezel.Ruptura.Diagnostics;
 
 internal static class Check
 {
+    [InterpolatedStringHandler]
+    public ref struct CheckInterpolatedStringHandler
+    {
+        private DefaultInterpolatedStringHandler _handler;
+
+        public CheckInterpolatedStringHandler(
+            int literalLength,
+            int formattedCount,
+            bool condition,
+            out bool shouldAppend)
+        {
+            if (!condition)
+            {
+                _handler = new(literalLength, formattedCount);
+
+                shouldAppend = true;
+            }
+            else
+                shouldAppend = false;
+        }
+
+        public void AppendLiteral(string value)
+        {
+            _handler.AppendLiteral(value);
+        }
+
+        public void AppendFormatted<T>(T value)
+        {
+            _handler.AppendFormatted(value);
+        }
+
+        public void AppendFormatted<T>(T value, string? format)
+        {
+            _handler.AppendFormatted(value, format);
+        }
+
+        public void AppendFormatted<T>(T value, int alignment)
+        {
+            _handler.AppendFormatted(value, alignment);
+        }
+
+        public void AppendFormatted<T>(T value, int alignment, string? format)
+        {
+            _handler.AppendFormatted(value, alignment, format);
+        }
+
+        public void AppendFormatted(scoped ReadOnlySpan<char> value)
+        {
+            _handler.AppendFormatted(value);
+        }
+
+        public void AppendFormatted(scoped ReadOnlySpan<char> value, int alignment = 0, string? format = null)
+        {
+            _handler.AppendFormatted(value, alignment, format);
+        }
+
+        public void AppendFormatted(string? value)
+        {
+            _handler.AppendFormatted(value);
+        }
+
+        public void AppendFormatted(string? value, int alignment = 0, string? format = null)
+        {
+            _handler.AppendFormatted(value, alignment, format);
+        }
+
+        public void AppendFormatted(object? value, int alignment = 0, string? format = null)
+        {
+            _handler.AppendFormatted(value, alignment, format);
+        }
+
+        public string ToStringAndClear()
+        {
+            return _handler.ToStringAndClear();
+        }
+    }
+
     public static class Always
     {
         public static void Assert(
@@ -87,10 +164,12 @@ internal static class Check
             throw new InvalidOperationException();
     }
 
-    public static void Operation([DoesNotReturnIf(false)] bool condition, string message)
+    public static void Operation(
+        [DoesNotReturnIf(false)] bool condition,
+        [InterpolatedStringHandlerArgument(nameof(condition))] scoped ref CheckInterpolatedStringHandler message)
     {
         if (!condition)
-            throw new InvalidOperationException(message);
+            throw new InvalidOperationException(message.ToStringAndClear());
     }
 
     public static void OperationSupported([DoesNotReturnIf(false)] bool condition)
