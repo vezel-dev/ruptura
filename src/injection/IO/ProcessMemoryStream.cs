@@ -129,14 +129,16 @@ internal sealed unsafe class ProcessMemoryStream : Stream
 
     public override int ReadByte()
     {
-        byte value;
+        var span = (stackalloc byte[1]);
 
-        return Read(new Span<byte>(&value, 1)) == 1 ? value : -1;
+        return Read(span) == 1 ? span[0] : -1;
     }
 
     public override void Write(byte[] buffer, int offset, int count)
     {
-        throw new NotSupportedException();
+        ValidateBufferArguments(buffer, offset, count);
+
+        Write(buffer.AsSpan(offset..count));
     }
 
     public override Task WriteAsync(

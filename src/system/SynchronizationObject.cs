@@ -12,7 +12,7 @@ public abstract class SynchronizationObject : KernelObject
     }
 
     private static WIN32_ERROR WaitMultiple(
-        ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
+        scoped ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
         Check.Argument(objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS, nameof(objects));
 
@@ -54,7 +54,7 @@ public abstract class SynchronizationObject : KernelObject
     }
 
     public static (WaitResult Result, int? Index) WaitAny(
-        ReadOnlySpan<SynchronizationObject> objects, TimeSpan timeout, bool alertable)
+        scoped ReadOnlySpan<SynchronizationObject> objects, TimeSpan timeout, bool alertable)
     {
         return WaitMultiple(objects, false, timeout, alertable) switch
         {
@@ -68,7 +68,7 @@ public abstract class SynchronizationObject : KernelObject
     }
 
     public static WaitResult WaitAll(
-        ReadOnlySpan<SynchronizationObject> objects, TimeSpan timeout, bool alertable)
+        scoped ReadOnlySpan<SynchronizationObject> objects, TimeSpan timeout, bool alertable)
     {
         // Note that when waiting for all objects, the index that is returned is meaningless, even in the case of an
         // abandoned mutex (or several).

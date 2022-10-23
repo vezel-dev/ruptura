@@ -96,7 +96,7 @@ public sealed unsafe class FunctionHook : IDisposable
         void* target,
         void* hook,
         object? state,
-        ReadOnlySpan<byte> prologue,
+        scoped ReadOnlySpan<byte> prologue,
         CodeAllocation allocation)
     {
         _handle = GCHandle.Alloc(this);
