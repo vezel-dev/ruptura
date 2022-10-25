@@ -8,6 +8,7 @@ public sealed class AssemblyInjectorOptions
 
     // TODO: https://github.com/dotnet/Nerdbank.GitVersioning/issues/555
 #pragma warning disable CS0436
+    [UnconditionalSuppressMessage("", "IL3000")]
     public string ModuleDirectory { get; private set; } =
         Path.GetDirectoryName(
             typeof(ThisAssembly).Assembly.Location is var location and not ""

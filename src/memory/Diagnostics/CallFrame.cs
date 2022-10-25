@@ -30,6 +30,7 @@ public sealed unsafe class CallFrame
     }
 
     [SuppressMessage("", "CA1308")]
+    [UnconditionalSuppressMessage("", "IL3002")]
     public override string ToString()
     {
         var sb = new StringBuilder();
