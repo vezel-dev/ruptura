@@ -13,8 +13,6 @@ is available for use by the injected assembly.
 
 This project offers the following packages:
 
-* [Vezel.Ruptura.Common](https://www.nuget.org/packages/Vezel.Ruptura.Common):
-  Provides common functionality used by all Ruptura packages.
 * [Vezel.Ruptura.Injection](https://www.nuget.org/packages/Vezel.Ruptura.Injection):
   Provides the infrastructure to inject the .NET runtime and assemblies into
   processes.
