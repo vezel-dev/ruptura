@@ -1,5 +1,6 @@
 namespace Vezel.Ruptura.Diagnostics;
 
+[StackTraceHidden]
 internal static class Check
 {
     [InterpolatedStringHandler]
