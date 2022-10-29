@@ -9,10 +9,7 @@ internal static class Check
         private DefaultInterpolatedStringHandler _handler;
 
         public CheckInterpolatedStringHandler(
-            int literalLength,
-            int formattedCount,
-            bool condition,
-            out bool shouldAppend)
+            int literalLength, int formattedCount, bool condition, out bool shouldAppend)
         {
             if (!condition)
             {
@@ -195,11 +192,11 @@ internal static class Check
     }
 
     public static void All<T>(
-        IEnumerable<T> collection,
+        IEnumerable<T> value,
         Func<T, bool> predicate,
-        [CallerArgumentExpression(nameof(collection))] string? name = null)
+        [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        foreach (var item in collection)
+        foreach (var item in value)
             if (!predicate(item))
                 throw new ArgumentException(null, name);
     }

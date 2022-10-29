@@ -44,8 +44,7 @@ internal static class DiagnosticDescriptors
 
             p.SetValue(
                 null,
-                new DiagnosticDescriptor(
-                    $"RUPT{id}", attr.Title, attr.Message, "Vezel.Ruptura", attr.Severity, true));
+                new DiagnosticDescriptor($"RUPT{id}", attr.Title, attr.Message, "Vezel.Ruptura", attr.Severity, true));
 
             id++;
         }

@@ -90,10 +90,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
     }
 
     public override Task<int> ReadAsync(
-        byte[] buffer,
-        int offset,
-        int count,
-        CancellationToken cancellationToken = default)
+        byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
     {
         ValidateBufferArguments(buffer, offset, count);
 
@@ -141,11 +138,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
         Write(buffer.AsSpan(offset..count));
     }
 
-    public override Task WriteAsync(
-        byte[] buffer,
-        int offset,
-        int count,
-        CancellationToken cancellationToken = default)
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken = default)
     {
         ValidateBufferArguments(buffer, offset, count);
 
