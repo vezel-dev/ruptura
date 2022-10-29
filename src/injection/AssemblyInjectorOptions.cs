@@ -36,7 +36,7 @@ public sealed class AssemblyInjectorOptions
         return new()
         {
             FileName = FileName,
-            Arguments = Arguments,
+            Arguments = Arguments.ToArray(),
             ModuleDirectory = ModuleDirectory,
             InjectionTimeout = InjectionTimeout,
             CompletionTimeout = CompletionTimeout,
