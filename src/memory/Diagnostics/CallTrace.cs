@@ -104,7 +104,7 @@ public sealed unsafe class CallTrace
     private static CallTrace CaptureCore(IEnumerable<CallFrameSymbolicator> symbolicators)
     {
         Check.Null(symbolicators);
-        Check.ForEach(symbolicators, sym => Check.Argument(sym != null, symbolicators));
+        Check.All(symbolicators, static sym => sym != null);
 
         if (_error != 0)
             throw new Win32Exception(_error);

@@ -58,7 +58,7 @@ public sealed class AssemblyInjectorOptions
     public AssemblyInjectorOptions WithArguments(IEnumerable<string> arguments)
     {
         Check.Null(arguments);
-        Check.ForEach(arguments, arg => Check.Argument(arg != null, arguments));
+        Check.All(arguments, static arg => arg != null);
 
         var options = Clone();
 

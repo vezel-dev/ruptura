@@ -121,16 +121,20 @@ internal static class Check
             throw new ArgumentException(null);
     }
 
-    // TODO: https://github.com/dotnet/csharplang/issues/1148
-    public static void Argument([DoesNotReturnIf(false)] bool condition, string name)
-    {
-        if (!condition)
-            throw new ArgumentException(null, name);
-    }
-
     public static void Argument<T>(
         [DoesNotReturnIf(false)] bool condition,
         in T value,
+        [CallerArgumentExpression(nameof(value))] string? name = null)
+    {
+        _ = value;
+
+        Argument(condition, name!);
+    }
+
+    // TODO: https://github.com/dotnet/csharplang/issues/1148
+    public static void Argument<T>(
+        [DoesNotReturnIf(false)] bool condition,
+        scoped ReadOnlySpan<T> value,
         [CallerArgumentExpression(nameof(value))] string? name = null)
     {
         _ = value;
@@ -190,9 +194,13 @@ internal static class Check
         ObjectDisposedException.ThrowIf(!condition, instance);
     }
 
-    public static void ForEach<T>(IEnumerable<T> collection, Action<T> action)
+    public static void All<T>(
+        IEnumerable<T> collection,
+        Func<T, bool> predicate,
+        [CallerArgumentExpression(nameof(collection))] string? name = null)
     {
         foreach (var item in collection)
-            action(item);
+            if (!predicate(item))
+                throw new ArgumentException(null, name);
     }
 }
