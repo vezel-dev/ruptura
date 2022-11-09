@@ -1,4 +1,3 @@
-[SuppressMessage("", "CA1812")]
 internal static unsafe class Program
 {
     private static CallTrace? _trace;

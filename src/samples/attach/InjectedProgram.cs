@@ -1,4 +1,4 @@
-[SuppressMessage("", "CA1812")]
+[SuppressMessage("", "CA1812")] // TODO: https://github.com/dotnet/roslyn-analyzers/issues/6218
 internal sealed class InjectedProgram : IInjectedProgram
 {
     private static readonly TimeSpan _timeout = TimeSpan.FromMinutes(1);
