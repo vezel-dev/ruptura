@@ -3,7 +3,7 @@
 Please use one of the following channels for support requests:
 
 [![Discussions](https://img.shields.io/github/discussions/vezel-dev/ruptura?color=teal)](https://github.com/vezel-dev/ruptura/discussions/categories/questions)
-[![Discord](https://img.shields.io/discord/960716713136095232?color=peru&label=discord)](https://discord.gg/SdBCrRuNxY)
+[![Discord](https://img.shields.io/discord/960716713136095232?color=peru&label=discord)](https://discord.gg/9AhZR9yyMe)
 
 Do *not* use the
 [issue tracker](https://github.com/vezel-dev/ruptura/issues) for support
