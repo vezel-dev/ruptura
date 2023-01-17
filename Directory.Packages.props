@@ -28,8 +28,8 @@
         <PackageVersion Include="PeNet"
                         Version="2.9.9" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
-                        Version="7.0.0" />
+                        Version="7.0.2" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
-                        Version="7.0.0" />
+                        Version="7.0.2" />
     </ItemGroup>
 </Project>
