@@ -53,17 +53,6 @@
         </When>
     </Choose>
 
-    <ItemGroup Condition="'$(UsingVezelZigSdk)' != 'true'">
-        <PackageReference Include="Microsoft.SourceLink.GitHub"
-                          PrivateAssets="all" />
-        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers"
-                          PrivateAssets="all" />
-        <PackageReference Include="Nerdbank.GitVersioning"
-                          PrivateAssets="all" />
-        <PackageReference Include="StyleCop.Analyzers"
-                          PrivateAssets="all" />
-    </ItemGroup>
-
     <Target Name="_SetReleaseNotes"
             DependsOnTargets="GetBuildVersion"
             BeforeTargets="GenerateNuspec"

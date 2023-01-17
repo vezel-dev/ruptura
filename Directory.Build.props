@@ -20,7 +20,6 @@
         <IsPublishable>false</IsPublishable>
         <LangVersion>latest</LangVersion>
         <LanguageStandard>gnu2x</LanguageStandard>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <MicrosoftExtensions>true</MicrosoftExtensions>
         <Nullable>enable</Nullable>
         <PackageDescription>$(Description)
