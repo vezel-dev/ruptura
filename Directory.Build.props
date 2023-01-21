@@ -11,8 +11,6 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AnalysisLevel>latest-all</AnalysisLevel>
         <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-        <ContinuousIntegrationBuild Condition="'$(CI)' == 'true'">true</ContinuousIntegrationBuild>
-        <DebugType>none</DebugType>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <ImplicitUsings>true</ImplicitUsings>
@@ -33,7 +31,6 @@ is available for use by the injected assembly.</PackageDescription>
         <PackageLicenseExpression>0BSD</PackageLicenseExpression>
         <PackageOutputPath>$(MSBuildThisFileDirectory)pkg/feed/</PackageOutputPath>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <RepositoryUrl>https://github.com/vezel-dev/ruptura.git</RepositoryUrl>
         <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
         <SymbolVisibility>Hidden</SymbolVisibility>
