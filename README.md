@@ -16,7 +16,7 @@
 
 [![License](https://img.shields.io/github/license/vezel-dev/ruptura?color=brown)](LICENSE-0BSD)
 [![Commits](https://img.shields.io/github/commit-activity/m/vezel-dev/ruptura/master?label=commits&color=slateblue)](https://github.com/vezel-dev/ruptura/commits/master)
-[![Build](https://img.shields.io/github/workflow/status/vezel-dev/ruptura/Build/master)](https://github.com/vezel-dev/ruptura/actions/workflows/build.yml)
+[![Build](https://img.shields.io/github/actions/workflow/status/vezel-dev/ruptura/build.yml?branch=master)](https://github.com/vezel-dev/ruptura/actions/workflows/build.yml)
 [![Discussions](https://img.shields.io/github/discussions/vezel-dev/ruptura?color=teal)](https://github.com/vezel-dev/ruptura/discussions)
 [![Discord](https://img.shields.io/discord/960716713136095232?color=peru&label=discord)](https://discord.gg/9AhZR9yyMe)
 
