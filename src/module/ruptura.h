@@ -5,7 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <wchar.h>
 
 #define atomic _Atomic
 #define nonnull _Nonnull
