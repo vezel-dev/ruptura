@@ -71,7 +71,7 @@ public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEqua
 
     public override bool Equals([NotNullWhen(true)] object? obj)
     {
-        return obj is KernelObject handle && Equals(handle);
+        return Equals(obj as KernelObject);
     }
 
     public override int GetHashCode()
