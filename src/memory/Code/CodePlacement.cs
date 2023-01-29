@@ -1,6 +1,7 @@
 namespace Vezel.Ruptura.Memory.Code;
 
-public readonly unsafe struct CodePlacement : IEquatable<CodePlacement>
+public readonly unsafe struct CodePlacement :
+    IEquatable<CodePlacement>, IEqualityOperators<CodePlacement, CodePlacement, bool>
 {
     // Specifies a range of memory that a code allocation must start within. Both values are inclusive. Notably, the
     // allocation can extend beyond the highest address, as long as the first byte is reachable. A code manager is free

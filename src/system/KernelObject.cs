@@ -5,7 +5,8 @@ using static Windows.Win32.WindowsPInvoke;
 namespace Vezel.Ruptura.System;
 
 [SuppressMessage("", "CA1063")]
-public abstract class KernelObject : CriticalFinalizerObject, IDisposable, IEquatable<KernelObject>
+public abstract class KernelObject :
+    CriticalFinalizerObject, IDisposable, IEquatable<KernelObject>, IEqualityOperators<KernelObject, KernelObject, bool>
 {
     public SafeKernelHandle SafeHandle
     {
