@@ -151,7 +151,7 @@ public sealed class AssemblyInjector : IDisposable
 
         var length = sizeof(RupturaParameters);
 
-        length += sizeof(nuint) * (_options.Arguments.Count + 1);
+        length += sizeof(nuint) * (_options.Arguments.Length + 1);
 
         foreach (var arg in _options.Arguments.Prepend(_options.FileName))
             length += Encoding.Unicode.GetByteCount(arg) + sizeof(char);

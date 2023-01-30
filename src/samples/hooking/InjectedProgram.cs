@@ -47,7 +47,7 @@ internal sealed class InjectedProgram : IInjectedProgram
             using var injector = new AssemblyInjector(
                 target,
                 new AssemblyInjectorOptions(typeof(InjectedProgram).Assembly.Location)
-                    .WithArguments(new[] { tempFile })
+                    .AddArgument(tempFile)
                     .WithInjectionTimeout(_timeout)
                     .WithCompletionTimeout(_timeout));
 
