@@ -71,22 +71,61 @@ public sealed class AssemblyInjectorOptions
         Check.Null(arguments);
         Check.All(arguments, static arg => arg != null);
 
-        var builder = Clone();
+        var options = Clone();
 
-        builder.Arguments = arguments.ToImmutableArray();
+        options.Arguments = arguments.ToImmutableArray();
 
-        return builder;
+        return options;
+    }
+
+    public AssemblyInjectorOptions SetArgument(int index, string argument)
+    {
+        Check.Null(argument);
+
+        var options = Clone();
+
+        options.Arguments = Arguments.SetItem(index, argument);
+
+        return options;
+    }
+
+    public AssemblyInjectorOptions InsertArgument(int index, string argument)
+    {
+        Check.Null(argument);
+
+        var options = Clone();
+
+        options.Arguments = Arguments.Insert(index, argument);
+
+        return options;
+    }
+
+    public AssemblyInjectorOptions InsertArguments(int index, params string[] arguments)
+    {
+        return InsertArguments(index, arguments.AsEnumerable());
+    }
+
+    public AssemblyInjectorOptions InsertArguments(int index, IEnumerable<string> arguments)
+    {
+        Check.Null(arguments);
+        Check.All(arguments, static arg => arg != null);
+
+        var options = Clone();
+
+        options.Arguments = Arguments.InsertRange(index, arguments);
+
+        return options;
     }
 
     public AssemblyInjectorOptions AddArgument(string argument)
     {
         Check.Null(argument);
 
-        var builder = Clone();
+        var options = Clone();
 
-        builder.Arguments = Arguments.Add(argument);
+        options.Arguments = Arguments.Add(argument);
 
-        return builder;
+        return options;
     }
 
     public AssemblyInjectorOptions AddArguments(params string[] arguments)
@@ -99,29 +138,29 @@ public sealed class AssemblyInjectorOptions
         Check.Null(arguments);
         Check.All(arguments, static arg => arg != null);
 
-        var builder = Clone();
+        var options = Clone();
 
-        builder.Arguments = Arguments.AddRange(arguments);
+        options.Arguments = Arguments.AddRange(arguments);
 
-        return builder;
+        return options;
     }
 
     public AssemblyInjectorOptions RemoveArgument(int index)
     {
-        var builder = Clone();
+        var options = Clone();
 
-        builder.Arguments = Arguments.RemoveAt(index);
+        options.Arguments = Arguments.RemoveAt(index);
 
-        return builder;
+        return options;
     }
 
     public AssemblyInjectorOptions RemoveArguments(int index, int count)
     {
-        var builder = Clone();
+        var options = Clone();
 
-        builder.Arguments = Arguments.RemoveRange(index, count);
+        options.Arguments = Arguments.RemoveRange(index, count);
 
-        return builder;
+        return options;
     }
 
     public AssemblyInjectorOptions ClearArguments()
