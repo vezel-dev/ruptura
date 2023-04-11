@@ -53,7 +53,7 @@ public sealed unsafe class CallFrame
             _ = sb.Append(culture, $" in {ManagedMethod.Module.Name}");
         else if (ModuleHandle != 0)
         {
-            var handle = (HINSTANCE)ModuleHandle;
+            var handle = (HMODULE)ModuleHandle;
             var length = MAX_PATH;
             var buffer = (char*)NativeMemory.Alloc(sizeof(char) * length);
 

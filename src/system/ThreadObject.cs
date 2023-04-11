@@ -26,7 +26,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
             }
             finally
             {
-                _ = LocalFree((nint)(char*)desc);
+                _ = LocalFree((HLOCAL)(nint)(char*)desc);
             }
         }
         set => SetThreadDescription(SafeHandle, value).ThrowOnFailure();
