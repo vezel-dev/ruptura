@@ -6,7 +6,7 @@
     "allowPrelease": false
   },
   "msbuild-sdks": {
-    "Microsoft.Build.Traversal": "3.3.0",
+    "Microsoft.Build.Traversal": "3.4.0",
     "Vezel.Zig.Sdk": "3.2.3"
   }
 }
