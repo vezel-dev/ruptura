@@ -22,7 +22,7 @@
 
 </div>
 
----
+--------------------------------------------------------------------------------
 
 **Ruptura** provides a set of libraries that make it easy to inject a managed
 .NET assembly into arbitrary Windows processes for the purposes of function
