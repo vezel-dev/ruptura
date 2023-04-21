@@ -59,7 +59,6 @@ assemblies into processes.</PackageDescription>
     </Target>
 
     <Target Name="_AddModules"
-            DependsOnTargets="ResolveAssemblyReferences"
             BeforeTargets="AssignTargetPaths">
         <ItemGroup>
             <_RuntimeIdentifiers Include="win-x64" />
