@@ -29,7 +29,7 @@
         <PackageVersion Include="Microsoft.Windows.CsWin32"
                         Version="0.2.229-beta" />
         <PackageVersion Include="Microsoft.Windows.SDK.Win32Docs"
-                        Version="0.1.12-alpha" />
+                        Version="0.1.41-alpha" />
         <PackageVersion Include="Microsoft.Windows.SDK.Win32Metadata"
                         Version="51.0.33-preview" />
         <PackageVersion Include="PeNet"
