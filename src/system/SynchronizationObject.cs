@@ -11,7 +11,7 @@ public abstract class SynchronizationObject : KernelObject
     {
     }
 
-    private static WIN32_ERROR WaitMultiple(
+    private static WAIT_EVENT WaitMultiple(
         scoped ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
         Check.Argument(objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS, nameof(objects));
@@ -41,7 +41,7 @@ public abstract class SynchronizationObject : KernelObject
             return WaitForMultipleObjectsEx(
                 unsafeHandles, all, (uint)timeout.TotalMilliseconds, alertable) switch
             {
-                WIN32_ERROR.WAIT_FAILED => throw new Win32Exception(),
+                WAIT_EVENT.WAIT_FAILED => throw new Win32Exception(),
                 var result => result,
             };
         }
@@ -58,12 +58,12 @@ public abstract class SynchronizationObject : KernelObject
     {
         return WaitMultiple(objects, false, timeout, alertable) switch
         {
-            WIN32_ERROR.WAIT_TIMEOUT => (WaitResult.TimedOut, null),
-            WIN32_ERROR.WAIT_IO_COMPLETION => (WaitResult.Alerted, null),
-            >= WIN32_ERROR.WAIT_ABANDONED_0 and var result =>
-                (WaitResult.Abandoned, (int)result - (int)WIN32_ERROR.WAIT_ABANDONED_0),
-            >= WIN32_ERROR.WAIT_OBJECT_0 and var result =>
-                (WaitResult.Signaled, (int)result - (int)WIN32_ERROR.WAIT_OBJECT_0),
+            WAIT_EVENT.WAIT_TIMEOUT => (WaitResult.TimedOut, null),
+            WAIT_EVENT.WAIT_IO_COMPLETION => (WaitResult.Alerted, null),
+            >= WAIT_EVENT.WAIT_ABANDONED_0 and var result =>
+                (WaitResult.Abandoned, (int)result - (int)WAIT_EVENT.WAIT_ABANDONED_0),
+            >= WAIT_EVENT.WAIT_OBJECT_0 and var result =>
+                (WaitResult.Signaled, (int)result - (int)WAIT_EVENT.WAIT_OBJECT_0),
         };
     }
 
@@ -74,10 +74,10 @@ public abstract class SynchronizationObject : KernelObject
         // abandoned mutex (or several).
         return WaitMultiple(objects, true, timeout, alertable) switch
         {
-            WIN32_ERROR.WAIT_TIMEOUT => WaitResult.TimedOut,
-            WIN32_ERROR.WAIT_IO_COMPLETION => WaitResult.Alerted,
-            >= WIN32_ERROR.WAIT_ABANDONED_0 => WaitResult.Abandoned,
-            >= WIN32_ERROR.WAIT_OBJECT_0 => WaitResult.Signaled,
+            WAIT_EVENT.WAIT_TIMEOUT => WaitResult.TimedOut,
+            WAIT_EVENT.WAIT_IO_COMPLETION => WaitResult.Alerted,
+            >= WAIT_EVENT.WAIT_ABANDONED_0 => WaitResult.Abandoned,
+            >= WAIT_EVENT.WAIT_OBJECT_0 => WaitResult.Signaled,
         };
     }
 
@@ -85,10 +85,10 @@ public abstract class SynchronizationObject : KernelObject
     {
         return WaitForSingleObjectEx(SafeHandle, (uint)timeout.TotalMilliseconds, alertable) switch
         {
-            WIN32_ERROR.WAIT_TIMEOUT => WaitResult.TimedOut,
-            WIN32_ERROR.WAIT_IO_COMPLETION => WaitResult.Alerted,
-            WIN32_ERROR.WAIT_OBJECT_0 => WaitResult.Signaled,
-            WIN32_ERROR.WAIT_ABANDONED_0 => WaitResult.Abandoned,
+            WAIT_EVENT.WAIT_TIMEOUT => WaitResult.TimedOut,
+            WAIT_EVENT.WAIT_IO_COMPLETION => WaitResult.Alerted,
+            WAIT_EVENT.WAIT_OBJECT_0 => WaitResult.Signaled,
+            WAIT_EVENT.WAIT_ABANDONED_0 => WaitResult.Abandoned,
             _ => throw new Win32Exception(),
         };
     }
