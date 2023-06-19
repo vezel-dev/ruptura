@@ -1,10 +1,12 @@
 <Project Sdk="Vezel.Zig.Sdk">
     <PropertyGroup>
         <AssemblyName>ruptura</AssemblyName>
+        <AssemblyName Condition="'$(RuntimeIdentifier)' != ''">ruptura-$(RuntimeIdentifier.Split('-')[1])</AssemblyName>
         <DefineConstants>
             $(DefineConstants);
-            WIN32_LEAN_AND_MEAN;
-            NETHOST_USE_AS_STATIC
+            NETHOST_USE_AS_STATIC;
+            UNICODE;
+            WIN32_LEAN_AND_MEAN
         </DefineConstants>
         <DisableWarnings>
             $(DisableWarnings);
@@ -15,10 +17,6 @@
         <RuntimeIdentifiers>
             win-x64
         </RuntimeIdentifiers>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <AssemblyName Condition="'$(RuntimeIdentifier)' != ''">ruptura-$(RuntimeIdentifier.Split('-')[1])</AssemblyName>
     </PropertyGroup>
 
     <ItemGroup>

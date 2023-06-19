@@ -49,7 +49,7 @@ uint32_t ruptura_host_initialize(ruptura_host *nonnull host, const wchar_t *nonn
 
     uint32_t rc;
 
-    while ((rc = (uint32_t)get_hostfxr_path(buffer, &buffer_size, &hostfxr_params)) != 0)
+    while ((rc = (uint32_t)get_hostfxr_path(buffer, &buffer_size, &hostfxr_params)))
     {
         if (rc == 0x80008098) // HostApiBufferTooSmall
         {
@@ -72,7 +72,7 @@ uint32_t ruptura_host_initialize(ruptura_host *nonnull host, const wchar_t *nonn
         }
     }
 
-    HMODULE hostfxr = LoadLibraryW(buffer);
+    HMODULE hostfxr = LoadLibrary(buffer);
 
     free(buffer);
 
