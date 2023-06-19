@@ -108,6 +108,7 @@ The project file for the injected program should look like this:
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFramework>net7.0</TargetFramework>
+        <UseAppHost>false</UseAppHost>
     </PropertyGroup>
 
     <ItemGroup>
@@ -118,7 +119,10 @@ The project file for the injected program should look like this:
 ```
 
 Note that the injected assembly must have `OutputType` set to `Exe` too, since
-the .NET hosting APIs will look for an executable program entry point.
+the .NET hosting APIs will look for an executable program entry point. Despite
+this, a native executable is not needed for the injected assembly, so
+`UseAppHost` can safely be set to `false` to cut down on build time and publish
+size.
 
 The entry point for the injected program is implemented with the
 `IInjectedProgram` interface:
