@@ -33,7 +33,7 @@
         <PackageVersion Include="Microsoft.Windows.SDK.Win32Metadata"
                         Version="54.0.44-preview" />
         <PackageVersion Include="PeNet"
-                        Version="3.0.0" />
+                        Version="4.0.1" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
                         Version="7.0.10" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
