@@ -16,6 +16,7 @@
     <ItemGroup>
         <TrimmerRootAssembly Include="Vezel.Ruptura.Common" />
         <TrimmerRootAssembly Include="Vezel.Ruptura.Hosting" />
+        <TrimmerRootAssembly Include="Vezel.Ruptura.Injection" />
         <TrimmerRootAssembly Include="Vezel.Ruptura.Memory" />
         <TrimmerRootAssembly Include="Vezel.Ruptura.System" />
     </ItemGroup>
@@ -23,6 +24,7 @@
     <ItemGroup>
         <ProjectReference Include="../common/common.csproj" />
         <ProjectReference Include="../hosting/hosting.csproj" />
+        <ProjectReference Include="../injection/injection.csproj" />
         <ProjectReference Include="../memory/memory.csproj" />
         <ProjectReference Include="../system/system.csproj" />
     </ItemGroup>
