@@ -103,7 +103,7 @@ internal sealed class InjectedProgram : IInjectedProgram
         }
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static unsafe void FlushProcessWriteBuffersHook()
     {
         _counter++;

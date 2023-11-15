@@ -33,7 +33,7 @@ internal static unsafe class Program
     }
 
     [SuppressMessage("", "CA1031")]
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static int SetThreadDescriptionHook(nint hThread, char* lpThreadDescription)
     {
         try

@@ -33,7 +33,7 @@ public sealed class InjectedProgramContext
 
     [EditorBrowsable(EditorBrowsableState.Never)]
     [SuppressMessage("", "CA1031")]
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     public static unsafe uint Initialize(void* parameter)
     {
         // Only meant to be called by the native module.

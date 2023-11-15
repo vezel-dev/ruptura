@@ -206,13 +206,13 @@ public sealed unsafe class CallTrace
 
     // Use RtlLookupFunctionEntry on 64-bit since it can pick up JIT'd code.
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static void* FunctionTableAccess32(HANDLE process, ulong address)
     {
         return SymFunctionTableAccess64(process, address);
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static void* FunctionTableAccess64(HANDLE process, ulong address)
     {
         ulong unused;
@@ -220,13 +220,13 @@ public sealed unsafe class CallTrace
         return _rtlLookupFunctionEntry(address, &unused, null);
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static ulong GetModuleBase32(HANDLE process, ulong address)
     {
         return SymGetModuleBase64(process, address);
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvStdcall) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvStdcall)])]
     private static ulong GetModuleBase64(HANDLE process, ulong address)
     {
         ulong result;

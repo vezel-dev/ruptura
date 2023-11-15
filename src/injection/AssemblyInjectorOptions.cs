@@ -4,7 +4,7 @@ public sealed class AssemblyInjectorOptions
 {
     public string FileName { get; private set; } = null!;
 
-    public ImmutableArray<string> Arguments { get; private set; } = ImmutableArray<string>.Empty;
+    public ImmutableArray<string> Arguments { get; private set; } = [];
 
     public string ModuleDirectory { get; private set; } = _defaultDirectory;
 

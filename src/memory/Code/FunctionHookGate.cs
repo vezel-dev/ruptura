@@ -117,7 +117,7 @@ internal static unsafe class FunctionHookGate
     [ThreadStatic]
     private static GateContext? _context;
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     public static void* Enter(nint handle, void** rsp)
     {
         _context ??= new();
@@ -144,7 +144,7 @@ internal static unsafe class FunctionHookGate
         return hook.HookCode;
     }
 
-    [UnmanagedCallersOnly(CallConvs = new[] { typeof(CallConvCdecl) })]
+    [UnmanagedCallersOnly(CallConvs = [typeof(CallConvCdecl)])]
     public static void* Exit()
     {
         _context ??= new();

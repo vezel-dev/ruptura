@@ -173,6 +173,6 @@ internal sealed unsafe class ProcessMemoryStream : Stream
 
     public override void WriteByte(byte value)
     {
-        Write(stackalloc[] { value });
+        Write([value]);
     }
 }

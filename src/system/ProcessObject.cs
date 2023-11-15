@@ -109,7 +109,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
             (nuint)length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
             (uint)(access == MemoryAccess.None ? PAGE_PROTECTION_FLAGS.PAGE_NOACCESS : (PAGE_PROTECTION_FLAGS)access),
-            Span<MEM_EXTENDED_PARAMETER>.Empty) is var ptr and not null
+            []) is var ptr and not null
             ? ptr
             : throw new Win32Exception();
     }
