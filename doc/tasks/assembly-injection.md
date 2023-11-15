@@ -16,7 +16,7 @@ For a single-project setup, your project file should look something like:
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -72,7 +72,7 @@ like this:
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -107,7 +107,7 @@ The project file for the injected program should look like this:
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <UseAppHost>false</UseAppHost>
     </PropertyGroup>
 
