@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
         <Product>Ruptura</Product>
-        <Description>Ruptura is a Windows DLL injection, function interception, and memory manipulation library for .NET.</Description>
+        <Description>$(Product) is a Windows DLL injection, function interception, and memory manipulation library for .NET.</Description>
         <Company>Vezel</Company>
         <Authors>$(Company) Contributors</Authors>
         <Copyright>Copyright © $(Authors)</Copyright>
@@ -20,6 +20,7 @@
         <LangVersion>latest</LangVersion>
         <MicrosoftExtensions>true</MicrosoftExtensions>
         <Nullable>enable</Nullable>
+        <PackRelease>false</PackRelease>
         <PackageDescription>$(Description)
 
 Ruptura injects a bundled native module into the target process, which then
@@ -32,6 +33,7 @@ is available for use by the injected assembly.</PackageDescription>
         <PackageOutputPath>$(MSBuildThisFileDirectory)pkg/feed/</PackageOutputPath>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
         <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
+        <PublishRelease>false</PublishRelease>
         <RepositoryUrl>https://github.com/vezel-dev/ruptura.git</RepositoryUrl>
         <SymbolVisibility>Hidden</SymbolVisibility>
         <TargetFramework>net8.0</TargetFramework>
