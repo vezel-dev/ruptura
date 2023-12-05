@@ -33,7 +33,7 @@ jobs:
             - name: Build project
               run: |
                   dotnet tool restore
-                  dotnet publish -c ${{ matrix.cfg }}
+                  dotnet publish ruptura.proj -c ${{ matrix.cfg }}
             - name: Run samples
               run: |
                   dotnet example --all

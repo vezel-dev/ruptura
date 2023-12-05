@@ -26,7 +26,7 @@ jobs:
             - name: Build project
               run: |
                   dotnet tool restore
-                  dotnet build
+                  dotnet build ruptura.proj
             - name: Upload GitHub packages
               run: |
                   dotnet gpr push pkg/feed/*.nupkg -k ${{ secrets.GITHUB_TOKEN }}
