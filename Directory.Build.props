@@ -10,7 +10,6 @@
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AnalysisLevel>latest-all</AnalysisLevel>
-        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
         <EnablePackageValidation>true</EnablePackageValidation>
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <ImplicitUsings>true</ImplicitUsings>
@@ -30,7 +29,6 @@ all without the user writing a single line of native code. Additionally, a
 library facilitating common function hooking and memory manipulation scenarios
 is available for use by the injected assembly.</PackageDescription>
         <PackageLicenseExpression>0BSD</PackageLicenseExpression>
-        <PackageOutputPath>$(MSBuildThisFileDirectory)pkg/feed/</PackageOutputPath>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
         <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
         <PublishRelease>false</PublishRelease>
@@ -39,5 +37,13 @@ is available for use by the injected assembly.</PackageDescription>
         <TargetFramework>net8.0</TargetFramework>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <UseMicrosoftAbi>true</UseMicrosoftAbi>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <UseArtifactsOutput>true</UseArtifactsOutput>
+        <ArtifactsPath>$(MSBuildThisFileDirectory)out</ArtifactsPath>
+        <ArtifactsProjectName>$([MSBuild]::MakeRelative('$(MSBuildThisFileDirectory)', '$(MSBuildProjectDirectory)'))</ArtifactsProjectName>
+        <ArtifactsPublishOutputName>pub</ArtifactsPublishOutputName>
+        <ArtifactsPackageOutputName>pkg</ArtifactsPackageOutputName>
     </PropertyGroup>
 </Project>
