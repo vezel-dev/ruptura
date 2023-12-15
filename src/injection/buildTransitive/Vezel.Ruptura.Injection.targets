@@ -10,7 +10,8 @@
     contentFiles.
     -->
     <Target Name="_AddRupturaModules"
-            BeforeTargets="AssignTargetPaths">
+            BeforeTargets="AssignTargetPaths"
+            Condition="'$(RupturaIncludeModules)' != 'false'">
         <ItemGroup>
             <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll"
                      CopyToOutputDirectory="Always" />
