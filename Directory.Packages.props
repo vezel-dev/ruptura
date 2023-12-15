@@ -23,7 +23,7 @@
         <PackageVersion Include="Iced"
                         Version="1.20.0" />
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp"
-                        Version="4.7.0" />
+                        Version="4.8.0" />
         <PackageVersion Include="Microsoft.Windows.CsWin32"
                         Version="0.3.49-beta" />
         <PackageVersion Include="Microsoft.Windows.SDK.Win32Docs"
