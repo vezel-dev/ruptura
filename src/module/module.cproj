@@ -12,8 +12,6 @@
             $(DisableWarnings);
             cast-qual
         </DisableWarnings>
-        <!-- TODO: https://github.com/dotnet/msbuild/issues/6672 -->
-        <PackageDefines>false</PackageDefines>
         <RuntimeIdentifiers>
             win-x64
         </RuntimeIdentifiers>
