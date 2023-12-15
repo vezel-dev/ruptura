@@ -15,12 +15,6 @@ This package provides the hosting model for injected programs.</PackageDescripti
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="buildTransitive/**"
-              Pack="true"
-              PackagePath="%(Identity)" />
-    </ItemGroup>
-
-    <ItemGroup>
         <EmbeddedResource Include="hosting.descriptors.xml"
                           LogicalName="ILLink.Descriptors.xml" />
     </ItemGroup>
@@ -46,5 +40,5 @@ This package provides the hosting model for injected programs.</PackageDescripti
         </ItemGroup>
     </Target>
 
-    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
+    <Import Project="../system/system.targets" />
 </Project>

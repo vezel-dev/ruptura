@@ -17,12 +17,6 @@ utilities.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="buildTransitive/**"
-              Pack="true"
-              PackagePath="%(Identity)" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="../system/system.csproj" />
     </ItemGroup>
 
@@ -36,5 +30,5 @@ utilities.</PackageDescription>
                           PrivateAssets="all" />
     </ItemGroup>
 
-    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
+    <Import Project="../system/system.targets" />
 </Project>

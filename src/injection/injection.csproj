@@ -21,12 +21,6 @@ assemblies into processes.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="buildTransitive/**"
-              Pack="true"
-              PackagePath="%(Identity)" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="../module/module.cproj"
                           ReferenceOutputAssembly="false" />
         <ProjectReference Include="../system/system.csproj" />
@@ -74,5 +68,5 @@ assemblies into processes.</PackageDescription>
         </MSBuild>
     </Target>
 
-    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
+    <Import Project="../system/system.targets" />
 </Project>

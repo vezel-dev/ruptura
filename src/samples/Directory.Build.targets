@@ -17,10 +17,10 @@
     These imports are required here since we are not consuming the library as a
     PackageReference item.
     -->
-    <Import Project="../hosting/buildTransitive/Vezel.Ruptura.Hosting.targets" />
-    <Import Project="../injection/buildTransitive/Vezel.Ruptura.Injection.targets" />
-    <Import Project="../memory/buildTransitive/Vezel.Ruptura.Memory.targets" />
-    <Import Project="../system/buildTransitive/Vezel.Ruptura.System.targets" />
+    <Import Project="../hosting/hosting.targets" />
+    <Import Project="../injection/injection.targets" />
+    <Import Project="../memory/memory.targets" />
+    <Import Project="../system/system.targets" />
 
     <Import Project="$([MSBuild]::GetPathOfFileAbove('$(MSBuildThisFile)', '$(MSBuildThisFileDirectory)..'))" />
 </Project>

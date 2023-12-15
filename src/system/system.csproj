@@ -15,12 +15,6 @@ objects such as processes and threads.</PackageDescription>
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="buildTransitive/**"
-              Pack="true"
-              PackagePath="%(Identity)" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="../common/common.csproj" />
     </ItemGroup>
 
