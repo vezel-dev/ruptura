@@ -35,7 +35,7 @@ jobs:
               if: always()
               uses: actions/upload-artifact@v4.0.0
               with:
-                  name: ${{ github.workflow }}-${{ github.run_number }}-${{ github.run_attempt }}-${{ matrix.os }}-${{ matrix.cfg }}
+                  name: ${{ github.workflow }}-${{ github.run_number }}-${{ github.run_attempt }}-windows-2022-Debug
                   path: |
                       out/log
                       out/pkg
