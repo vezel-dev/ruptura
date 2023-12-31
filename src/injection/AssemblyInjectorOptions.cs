@@ -6,26 +6,11 @@ public sealed class AssemblyInjectorOptions
 
     public ImmutableArray<string> Arguments { get; private set; } = [];
 
-    public string ModuleDirectory { get; private set; } = _defaultDirectory;
+    public string ModuleDirectory { get; private set; } = AppContext.BaseDirectory;
 
     public TimeSpan InjectionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
 
     public TimeSpan CompletionTimeout { get; private set; } = Timeout.InfiniteTimeSpan;
-
-    private static readonly string _defaultDirectory;
-
-    [SuppressMessage("", "CA1810")]
-    [UnconditionalSuppressMessage("", "IL3000")]
-    static AssemblyInjectorOptions()
-    {
-        // TODO: https://github.com/dotnet/Nerdbank.GitVersioning/issues/555
-#pragma warning disable CS0436
-        var location = typeof(ThisAssembly).Assembly.Location;
-#pragma warning restore CS0436
-
-        _defaultDirectory = Path.GetDirectoryName(location.Length != 0 ? location : Environment.ProcessPath) ??
-            Environment.CurrentDirectory;
-    }
 
     private AssemblyInjectorOptions()
     {
