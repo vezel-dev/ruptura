@@ -37,35 +37,25 @@ assemblies into processes.</PackageDescription>
         <PackageReference Include="PeNet" />
     </ItemGroup>
 
-    <Target Name="_AddModule"
-            Returns="@(Content)">
+    <Target Name="_AddNativeLibraries"
+            BeforeTargets="AssignTargetPaths; _GetPackageFiles">
         <MSBuild Projects="../module/module.cproj"
-                 Targets="GetTargetPath">
+                 Targets="_GetNativeLibraries">
             <Output TaskParameter="TargetOutputs"
-                    ItemName="_ModulePath" />
+                    ItemName="_NativeLibrary" />
         </MSBuild>
 
         <ItemGroup>
-            <Content Include="@(_ModulePath)"
-                     CopyToOutputDirectory="Always"
+            <Content Include="@(_NativeLibrary)"
+                     Link="%(Filename)%(Extension)"
+                     CopyToOutputDirectory="PreserveNewest"
+                     PackagePath="ruptura" />
+            <_NativeLibrarySymbols Include="@(_NativeLibrary->'%(Symbols)')" />
+            <Content Include="@(_NativeLibrarySymbols)"
+                     Link="%(Filename)%(Extension)"
+                     CopyToOutputDirectory="PreserveNewest"
                      PackagePath="ruptura" />
         </ItemGroup>
-    </Target>
-
-    <Target Name="_AddModules"
-            BeforeTargets="AssignTargetPaths">
-        <ItemGroup>
-            <_RuntimeIdentifiers Include="win-x64" />
-            <_Projects Include="$(MSBuildProjectFullPath)"
-                       Properties="RuntimeIdentifier=%(_RuntimeIdentifiers.Identity)" />
-        </ItemGroup>
-
-        <MSBuild Projects="@(_Projects)"
-                 Targets="_AddModule"
-                 BuildInParallel="$(BuildInParallel)">
-            <Output TaskParameter="TargetOutputs"
-                    ItemName="Content" />
-        </MSBuild>
     </Target>
 
     <Import Project="../system/system.targets" />
