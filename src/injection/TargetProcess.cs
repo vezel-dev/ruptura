@@ -1,6 +1,5 @@
 using Vezel.Ruptura.Injection.IO;
 using Windows.Win32.Foundation;
-using Windows.Win32.Security;
 using Windows.Win32.System.Threading;
 using static Windows.Win32.WindowsPInvoke;
 
