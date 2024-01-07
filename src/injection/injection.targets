@@ -13,8 +13,8 @@
             BeforeTargets="AssignTargetPaths"
             Condition="'$(RupturaIncludeModules)' != 'false'">
         <ItemGroup>
-            <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll"
-                     CopyToOutputDirectory="Always" />
+            <Content Include="$(MSBuildThisFileDirectory)../ruptura/ruptura-*.dll; $(MSBuildThisFileDirectory)../ruptura/ruptura-*.pdb"
+                     CopyToOutputDirectory="PreserveNewest" />
         </ItemGroup>
     </Target>
 </Project>

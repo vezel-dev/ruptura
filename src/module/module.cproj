@@ -46,4 +46,29 @@
         <PackageReference Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
                           GeneratePathProperty="true" />
     </ItemGroup>
+
+    <Target Name="_GetNativeLibrary"
+            Returns="@(_NativeLibrary)">
+        <ItemGroup>
+            <_NativeLibrary Include="$(TargetPath)"
+                            Symbols="@(_DebugSymbolsOutputPath)"
+                            RuntimeIdentifier="$(RuntimeIdentifier)" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="_GetNativeLibraries"
+            Returns="@(_NativeLibrary)">
+        <ItemGroup>
+            <_RuntimeIdentifiers Include="$(RuntimeIdentifiers)" />
+            <_Projects Include="$(MSBuildProjectFullPath)"
+                       Properties="RuntimeIdentifier=%(_RuntimeIdentifiers.Identity)" />
+        </ItemGroup>
+
+        <MSBuild Projects="@(_Projects)"
+                 Targets="_GetNativeLibrary"
+                 BuildInParallel="$(BuildInParallel)">
+            <Output TaskParameter="TargetOutputs"
+                    ItemName="_NativeLibrary" />
+        </MSBuild>
+    </Target>
 </Project>
