@@ -65,13 +65,13 @@ public sealed unsafe class TargetProcess : IDisposable
         var args = $"\"{fileName}\" {arguments}\0".ToCharArray().AsSpan();
 
         if (!CreateProcessW(
-            null,
+            lpApplicationName: null,
             ref args,
-            null,
-            null,
-            false,
+            lpProcessAttributes: null,
+            lpThreadAttributes: null,
+            bInheritHandles: false,
             suspended ? PROCESS_CREATION_FLAGS.CREATE_SUSPENDED : 0,
-            null,
+            lpEnvironment: null,
             workingDirectory,
             startupInfo,
             out var info))
@@ -107,7 +107,7 @@ public sealed unsafe class TargetProcess : IDisposable
             id,
             ProcessObject.OpenId(
                 id, ProcessAccess.OperateMemory | ProcessAccess.ReadMemory | ProcessAccess.WriteMemory),
-            null);
+            mainThreadId: null);
     }
 
     public void Dispose()
@@ -152,7 +152,7 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal nuint AllocateMemory(nint length, MemoryAccess access)
     {
-        return (nuint)_object.AllocateMemory(null, length, access);
+        return (nuint)_object.AllocateMemory(address: null, length, access);
     }
 
     internal void FreeMemory(nuint address)
@@ -202,13 +202,13 @@ public sealed unsafe class TargetProcess : IDisposable
     {
         using var handle = CreateRemoteThreadEx(
             _object.SafeHandle,
-            null,
-            0,
+            lpThreadAttributes: null,
+            dwStackSize: 0,
             (delegate* unmanaged[Stdcall]<void*, uint>)address,
             (void*)parameter,
-            0,
+            dwCreationFlags: 0,
             (LPPROC_THREAD_ATTRIBUTE_LIST)null,
-            null);
+            lpThreadId: null);
 
         if (handle.IsInvalid)
             throw new Win32Exception();

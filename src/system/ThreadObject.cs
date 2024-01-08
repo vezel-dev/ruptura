@@ -76,7 +76,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
     {
         return OpenThread(
             access is ThreadAccess acc ? (THREAD_ACCESS_RIGHTS)acc : THREAD_ACCESS_RIGHTS.THREAD_ALL_ACCESS,
-            false,
+            bInheritHandle: false,
             (uint)id) is { IsNull: false } handle
             ? new(handle)
             : throw new Win32Exception();
@@ -84,7 +84,7 @@ public sealed unsafe class ThreadObject : SynchronizationObject
 
     public static ThreadObject OpenCurrent()
     {
-        return OpenId(CurrentId, null);
+        return OpenId(CurrentId, access: null);
     }
 
     public static void GetStackBounds(out void* low, out void* high)

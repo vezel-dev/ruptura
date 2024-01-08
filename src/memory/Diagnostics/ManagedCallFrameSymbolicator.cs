@@ -83,6 +83,7 @@ public sealed class ManagedCallFrameSymbolicator : CallFrameSymbolicator
         }
 
         // TODO: Figure out a way to get source location information.
-        return new((void*)(rmh?.GetFunctionPointer() ?? (nint)frame.IP), sb.ToString(), null, 0, 0);
+        return new(
+            (void*)(rmh?.GetFunctionPointer() ?? (nint)frame.IP), sb.ToString(), fileName: null, line: 0, column: 0);
     }
 }

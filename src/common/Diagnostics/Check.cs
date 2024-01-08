@@ -115,7 +115,7 @@ internal static class Check
     public static void Argument([DoesNotReturnIf(false)] bool condition)
     {
         if (!condition)
-            throw new ArgumentException(null);
+            throw new ArgumentException(message: null);
     }
 
     public static void Argument<T>(
@@ -198,6 +198,6 @@ internal static class Check
     {
         foreach (var item in value)
             if (!predicate(item))
-                throw new ArgumentException(null, name);
+                throw new ArgumentException(message: null, name);
     }
 }

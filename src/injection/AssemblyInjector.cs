@@ -77,7 +77,7 @@ public sealed class AssemblyInjector : IDisposable
     private void PopulateMemoryArea(nuint area, nint length, Action<ProcessMemoryStream, InjectionBinaryWriter> action)
     {
         using var stream = new ProcessMemoryStream(_process.Object, area, length);
-        using var writer = new InjectionBinaryWriter(stream, true);
+        using var writer = new InjectionBinaryWriter(stream, is64Bit: true);
 
         action(stream, writer);
     }
@@ -105,7 +105,7 @@ public sealed class AssemblyInjector : IDisposable
             using var thread = _process.CreateThread(initializeShell, 0);
 
             // TODO: Consider making this async with ThreadPool.UnsafeRegisterWaitForSingleObject().
-            switch (thread.Wait(_options.InjectionTimeout, false))
+            switch (thread.Wait(_options.InjectionTimeout, alertable: false))
             {
                 case WaitResult.Signaled:
                     break;
@@ -320,7 +320,7 @@ public sealed class AssemblyInjector : IDisposable
                             break;
 
                         // Did the thread exit with an error?
-                        switch (thread.Wait(TimeSpan.Zero, false))
+                        switch (thread.Wait(TimeSpan.Zero, alertable: false))
                         {
                             case WaitResult.Signaled:
                                 throw new InjectionException(
@@ -393,7 +393,7 @@ public sealed class AssemblyInjector : IDisposable
             }
             catch (Exception ex) when (ex is not TimeoutException)
             {
-                throw new InjectionException(null, ex);
+                throw new InjectionException("Assembly injection failed.", ex);
             }
         });
     }
@@ -407,7 +407,8 @@ public sealed class AssemblyInjector : IDisposable
         return Task.Run(async () =>
         {
             // This is safe because the lambda below captures the thread object and keeps it alive.
-            using var waitHandle = new ThreadWaitHandle(new(_thread.SafeHandle.DangerousGetHandle(), false));
+            using var waitHandle = new ThreadWaitHandle(
+                new(_thread.SafeHandle.DangerousGetHandle(), ownsHandle: false));
 
             var tcs = new TaskCompletionSource<int>(TaskCreationOptions.RunContinuationsAsynchronously);
             var registration = ThreadPool.UnsafeRegisterWaitForSingleObject(
@@ -436,9 +437,9 @@ public sealed class AssemblyInjector : IDisposable
 
                     tcs.SetResult(code);
                 },
-                null,
+                state: null,
                 _options.CompletionTimeout,
-                true);
+                executeOnlyOnce: true);
 
             try
             {
@@ -446,7 +447,7 @@ public sealed class AssemblyInjector : IDisposable
             }
             finally
             {
-                _ = registration.Unregister(null);
+                _ = registration.Unregister(waitObject: null);
             }
         });
     }

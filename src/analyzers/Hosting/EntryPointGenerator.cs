@@ -34,7 +34,7 @@ public sealed class EntryPointGenerator : IIncrementalGenerator
             {
                 var syms = tup.Right;
 
-                // Is the project using the terminal hosting APIs?
+                // Is the project using the hosting APIs?
                 if (syms.IsEmpty)
                     return;
 

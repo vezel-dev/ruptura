@@ -57,7 +57,7 @@ public sealed unsafe class CallTrace
 
             var processHandle = ProcessObject.Current.SafeHandle;
 
-            if (!SymInitializeW(processHandle, null, true))
+            if (!SymInitializeW(processHandle, UserSearchPath: null, fInvadeProcess: true))
             {
                 _error = Marshal.GetLastPInvokeError();
 
@@ -100,7 +100,6 @@ public sealed unsafe class CallTrace
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    [SuppressMessage("", "CA1851")]
     private static CallTrace CaptureCore(IEnumerable<CallFrameSymbolicator> symbolicators)
     {
         Check.Null(symbolicators);
@@ -168,10 +167,10 @@ public sealed unsafe class CallTrace
                     threadHandle,
                     ref frame,
                     context,
-                    null,
+                    ReadMemoryRoutine: null,
                     _functionTableAccess,
                     _getModuleBase,
-                    null,
+                    TranslateAddress: null,
                     SYM_STKWALK_DEFAULT))
                 {
                     var pc = frame.AddrPC.Offset;

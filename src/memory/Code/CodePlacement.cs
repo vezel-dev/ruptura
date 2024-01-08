@@ -7,7 +7,7 @@ public readonly unsafe struct CodePlacement :
     // allocation can extend beyond the highest address, as long as the first byte is reachable. A code manager is free
     // to shrink this range if required to satisfy e.g. OS constraints.
 
-    public static CodePlacement Anywhere { get; } = new(null, (byte*)null - 1);
+    public static CodePlacement Anywhere { get; } = new(lowestAddress: null, highestAddress: (byte*)null - 1);
 
     public void* LowestAddress { get; }
 

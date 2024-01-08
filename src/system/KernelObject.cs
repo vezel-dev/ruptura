@@ -40,7 +40,7 @@ public abstract class KernelObject :
 
     private protected KernelObject(nint handle)
     {
-        _safeHandle = new SafeKernelHandle(handle, true);
+        _safeHandle = new SafeKernelHandle(handle, ownsHandle: true);
     }
 
     ~KernelObject()

@@ -56,7 +56,7 @@ public abstract class SynchronizationObject : KernelObject
     public static (WaitResult Result, int? Index) WaitAny(
         scoped ReadOnlySpan<SynchronizationObject> objects, TimeSpan timeout, bool alertable)
     {
-        return WaitMultiple(objects, false, timeout, alertable) switch
+        return WaitMultiple(objects, all: false, timeout, alertable) switch
         {
             WAIT_EVENT.WAIT_TIMEOUT => (WaitResult.TimedOut, null),
             WAIT_EVENT.WAIT_IO_COMPLETION => (WaitResult.Alerted, null),
@@ -72,7 +72,7 @@ public abstract class SynchronizationObject : KernelObject
     {
         // Note that when waiting for all objects, the index that is returned is meaningless, even in the case of an
         // abandoned mutex (or several).
-        return WaitMultiple(objects, true, timeout, alertable) switch
+        return WaitMultiple(objects, all: true, timeout, alertable) switch
         {
             WAIT_EVENT.WAIT_TIMEOUT => WaitResult.TimedOut,
             WAIT_EVENT.WAIT_IO_COMPLETION => WaitResult.Alerted,

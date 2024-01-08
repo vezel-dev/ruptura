@@ -111,7 +111,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
         }
         catch (Win32Exception ex)
         {
-            throw new IOException(null, ex);
+            throw new IOException(message: null, ex);
         }
 
         _position += len;
@@ -158,7 +158,7 @@ internal sealed unsafe class ProcessMemoryStream : Stream
         }
         catch (Win32Exception ex)
         {
-            throw new IOException(null, ex);
+            throw new IOException(message: null, ex);
         }
 
         _position += buffer.Length;

@@ -43,8 +43,14 @@ internal static class DiagnosticDescriptors
             var attr = p.GetCustomAttribute<DiagnosticAttribute>();
 
             p.SetValue(
-                null,
-                new DiagnosticDescriptor($"RUPT{id}", attr.Title, attr.Message, "Vezel.Ruptura", attr.Severity, true));
+                obj: null,
+                new DiagnosticDescriptor(
+                    $"RUPT{id}",
+                    attr.Title,
+                    attr.Message,
+                    "Vezel.Ruptura",
+                    attr.Severity,
+                    isEnabledByDefault: true));
 
             id++;
         }

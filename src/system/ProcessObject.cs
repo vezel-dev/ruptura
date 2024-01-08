@@ -54,7 +54,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
     {
         return OpenProcess(
             access is ProcessAccess acc ? (PROCESS_ACCESS_RIGHTS)acc : PROCESS_ACCESS_RIGHTS.PROCESS_ALL_ACCESS,
-            false,
+            bInheritHandle: false,
             (uint)id) is { IsNull: false } handle
             ? new(handle)
             : throw new Win32Exception();
@@ -62,7 +62,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public static ProcessObject OpenCurrent()
     {
-        return OpenId(CurrentId, null);
+        return OpenId(CurrentId, access: null);
     }
 
     public static void FlushWriteBuffers()
@@ -135,7 +135,7 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
         return VirtualAlloc2(
             SafeHandle,
-            null,
+            BaseAddress: null,
             (nuint)length,
             VIRTUAL_ALLOCATION_TYPE.MEM_COMMIT | VIRTUAL_ALLOCATION_TYPE.MEM_RESERVE,
             (uint)(access == MemoryAccess.None ? PAGE_PROTECTION_FLAGS.PAGE_NOACCESS : (PAGE_PROTECTION_FLAGS)access),
@@ -164,13 +164,13 @@ public sealed unsafe class ProcessObject : SynchronizationObject
 
     public void ReadMemory(void* source, void* destination, nint length)
     {
-        if (!ReadProcessMemory(SafeHandle, source, destination, (nuint)length, null))
+        if (!ReadProcessMemory(SafeHandle, source, destination, (nuint)length, lpNumberOfBytesRead: null))
             throw new Win32Exception();
     }
 
     public void WriteMemory(void* destination, void* source, nint length)
     {
-        if (!WriteProcessMemory(SafeHandle, destination, source, (nuint)length, null))
+        if (!WriteProcessMemory(SafeHandle, destination, source, (nuint)length, lpNumberOfBytesWritten: null))
             throw new Win32Exception();
     }
 

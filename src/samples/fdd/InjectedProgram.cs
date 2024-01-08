@@ -46,7 +46,7 @@ internal sealed class InjectedProgram : IInjectedProgram
         }
         finally
         {
-            proc.Kill(true);
+            proc.Kill(entireProcessTree: true);
 
             await proc.WaitForExitAsync();
         }

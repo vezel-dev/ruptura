@@ -15,7 +15,7 @@ internal sealed class InjectedProgram : IInjectedProgram
 
         Console.WriteLine("Starting conhost.exe suspended...");
 
-        using var target = TargetProcess.Create("conhost.exe", string.Empty, null, true);
+        using var target = TargetProcess.Create("conhost.exe", string.Empty, workingDirectory: null, suspended: true);
         using var proc = Process.GetProcessById(target.Id);
         using var injector = new AssemblyInjector(
                 target,
@@ -45,7 +45,7 @@ internal sealed class InjectedProgram : IInjectedProgram
         }
         finally
         {
-            proc.Kill(true);
+            proc.Kill(entireProcessTree: true);
 
             await proc.WaitForExitAsync();
         }

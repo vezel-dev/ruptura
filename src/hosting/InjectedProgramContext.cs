@@ -16,7 +16,8 @@ public sealed class InjectedProgramContext
         public nint ModuleHandle;
     }
 
-    public static InjectedProgramContext Instance { get; private set; } = new(null, 0, 0);
+    public static InjectedProgramContext Instance { get; private set; } =
+        new(injectorProcessId: null, mainThreadId: 0, moduleHandle: 0);
 
     public int? InjectorProcessId { get; }
 
@@ -64,7 +65,7 @@ public sealed class InjectedProgramContext
     {
         Check.Operation(_mainThreadId != 0, $"This process was not created suspended.");
 
-        using var thread = ThreadObject.OpenId((int)_mainThreadId, null);
+        using var thread = ThreadObject.OpenId((int)_mainThreadId, access: null);
 
         Check.Operation(thread.Resume() != 0, $"The process appears to have been resumed already.");
     }

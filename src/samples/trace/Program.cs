@@ -50,10 +50,10 @@ internal static unsafe class Program
                 typeof(Program).GetMethod(
                     nameof(CaptureTrace),
                     BindingFlags.DeclaredOnly | BindingFlags.Static | BindingFlags.NonPublic)!,
-                null);
+                optionalParameterTypes: null);
             cil.Emit(OpCodes.Ret);
 
-            _ = method.Invoke(null, null);
+            _ = method.Invoke(obj: null, parameters: null);
         }
         catch (Exception ex)
         {
