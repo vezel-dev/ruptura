@@ -14,7 +14,7 @@ public abstract class SynchronizationObject : KernelObject
     private static WAIT_EVENT WaitMultiple(
         scoped ReadOnlySpan<SynchronizationObject> objects, bool all, TimeSpan timeout, bool alertable)
     {
-        Check.Argument(objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS, nameof(objects));
+        Check.Argument(objects.Length is > 0 and <= (int)MAXIMUM_WAIT_OBJECTS, objects);
 
         var count = objects.Length;
         var safeHandles = new SafeKernelHandle[count];
@@ -26,7 +26,7 @@ public abstract class SynchronizationObject : KernelObject
             {
                 var handle = objects[i]?.SafeHandle;
 
-                Check.Argument(handle != null, nameof(objects));
+                Check.Argument(handle != null, objects);
 
                 var unused = false;
 

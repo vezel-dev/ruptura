@@ -77,55 +77,10 @@ internal static class Check
         }
     }
 
-    public static class Always
-    {
-        public static void Assert(
-            [DoesNotReturnIf(false)] bool condition,
-            [CallerArgumentExpression(nameof(condition))] string? expression = null)
-        {
-            if (!condition)
-                throw new UnreachableException($"Hard assertion '{expression}' failed.");
-        }
-    }
-
-    public static class Debug
-    {
-        [Conditional("DEBUG")]
-        public static void Assert(
-            [DoesNotReturnIf(false)] bool condition,
-            [CallerArgumentExpression(nameof(condition))] string? expression = null)
-        {
-            if (!condition)
-                throw new UnreachableException($"Debug assertion '{expression}' failed.");
-        }
-    }
-
-    public static class Release
-    {
-        [Conditional("RELEASE")]
-        public static void Assert(
-            [DoesNotReturnIf(false)] bool condition,
-            [CallerArgumentExpression(nameof(condition))] string? expression = null)
-        {
-            if (!condition)
-                throw new UnreachableException($"Release assertion '{expression}' failed.");
-        }
-    }
-
     public static void Argument([DoesNotReturnIf(false)] bool condition)
     {
         if (!condition)
             throw new ArgumentException(message: null);
-    }
-
-    public static void Argument<T>(
-        [DoesNotReturnIf(false)] bool condition,
-        in T value,
-        [CallerArgumentExpression(nameof(value))] string? name = null)
-    {
-        _ = value;
-
-        Argument(condition, name!);
     }
 
     // TODO: https://github.com/dotnet/csharplang/issues/1148
@@ -136,17 +91,20 @@ internal static class Check
     {
         _ = value;
 
-        Argument(condition, name!);
+        if (!condition)
+            throw new ArgumentException(message: null, name);
     }
 
     public static void Null([NotNull] object? value, [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        ArgumentNullException.ThrowIfNull(value, name);
+        if (value == null)
+            throw new ArgumentNullException(name);
     }
 
     public static unsafe void Null(void* value, [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        ArgumentNullException.ThrowIfNull(value, name);
+        if (value == null)
+            throw new ArgumentNullException(name);
     }
 
     public static void Range<T>(
