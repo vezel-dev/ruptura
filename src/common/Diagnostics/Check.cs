@@ -97,14 +97,12 @@ internal static class Check
 
     public static void Null([NotNull] object? value, [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        if (value == null)
-            throw new ArgumentNullException(name);
+        ArgumentNullException.ThrowIfNull(value, name);
     }
 
     public static unsafe void Null(void* value, [CallerArgumentExpression(nameof(value))] string? name = null)
     {
-        if (value == null)
-            throw new ArgumentNullException(name);
+        ArgumentNullException.ThrowIfNull(value, name);
     }
 
     public static void Range<T>(
