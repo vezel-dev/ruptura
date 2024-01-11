@@ -17,8 +17,7 @@
         {
           "command": "dotnet",
           "args": [
-            "cake",
-            "ruptura.cake"
+            "cake"
           ]
         }
       ]
