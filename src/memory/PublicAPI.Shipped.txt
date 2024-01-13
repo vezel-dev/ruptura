@@ -1,0 +1,73 @@
+#nullable enable
+abstract Vezel.Ruptura.Memory.Code.CodeAllocation.Code.get -> void*
+abstract Vezel.Ruptura.Memory.Code.CodeAllocation.Commit() -> void
+abstract Vezel.Ruptura.Memory.Code.CodeAllocation.Decommit() -> void
+abstract Vezel.Ruptura.Memory.Code.CodeAllocation.Dispose() -> void
+abstract Vezel.Ruptura.Memory.Code.CodeAllocation.Length.get -> nint
+abstract Vezel.Ruptura.Memory.Code.CodeManager.Allocate(nint length, Vezel.Ruptura.Memory.Code.CodePlacement placement) -> Vezel.Ruptura.Memory.Code.CodeAllocation!
+abstract Vezel.Ruptura.Memory.Code.CodeManager.Dispose() -> void
+abstract Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbolicator.Symbolicate(Vezel.Ruptura.Memory.Diagnostics.CallFrame! frame) -> Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol?
+override Vezel.Ruptura.Memory.Code.CodePlacement.Equals(object? obj) -> bool
+override Vezel.Ruptura.Memory.Code.CodePlacement.GetHashCode() -> int
+override Vezel.Ruptura.Memory.Code.CodePlacement.ToString() -> string!
+override Vezel.Ruptura.Memory.Code.PageCodeManager.Allocate(nint length, Vezel.Ruptura.Memory.Code.CodePlacement placement) -> Vezel.Ruptura.Memory.Code.CodeAllocation!
+override Vezel.Ruptura.Memory.Code.PageCodeManager.Dispose() -> void
+override Vezel.Ruptura.Memory.Diagnostics.CallFrame.ToString() -> string!
+override Vezel.Ruptura.Memory.Diagnostics.CallTrace.ToString() -> string!
+static Vezel.Ruptura.Memory.Code.CodePlacement.Anywhere.get -> Vezel.Ruptura.Memory.Code.CodePlacement
+static Vezel.Ruptura.Memory.Code.CodePlacement.Fixed(void* address) -> Vezel.Ruptura.Memory.Code.CodePlacement
+static Vezel.Ruptura.Memory.Code.CodePlacement.operator !=(Vezel.Ruptura.Memory.Code.CodePlacement left, Vezel.Ruptura.Memory.Code.CodePlacement right) -> bool
+static Vezel.Ruptura.Memory.Code.CodePlacement.operator ==(Vezel.Ruptura.Memory.Code.CodePlacement left, Vezel.Ruptura.Memory.Code.CodePlacement right) -> bool
+static Vezel.Ruptura.Memory.Code.CodePlacement.Range(void* lowestAddress, void* highestAddress) -> Vezel.Ruptura.Memory.Code.CodePlacement
+static Vezel.Ruptura.Memory.Code.DynamicFunction.Create(Vezel.Ruptura.Memory.Code.CodeManager! manager, System.Action<Iced.Intel.Assembler!>! assembler, Vezel.Ruptura.Memory.Code.CodePlacement? placement = null) -> Vezel.Ruptura.Memory.Code.DynamicFunction!
+static Vezel.Ruptura.Memory.Code.FunctionHook.Create(Vezel.Ruptura.Memory.Code.CodeManager! manager, void* target, void* hook, object? state = null) -> Vezel.Ruptura.Memory.Code.FunctionHook!
+static Vezel.Ruptura.Memory.Code.FunctionHook.Current.get -> Vezel.Ruptura.Memory.Code.FunctionHook!
+static Vezel.Ruptura.Memory.Diagnostics.CallTrace.Capture() -> Vezel.Ruptura.Memory.Diagnostics.CallTrace!
+static Vezel.Ruptura.Memory.Diagnostics.CallTrace.Capture(params Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbolicator![]! symbolicators) -> Vezel.Ruptura.Memory.Diagnostics.CallTrace!
+static Vezel.Ruptura.Memory.Diagnostics.ManagedCallFrameSymbolicator.Instance.get -> Vezel.Ruptura.Memory.Diagnostics.ManagedCallFrameSymbolicator!
+static Vezel.Ruptura.Memory.Diagnostics.NativeCallFrameSymbolicator.Instance.get -> Vezel.Ruptura.Memory.Diagnostics.NativeCallFrameSymbolicator!
+Vezel.Ruptura.Memory.Code.CodeAllocation
+Vezel.Ruptura.Memory.Code.CodeAllocation.CodeAllocation(Vezel.Ruptura.Memory.Code.CodeManager! manager) -> void
+Vezel.Ruptura.Memory.Code.CodeAllocation.Manager.get -> Vezel.Ruptura.Memory.Code.CodeManager!
+Vezel.Ruptura.Memory.Code.CodeManager
+Vezel.Ruptura.Memory.Code.CodeManager.CodeManager() -> void
+Vezel.Ruptura.Memory.Code.CodePlacement
+Vezel.Ruptura.Memory.Code.CodePlacement.CodePlacement() -> void
+Vezel.Ruptura.Memory.Code.CodePlacement.Contains(void* address) -> bool
+Vezel.Ruptura.Memory.Code.CodePlacement.Equals(Vezel.Ruptura.Memory.Code.CodePlacement other) -> bool
+Vezel.Ruptura.Memory.Code.CodePlacement.HighestAddress.get -> void*
+Vezel.Ruptura.Memory.Code.CodePlacement.IsRange.get -> bool
+Vezel.Ruptura.Memory.Code.CodePlacement.LowestAddress.get -> void*
+Vezel.Ruptura.Memory.Code.DynamicFunction
+Vezel.Ruptura.Memory.Code.DynamicFunction.Code.get -> void*
+Vezel.Ruptura.Memory.Code.DynamicFunction.Dispose() -> void
+Vezel.Ruptura.Memory.Code.FunctionHook
+Vezel.Ruptura.Memory.Code.FunctionHook.Dispose() -> void
+Vezel.Ruptura.Memory.Code.FunctionHook.HookCode.get -> void*
+Vezel.Ruptura.Memory.Code.FunctionHook.IsActive.get -> bool
+Vezel.Ruptura.Memory.Code.FunctionHook.IsActive.set -> void
+Vezel.Ruptura.Memory.Code.FunctionHook.OriginalCode.get -> void*
+Vezel.Ruptura.Memory.Code.FunctionHook.State.get -> object!
+Vezel.Ruptura.Memory.Code.FunctionHook.TargetCode.get -> void*
+Vezel.Ruptura.Memory.Code.PageCodeManager
+Vezel.Ruptura.Memory.Code.PageCodeManager.PageCodeManager() -> void
+Vezel.Ruptura.Memory.Diagnostics.CallFrame
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.FP.get -> void*
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.IP.get -> void*
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.ManagedMethod.get -> System.Reflection.MethodBase?
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.ModuleHandle.get -> nint
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.SP.get -> void*
+Vezel.Ruptura.Memory.Diagnostics.CallFrame.Symbol.get -> Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol?
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.Address.get -> void*
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.CallFrameSymbol(void* address, string! name, string? fileName, int line, int column) -> void
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.Column.get -> int
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.FileName.get -> string?
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.Line.get -> int
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbol.Name.get -> string!
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbolicator
+Vezel.Ruptura.Memory.Diagnostics.CallFrameSymbolicator.CallFrameSymbolicator() -> void
+Vezel.Ruptura.Memory.Diagnostics.CallTrace
+Vezel.Ruptura.Memory.Diagnostics.CallTrace.Frames.get -> System.Collections.Generic.IReadOnlyList<Vezel.Ruptura.Memory.Diagnostics.CallFrame!>!
+Vezel.Ruptura.Memory.Diagnostics.ManagedCallFrameSymbolicator
+Vezel.Ruptura.Memory.Diagnostics.NativeCallFrameSymbolicator

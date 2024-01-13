@@ -1,0 +1,182 @@
+#nullable enable
+override Vezel.Ruptura.System.KernelObject.Equals(object? obj) -> bool
+override Vezel.Ruptura.System.KernelObject.GetHashCode() -> int
+override Vezel.Ruptura.System.KernelObject.ToString() -> string!
+static Vezel.Ruptura.System.KernelObject.operator !=(Vezel.Ruptura.System.KernelObject? left, Vezel.Ruptura.System.KernelObject? right) -> bool
+static Vezel.Ruptura.System.KernelObject.operator ==(Vezel.Ruptura.System.KernelObject? left, Vezel.Ruptura.System.KernelObject? right) -> bool
+static Vezel.Ruptura.System.ProcessObject.Current.get -> Vezel.Ruptura.System.ProcessObject!
+static Vezel.Ruptura.System.ProcessObject.CurrentId.get -> int
+static Vezel.Ruptura.System.ProcessObject.Exit(int code) -> void
+static Vezel.Ruptura.System.ProcessObject.FlushWriteBuffers() -> void
+static Vezel.Ruptura.System.ProcessObject.OpenCurrent() -> Vezel.Ruptura.System.ProcessObject!
+static Vezel.Ruptura.System.ProcessObject.OpenHandle(nint handle) -> Vezel.Ruptura.System.ProcessObject!
+static Vezel.Ruptura.System.ProcessObject.OpenId(int id, Vezel.Ruptura.System.ProcessAccess? access) -> Vezel.Ruptura.System.ProcessObject!
+static Vezel.Ruptura.System.SnapshotObject.Create(Vezel.Ruptura.System.SnapshotFlags flags, int processId) -> Vezel.Ruptura.System.SnapshotObject!
+static Vezel.Ruptura.System.SnapshotObject.OpenHandle(nint handle) -> Vezel.Ruptura.System.SnapshotObject!
+static Vezel.Ruptura.System.SynchronizationObject.WaitAll(scoped System.ReadOnlySpan<Vezel.Ruptura.System.SynchronizationObject!> objects, System.TimeSpan timeout, bool alertable) -> Vezel.Ruptura.System.WaitResult
+static Vezel.Ruptura.System.SynchronizationObject.WaitAny(scoped System.ReadOnlySpan<Vezel.Ruptura.System.SynchronizationObject!> objects, System.TimeSpan timeout, bool alertable) -> (Vezel.Ruptura.System.WaitResult Result, int? Index)
+static Vezel.Ruptura.System.ThreadObject.CurrentId.get -> int
+static Vezel.Ruptura.System.ThreadObject.Exit(int code) -> void
+static Vezel.Ruptura.System.ThreadObject.GetStackBounds(out void* low, out void* high) -> void
+static Vezel.Ruptura.System.ThreadObject.OpenCurrent() -> Vezel.Ruptura.System.ThreadObject!
+static Vezel.Ruptura.System.ThreadObject.OpenHandle(nint handle) -> Vezel.Ruptura.System.ThreadObject!
+static Vezel.Ruptura.System.ThreadObject.OpenId(int id, Vezel.Ruptura.System.ThreadAccess? access) -> Vezel.Ruptura.System.ThreadObject!
+static Vezel.Ruptura.System.ThreadObject.Sleep(System.TimeSpan duration, bool alertable) -> bool
+static Vezel.Ruptura.System.ThreadObject.Yield() -> bool
+Vezel.Ruptura.System.HeapBlockSnapshot
+Vezel.Ruptura.System.HeapBlockSnapshot.Address.get -> void*
+Vezel.Ruptura.System.HeapBlockSnapshot.Flags.get -> Vezel.Ruptura.System.HeapBlockSnapshotFlags
+Vezel.Ruptura.System.HeapBlockSnapshot.Handle.get -> nint
+Vezel.Ruptura.System.HeapBlockSnapshot.HeapBlockSnapshot() -> void
+Vezel.Ruptura.System.HeapBlockSnapshot.HeapId.get -> nint
+Vezel.Ruptura.System.HeapBlockSnapshot.Length.get -> nint
+Vezel.Ruptura.System.HeapBlockSnapshot.ProcessId.get -> int
+Vezel.Ruptura.System.HeapBlockSnapshotFlags
+Vezel.Ruptura.System.HeapBlockSnapshotFlags.Fixed = 1 -> Vezel.Ruptura.System.HeapBlockSnapshotFlags
+Vezel.Ruptura.System.HeapBlockSnapshotFlags.Free = 2 -> Vezel.Ruptura.System.HeapBlockSnapshotFlags
+Vezel.Ruptura.System.HeapBlockSnapshotFlags.Movable = 4 -> Vezel.Ruptura.System.HeapBlockSnapshotFlags
+Vezel.Ruptura.System.HeapSnapshot
+Vezel.Ruptura.System.HeapSnapshot.EnumerateHeapBlocks() -> System.Collections.Generic.IEnumerable<Vezel.Ruptura.System.HeapBlockSnapshot>!
+Vezel.Ruptura.System.HeapSnapshot.Flags.get -> Vezel.Ruptura.System.HeapSnapshotFlags
+Vezel.Ruptura.System.HeapSnapshot.HeapSnapshot() -> void
+Vezel.Ruptura.System.HeapSnapshot.Id.get -> nint
+Vezel.Ruptura.System.HeapSnapshot.ProcessId.get -> int
+Vezel.Ruptura.System.HeapSnapshotFlags
+Vezel.Ruptura.System.HeapSnapshotFlags.Default = 1 -> Vezel.Ruptura.System.HeapSnapshotFlags
+Vezel.Ruptura.System.HeapSnapshotFlags.Shared = 2 -> Vezel.Ruptura.System.HeapSnapshotFlags
+Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.ImageMachine.Arm = 448 -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.ImageMachine.Arm64 = 43620 -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.ImageMachine.Unknown = 0 -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.ImageMachine.X64 = 34404 -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.ImageMachine.X86 = 332 -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.System.KernelObject
+Vezel.Ruptura.System.KernelObject.Dispose() -> void
+Vezel.Ruptura.System.KernelObject.Equals(Vezel.Ruptura.System.KernelObject? other) -> bool
+Vezel.Ruptura.System.KernelObject.IsDisposed.get -> bool
+Vezel.Ruptura.System.KernelObject.IsInheritable.get -> bool
+Vezel.Ruptura.System.KernelObject.IsInheritable.set -> void
+Vezel.Ruptura.System.KernelObject.SafeHandle.get -> Vezel.Ruptura.System.SafeHandles.SafeKernelHandle!
+Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.Execute = 16 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.ExecuteRead = 32 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.ExecuteReadCopyOnWrite = 128 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.ExecuteReadWrite = 64 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.None = 0 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.Read = 2 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.ReadCopyOnWrite = 8 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.MemoryAccess.ReadWrite = 4 -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.ModuleSnapshot
+Vezel.Ruptura.System.ModuleSnapshot.Address.get -> void*
+Vezel.Ruptura.System.ModuleSnapshot.Handle.get -> nint
+Vezel.Ruptura.System.ModuleSnapshot.Length.get -> int
+Vezel.Ruptura.System.ModuleSnapshot.ModuleSnapshot() -> void
+Vezel.Ruptura.System.ModuleSnapshot.Name.get -> string!
+Vezel.Ruptura.System.ModuleSnapshot.ProcessId.get -> int
+Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.AboveNormal = 32768 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.BelowNormal = 16384 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.High = 128 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.Idle = 64 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.Normal = 32 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityClass.RealTime = 256 -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.AboveNormal = 1 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.BelowNormal = -1 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.Highest = 2 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.Idle = -15 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.Lowest = -2 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.Normal = 0 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.PriorityLevel.TimeCritical = 15 -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.CreateProcess = 128 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.CreateThread = 2 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.DuplicateHandle = 64 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.GetInfo = 1024 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.GetLimitedInfo = 4096 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.OperateMemory = 8 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.ReadMemory = 16 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.SetInfo = 512 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.SetLimitedInfo = 8192 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.SetQuota = 256 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.SuspendResume = 2048 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.Synchronize = 1048576 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.Terminate = 1 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessAccess.WriteMemory = 32 -> Vezel.Ruptura.System.ProcessAccess
+Vezel.Ruptura.System.ProcessObject
+Vezel.Ruptura.System.ProcessObject.AllocateMemory(void* address, nint length, Vezel.Ruptura.System.MemoryAccess access) -> void*
+Vezel.Ruptura.System.ProcessObject.AllocateMemoryInRange(void* low, void* high, nint length, Vezel.Ruptura.System.MemoryAccess access) -> void*
+Vezel.Ruptura.System.ProcessObject.BeginBackgroundMode() -> void
+Vezel.Ruptura.System.ProcessObject.EndBackgroundMode() -> void
+Vezel.Ruptura.System.ProcessObject.FlushInstructionCache(void* address, nint length) -> void
+Vezel.Ruptura.System.ProcessObject.FreeMemory(void* address) -> void
+Vezel.Ruptura.System.ProcessObject.GetExitCode() -> int
+Vezel.Ruptura.System.ProcessObject.GetTimes(out System.DateTime creationTime, out System.DateTime exitTime, out System.TimeSpan kernelTime, out System.TimeSpan userTime) -> void
+Vezel.Ruptura.System.ProcessObject.GetWow64Mode() -> (Vezel.Ruptura.System.ImageMachine System, Vezel.Ruptura.System.ImageMachine Process)
+Vezel.Ruptura.System.ProcessObject.Id.get -> int
+Vezel.Ruptura.System.ProcessObject.PriorityBoostEnabled.get -> bool
+Vezel.Ruptura.System.ProcessObject.PriorityBoostEnabled.set -> void
+Vezel.Ruptura.System.ProcessObject.PriorityClass.get -> Vezel.Ruptura.System.PriorityClass
+Vezel.Ruptura.System.ProcessObject.PriorityClass.set -> void
+Vezel.Ruptura.System.ProcessObject.ProtectMemory(void* address, nint length, Vezel.Ruptura.System.MemoryAccess access) -> Vezel.Ruptura.System.MemoryAccess
+Vezel.Ruptura.System.ProcessObject.ReadMemory(void* source, void* destination, nint length) -> void
+Vezel.Ruptura.System.ProcessObject.Terminate(int code) -> void
+Vezel.Ruptura.System.ProcessObject.WriteMemory(void* destination, void* source, nint length) -> void
+Vezel.Ruptura.System.ProcessSnapshot
+Vezel.Ruptura.System.ProcessSnapshot.Id.get -> int
+Vezel.Ruptura.System.ProcessSnapshot.ParentId.get -> int
+Vezel.Ruptura.System.ProcessSnapshot.ProcessSnapshot() -> void
+Vezel.Ruptura.System.SafeHandles.SafeKernelHandle
+Vezel.Ruptura.System.SafeHandles.SafeKernelHandle.SafeKernelHandle(bool ownsHandle) -> void
+Vezel.Ruptura.System.SafeHandles.SafeKernelHandle.SafeKernelHandle(nint existingHandle, bool ownsHandle) -> void
+Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotFlags.Heaps = 1 -> Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotFlags.Modules = 8 -> Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotFlags.Modules32 = 16 -> Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotFlags.Processes = 2 -> Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotFlags.Threads = 4 -> Vezel.Ruptura.System.SnapshotFlags
+Vezel.Ruptura.System.SnapshotObject
+Vezel.Ruptura.System.SnapshotObject.EnumerateHeaps() -> System.Collections.Generic.IEnumerable<Vezel.Ruptura.System.HeapSnapshot>!
+Vezel.Ruptura.System.SnapshotObject.EnumerateModules() -> System.Collections.Generic.IEnumerable<Vezel.Ruptura.System.ModuleSnapshot>!
+Vezel.Ruptura.System.SnapshotObject.EnumerateProcesses() -> System.Collections.Generic.IEnumerable<Vezel.Ruptura.System.ProcessSnapshot>!
+Vezel.Ruptura.System.SnapshotObject.EnumerateThreads() -> System.Collections.Generic.IEnumerable<Vezel.Ruptura.System.ThreadSnapshot>!
+Vezel.Ruptura.System.SynchronizationObject
+Vezel.Ruptura.System.SynchronizationObject.Wait(System.TimeSpan timeout, bool alertable) -> Vezel.Ruptura.System.WaitResult
+Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.GetContext = 8 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.GetInfo = 64 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.GetLimitedInfo = 2048 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.SetContext = 16 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.SetInfo = 32 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.SetLimitedInfo = 1024 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.SuspendResume = 2 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.Synchronize = 1048576 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadAccess.Terminate = 1 -> Vezel.Ruptura.System.ThreadAccess
+Vezel.Ruptura.System.ThreadObject
+Vezel.Ruptura.System.ThreadObject.BeginBackgroundMode() -> void
+Vezel.Ruptura.System.ThreadObject.CancelSynchronousIO() -> bool
+Vezel.Ruptura.System.ThreadObject.Description.get -> string!
+Vezel.Ruptura.System.ThreadObject.Description.set -> void
+Vezel.Ruptura.System.ThreadObject.EndBackgroundMode() -> void
+Vezel.Ruptura.System.ThreadObject.GetExitCode() -> int
+Vezel.Ruptura.System.ThreadObject.GetTimes(out System.DateTime creationTime, out System.DateTime exitTime, out System.TimeSpan kernelTime, out System.TimeSpan userTime) -> void
+Vezel.Ruptura.System.ThreadObject.Id.get -> int
+Vezel.Ruptura.System.ThreadObject.IsBlockingIO.get -> bool
+Vezel.Ruptura.System.ThreadObject.PriorityBoostEnabled.get -> bool
+Vezel.Ruptura.System.ThreadObject.PriorityBoostEnabled.set -> void
+Vezel.Ruptura.System.ThreadObject.PriorityLevel.get -> Vezel.Ruptura.System.PriorityLevel
+Vezel.Ruptura.System.ThreadObject.PriorityLevel.set -> void
+Vezel.Ruptura.System.ThreadObject.ProcessId.get -> int
+Vezel.Ruptura.System.ThreadObject.Resume() -> int
+Vezel.Ruptura.System.ThreadObject.Suspend() -> int
+Vezel.Ruptura.System.ThreadObject.SuspendWow64() -> int
+Vezel.Ruptura.System.ThreadObject.Terminate(int code) -> void
+Vezel.Ruptura.System.ThreadSnapshot
+Vezel.Ruptura.System.ThreadSnapshot.Id.get -> int
+Vezel.Ruptura.System.ThreadSnapshot.ProcessId.get -> int
+Vezel.Ruptura.System.ThreadSnapshot.ThreadSnapshot() -> void
+Vezel.Ruptura.System.WaitResult
+Vezel.Ruptura.System.WaitResult.Abandoned = 1 -> Vezel.Ruptura.System.WaitResult
+Vezel.Ruptura.System.WaitResult.Alerted = 3 -> Vezel.Ruptura.System.WaitResult
+Vezel.Ruptura.System.WaitResult.Signaled = 0 -> Vezel.Ruptura.System.WaitResult
+Vezel.Ruptura.System.WaitResult.TimedOut = 2 -> Vezel.Ruptura.System.WaitResult

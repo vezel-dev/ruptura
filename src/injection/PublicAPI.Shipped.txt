@@ -1,0 +1,40 @@
+#nullable enable
+static Vezel.Ruptura.Injection.TargetProcess.Create(string! fileName, string! arguments, string? workingDirectory, bool suspended) -> Vezel.Ruptura.Injection.TargetProcess!
+static Vezel.Ruptura.Injection.TargetProcess.Open(int id) -> Vezel.Ruptura.Injection.TargetProcess!
+Vezel.Ruptura.Injection.AssemblyInjector
+Vezel.Ruptura.Injection.AssemblyInjector.AssemblyInjector(Vezel.Ruptura.Injection.TargetProcess! process, Vezel.Ruptura.Injection.AssemblyInjectorOptions! options) -> void
+Vezel.Ruptura.Injection.AssemblyInjector.Dispose() -> void
+Vezel.Ruptura.Injection.AssemblyInjector.InjectAssemblyAsync() -> System.Threading.Tasks.Task!
+Vezel.Ruptura.Injection.AssemblyInjector.WaitForCompletionAsync() -> System.Threading.Tasks.Task<int>!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.AddArgument(string! argument) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.AddArguments(params string![]! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.AddArguments(System.Collections.Generic.IEnumerable<string!>! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.Arguments.get -> System.Collections.Immutable.ImmutableArray<string!>
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.AssemblyInjectorOptions(string! fileName) -> void
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.ClearArguments() -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.CompletionTimeout.get -> System.TimeSpan
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.FileName.get -> string!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.InjectionTimeout.get -> System.TimeSpan
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.InsertArgument(int index, string! argument) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.InsertArguments(int index, params string![]! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.InsertArguments(int index, System.Collections.Generic.IEnumerable<string!>! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.ModuleDirectory.get -> string!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.RemoveArgument(int index) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.RemoveArguments(int index, int count) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.SetArgument(int index, string! argument) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithArguments(params string![]! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithArguments(System.Collections.Generic.IEnumerable<string!>! arguments) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithCompletionTimeout(System.TimeSpan timeout) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithFileName(string! fileName) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithInjectionTimeout(System.TimeSpan timeout) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.AssemblyInjectorOptions.WithModuleDirectory(string! moduleDirectory) -> Vezel.Ruptura.Injection.AssemblyInjectorOptions!
+Vezel.Ruptura.Injection.InjectionException
+Vezel.Ruptura.Injection.InjectionException.InjectionException() -> void
+Vezel.Ruptura.Injection.InjectionException.InjectionException(string? message) -> void
+Vezel.Ruptura.Injection.InjectionException.InjectionException(string? message, System.Exception? innerException) -> void
+Vezel.Ruptura.Injection.TargetProcess
+Vezel.Ruptura.Injection.TargetProcess.Dispose() -> void
+Vezel.Ruptura.Injection.TargetProcess.Id.get -> int
+Vezel.Ruptura.Injection.TargetProcess.Machine.get -> Vezel.Ruptura.System.ImageMachine
+Vezel.Ruptura.Injection.TargetProcess.Object.get -> Vezel.Ruptura.System.ProcessObject!

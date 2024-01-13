@@ -1,0 +1,11 @@
+#nullable enable
+static Vezel.Ruptura.Hosting.InjectedProgramContext.Initialize(void* parameter) -> uint
+static Vezel.Ruptura.Hosting.InjectedProgramContext.Instance.get -> Vezel.Ruptura.Hosting.InjectedProgramContext!
+static Vezel.Ruptura.Hosting.InjectedProgramHost.RunAsync<TProgram>(System.ReadOnlyMemory<string!> args) -> System.Threading.Tasks.Task<int>!
+Vezel.Ruptura.Hosting.IInjectedProgram
+Vezel.Ruptura.Hosting.IInjectedProgram.RunAsync(Vezel.Ruptura.Hosting.InjectedProgramContext! context, System.ReadOnlyMemory<string!> args) -> System.Threading.Tasks.Task<int>!
+Vezel.Ruptura.Hosting.InjectedProgramContext
+Vezel.Ruptura.Hosting.InjectedProgramContext.InjectorProcessId.get -> int?
+Vezel.Ruptura.Hosting.InjectedProgramContext.ModuleHandle.get -> nint
+Vezel.Ruptura.Hosting.InjectedProgramContext.WakeUp() -> void
+Vezel.Ruptura.Hosting.InjectedProgramHost
