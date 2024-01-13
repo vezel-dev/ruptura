@@ -56,10 +56,9 @@ public sealed class EntryPointGenerator : IIncrementalGenerator
                 var name = syms[0]!.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
 
                 ctx.AddSource(
-                    "GeneratedProgram.g.cs",
+                    "Program.g.cs",
                     $$"""
-                    [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-                    file static class GeneratedProgram
+                    static partial class Program
                     {
                         private static global::System.Threading.Tasks.Task<int> Main(string[] args)
                         {
