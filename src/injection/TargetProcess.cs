@@ -106,8 +106,13 @@ public sealed unsafe class TargetProcess : IDisposable
         return new(
             id,
             ProcessObject.OpenId(
-                id, ProcessAccess.OperateMemory | ProcessAccess.ReadMemory | ProcessAccess.WriteMemory),
-            null);
+                id,
+                ProcessAccess.CreateThread |
+                ProcessAccess.OperateMemory |
+                ProcessAccess.ReadMemory |
+                ProcessAccess.WriteMemory |
+                ProcessAccess.GetLimitedInfo),
+            mainThreadId: null);
     }
 
     public void Dispose()
