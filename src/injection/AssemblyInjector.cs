@@ -1,6 +1,7 @@
 using Vezel.Ruptura.Injection.IO;
 using Vezel.Ruptura.Injection.Threading;
 using static Iced.Intel.AssemblerRegisters;
+using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.Injection;
 
@@ -135,9 +136,17 @@ public sealed class AssemblyInjector : IDisposable
 
         nuint GetExport(string name)
         {
-            return exports?.SingleOrDefault(f => f.Name == name)?.Address is uint offset
-                ? (nuint)k32.Address + offset
-                : throw new InjectionException($"Could not locate '{name}' in the target process.");
+            using var handle = new SafeFileHandle(k32.Handle, ownsHandle: false);
+
+            // Try to resolve the export in the remote process first. If that fails (as it does under e.g. Wine), fall
+            // back to the old-fashioned approach of resolving it in the current process and relying on the
+            // implementation detail that kernel32.dll is mapped at the same address in all processes.
+            fixed (char* p = name)
+                return exports?.SingleOrDefault(f => f.Name == name)?.Address is uint offset
+                    ? (nuint)k32.Address + offset
+                    : GetProcAddress(handle, name) is var proc and { IsNull: false }
+                        ? (nuint)(nint)proc
+                        : throw new InjectionException($"Could not locate '{name}' in the target process.");
         }
 
         _loadLibraryW = GetExport("LoadLibraryW");

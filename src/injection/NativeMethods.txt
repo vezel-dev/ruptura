@@ -1,4 +1,5 @@
 CreateProcessW
 CreateRemoteThreadEx
+GetProcAddress
 
 WIN32_ERROR
