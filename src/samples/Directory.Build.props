@@ -5,6 +5,6 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <OutputType>Exe</OutputType>
         <SelfContained>true</SelfContained>
-        <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     </PropertyGroup>
 </Project>
