@@ -1,8 +1,8 @@
 # Home
 
 **Ruptura** provides a set of libraries that make it easy to inject a managed
-.NET assembly into arbitrary Windows processes for the purposes of function
-hooking and memory manipulation.
+.NET assembly into arbitrary Windows (and Wine) processes for the purposes of
+function hooking and memory manipulation.
 
 **Ruptura** injects a bundled native module into the target process, which then
 locates the .NET runtime in either framework-dependent or self-contained mode
