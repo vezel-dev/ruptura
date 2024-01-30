@@ -2,7 +2,7 @@
     <PropertyGroup>
         <AssemblyName>Vezel.Ruptura.Common</AssemblyName>
         <IsPackable>true</IsPackable>
-        <PackageDescription>$(PackageDescription)
+        <PackageDescription>$(Description)
 
 This package provides common functionality used by all Ruptura packages.</PackageDescription>
         <PackageId>Vezel.Ruptura.Common</PackageId>

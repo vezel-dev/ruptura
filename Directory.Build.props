@@ -21,14 +21,6 @@
         <MicrosoftExtensions>true</MicrosoftExtensions>
         <Nullable>enable</Nullable>
         <PackRelease>false</PackRelease>
-        <PackageDescription>$(Description)
-
-$(Product) injects a bundled native module into the target process, which then
-locates the .NET runtime in either framework-dependent or self-contained mode
-and initializes it, after which a user-specified managed assembly is executed -
-all without the user writing a single line of native code. Additionally, a
-library facilitating common function hooking and memory manipulation scenarios
-is available for use by the injected assembly.</PackageDescription>
         <PackageLicenseExpression>0BSD</PackageLicenseExpression>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
         <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>

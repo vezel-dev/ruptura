@@ -2,7 +2,7 @@
     <PropertyGroup>
         <AssemblyName>Vezel.Ruptura.Memory</AssemblyName>
         <IsPackable>true</IsPackable>
-        <PackageDescription>$(PackageDescription)
+        <PackageDescription>$(Description)
 
 This package provides function hooking, memory manipulation, and call tracing
 utilities.</PackageDescription>

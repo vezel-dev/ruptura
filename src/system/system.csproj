@@ -2,7 +2,7 @@
     <PropertyGroup>
         <AssemblyName>Vezel.Ruptura.System</AssemblyName>
         <IsPackable>true</IsPackable>
-        <PackageDescription>$(PackageDescription)
+        <PackageDescription>$(Description)
 
 This package provides lightweight managed wrappers around operating system
 objects such as processes and threads.</PackageDescription>

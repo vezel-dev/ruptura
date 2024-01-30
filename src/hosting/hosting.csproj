@@ -3,7 +3,7 @@
         <AssemblyName>Vezel.Ruptura.Hosting</AssemblyName>
         <BeforePack>_PackAnalyzer</BeforePack>
         <IsPackable>true</IsPackable>
-        <PackageDescription>$(PackageDescription)
+        <PackageDescription>$(Description)
 
 This package provides the hosting model for injected programs.</PackageDescription>
         <PackageId>Vezel.Ruptura.Hosting</PackageId>

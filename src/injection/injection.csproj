@@ -6,7 +6,7 @@
             $(NoWarn);
             NU5100
         </NoWarn>
-        <PackageDescription>$(PackageDescription)
+        <PackageDescription>$(Description)
 
 This package provides the infrastructure to inject the .NET runtime and
 assemblies into processes.</PackageDescription>
