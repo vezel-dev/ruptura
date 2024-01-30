@@ -20,12 +20,12 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                cfg:
-                    - Debug
-                    - Release
                 os:
                     - windows-2019
                     - windows-2022
+                cfg:
+                    - Debug
+                    - Release
         runs-on: ${{ matrix.os }}
         steps:
             - name: Clone repository
