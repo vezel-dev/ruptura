@@ -38,15 +38,14 @@ internal static unsafe class FunctionHookGate
 
             public StackNormalizer(GateContext context)
             {
-                _frames = [.. context._frames
-                    .Select(f =>
-                    {
-                        var addr = *f.StackAddress;
+                _frames = [.. context._frames.Select(f =>
+                {
+                    var addr = *f.StackAddress;
 
-                        *f.StackAddress = f.ReturnAddress;
+                    *f.StackAddress = f.ReturnAddress;
 
-                        return (f, (nuint)addr);
-                    })];
+                    return (f, (nuint)addr);
+                })];
             }
 
             public void Dispose()
