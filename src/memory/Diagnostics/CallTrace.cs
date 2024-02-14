@@ -86,11 +86,11 @@ public sealed unsafe class CallTrace
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static CallTrace Capture()
     {
-        return CaptureCore(new CallFrameSymbolicator[]
-        {
+        return CaptureCore(
+        [
             ManagedCallFrameSymbolicator.Instance,
             NativeCallFrameSymbolicator.Instance,
-        });
+        ]);
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
@@ -195,10 +195,10 @@ public sealed unsafe class CallTrace
                     cfs.Add(cf);
                 }
 
-                // The first 3 frames are always RtlCaptureContext, CallTrace.CaptureCore, and CallTrace.Capture.
+                // The first 3 frames are always RtlCaptureContext(), CallTrace.CaptureCore(), and CallTrace.Capture().
                 cfs.RemoveRange(0, 3);
 
-                return new(cfs.ToArray());
+                return new([.. cfs]);
             }
         }
     }
