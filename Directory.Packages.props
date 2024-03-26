@@ -10,7 +10,7 @@
 
     <ItemGroup Condition="'$(UsingVezelZigSdk)' != 'true'">
         <GlobalPackageReference Include="Microsoft.Build.CopyOnWrite"
-                                Version="1.0.302" />
+                                Version="1.0.315" />
         <GlobalPackageReference Include="Microsoft.CodeAnalysis.PublicApiAnalyzers"
                                 Version="3.3.4" />
         <GlobalPackageReference Include="Microsoft.VisualStudio.Threading.Analyzers"
