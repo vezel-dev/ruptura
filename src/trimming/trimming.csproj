@@ -11,7 +11,6 @@
         <PublishTrimmed>true</PublishTrimmed>
         <RootNamespace>Vezel.Ruptura.Trimming</RootNamespace>
         <SelfContained>true</SelfContained>
-        <UseCurrentRuntimeIdentifier>true</UseCurrentRuntimeIdentifier>
     </PropertyGroup>
 
     <ItemGroup>
