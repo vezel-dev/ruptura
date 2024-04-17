@@ -10,6 +10,7 @@
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AnalysisLevel>latest-all</AnalysisLevel>
+        <ApplicationIcon>$(MSBuildThisFileDirectory)ruptura.ico</ApplicationIcon>
         <DisableRuntimeMarshalling>true</DisableRuntimeMarshalling>
         <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
         <EnablePackageValidation>true</EnablePackageValidation>
@@ -22,8 +23,10 @@
         <MicrosoftExtensions>true</MicrosoftExtensions>
         <Nullable>enable</Nullable>
         <PackRelease>false</PackRelease>
+        <PackageIcon>ruptura.png</PackageIcon>
         <PackageLicenseExpression>0BSD</PackageLicenseExpression>
         <PackageProjectUrl>https://docs.vezel.dev/ruptura</PackageProjectUrl>
+        <PackageReadmeFile>PACKAGE.md</PackageReadmeFile>
         <PolySharpIncludeRuntimeSupportedAttributes>true</PolySharpIncludeRuntimeSupportedAttributes>
         <PublishRelease>false</PublishRelease>
         <RepositoryUrl>https://github.com/vezel-dev/ruptura.git</RepositoryUrl>
