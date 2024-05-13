@@ -205,6 +205,8 @@ public sealed unsafe class TargetProcess : IDisposable
 
     internal ThreadObject CreateThread(nuint address, nuint parameter)
     {
+        // TODO: https://github.com/microsoft/CsWin32/issues/1180
+        using var attributeList = new SafeFileHandle();
         using var handle = CreateRemoteThreadEx(
             _object.SafeHandle,
             lpThreadAttributes: null,
@@ -212,7 +214,7 @@ public sealed unsafe class TargetProcess : IDisposable
             (delegate* unmanaged[Stdcall]<void*, uint>)address,
             (void*)parameter,
             dwCreationFlags: 0,
-            (LPPROC_THREAD_ATTRIBUTE_LIST)null,
+            lpAttributeList: attributeList,
             lpThreadId: null);
 
         if (handle.IsInvalid)

@@ -19,16 +19,16 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
         var ip = (nuint)frame.IP;
         var context = frame.Frame.InlineFrameContext;
 
-        var symBuffer = (stackalloc byte[sizeof(SYMBOL_INFOW) + sizeof(char) * ((int)MAX_SYM_NAME + 1)]);
+        var symBuffer = stackalloc byte[sizeof(SYMBOL_INFOW) + sizeof(char) * ((int)MAX_SYM_NAME + 1)];
 
-        ref var symInfo = ref MemoryMarshal.AsRef<SYMBOL_INFOW>(symBuffer);
+        var symInfo = (SYMBOL_INFOW*)symBuffer;
 
-        symInfo.SizeOfStruct = (uint)sizeof(SYMBOL_INFOW);
-        symInfo.MaxNameLen = MAX_SYM_NAME;
+        symInfo->SizeOfStruct = (uint)sizeof(SYMBOL_INFOW);
+        symInfo->MaxNameLen = MAX_SYM_NAME;
 
         ulong disp;
 
-        if (!SymFromInlineContextW(_process.SafeHandle, ip, context, &disp, ref symInfo))
+        if (!SymFromInlineContextW(_process.SafeHandle, ip, context, &disp, symInfo))
             return null;
 
         var lineInfo = new IMAGEHLP_LINEW64
@@ -40,8 +40,8 @@ public sealed class NativeCallFrameSymbolicator : CallFrameSymbolicator
         _ = SymGetLineFromInlineContextW(
             (HANDLE)_process.SafeHandle.DangerousGetHandle(), ip, context, 0, &column, &lineInfo);
 
-        fixed (char* p = &symInfo.Name[0])
-            return new CallFrameSymbol(
-                (void*)symInfo.Address, new(p), lineInfo.FileName.ToString(), (int)lineInfo.LineNumber, (int)column);
+        fixed (char* p = &symInfo->Name[0])
+            return new(
+                (void*)symInfo->Address, new(p), lineInfo.FileName.ToString(), (int)lineInfo.LineNumber, (int)column);
     }
 }
