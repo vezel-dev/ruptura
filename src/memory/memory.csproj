@@ -26,8 +26,6 @@ utilities.</PackageDescription>
                           PrivateAssets="all" />
         <PackageReference Include="Microsoft.Windows.SDK.Win32Docs"
                           PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata"
-                          PrivateAssets="all" />
     </ItemGroup>
 
     <Import Project="../system/system.targets" />

@@ -32,8 +32,6 @@
                         Version="0.3.106" />
         <PackageVersion Include="Microsoft.Windows.SDK.Win32Docs"
                         Version="0.1.42-alpha" />
-        <PackageVersion Include="Microsoft.Windows.SDK.Win32Metadata"
-                        Version="60.0.34-preview" />
         <PackageVersion Include="PeNet"
                         Version="4.0.4" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"

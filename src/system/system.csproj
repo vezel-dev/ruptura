@@ -23,7 +23,5 @@ objects such as processes and threads.</PackageDescription>
                           PrivateAssets="all" />
         <PackageReference Include="Microsoft.Windows.SDK.Win32Docs"
                           PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata"
-                          PrivateAssets="all" />
     </ItemGroup>
 </Project>

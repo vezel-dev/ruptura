@@ -32,8 +32,6 @@ assemblies into processes.</PackageDescription>
                           PrivateAssets="all" />
         <PackageReference Include="Microsoft.Windows.SDK.Win32Docs"
                           PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Windows.SDK.Win32Metadata"
-                          PrivateAssets="all" />
         <PackageReference Include="PeNet" />
     </ItemGroup>
 
