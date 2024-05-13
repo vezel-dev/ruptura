@@ -21,7 +21,5 @@ objects such as processes and threads.</PackageDescription>
     <ItemGroup>
         <PackageReference Include="Microsoft.Windows.CsWin32"
                           PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Windows.SDK.Win32Docs"
-                          PrivateAssets="all" />
     </ItemGroup>
 </Project>

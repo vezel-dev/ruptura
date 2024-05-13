@@ -24,8 +24,6 @@ utilities.</PackageDescription>
         <PackageReference Include="Iced" />
         <PackageReference Include="Microsoft.Windows.CsWin32"
                           PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Windows.SDK.Win32Docs"
-                          PrivateAssets="all" />
     </ItemGroup>
 
     <Import Project="../system/system.targets" />
