@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 #pragma once
 
 typedef struct ruptura_host_ ruptura_host;

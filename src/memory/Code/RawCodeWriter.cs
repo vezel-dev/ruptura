@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 namespace Vezel.Ruptura.Memory.Code;
 
 internal sealed unsafe class RawCodeWriter : CodeWriter

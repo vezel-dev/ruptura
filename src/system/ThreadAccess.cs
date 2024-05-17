@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using Windows.Win32.System.Threading;
 
 namespace Vezel.Ruptura.System;

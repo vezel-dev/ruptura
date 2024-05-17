@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 namespace Vezel.Ruptura.Injection.IO;
 
 internal sealed unsafe class ProcessMemoryStream : Stream

@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 namespace Vezel.Ruptura.Hosting;
 
 public interface IInjectedProgram

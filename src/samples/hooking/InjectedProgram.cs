@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 [SuppressMessage("", "CA1812")] // TODO: https://github.com/dotnet/roslyn-analyzers/issues/6218
 internal sealed class InjectedProgram : IInjectedProgram
 {

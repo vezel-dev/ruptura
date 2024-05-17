@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using Vezel.Ruptura.Injection.IO;
 using Vezel.Ruptura.Injection.Threading;
 using static Iced.Intel.AssemblerRegisters;

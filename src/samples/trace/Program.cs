@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 internal static unsafe class Program
 {
     private static CallTrace? _trace;

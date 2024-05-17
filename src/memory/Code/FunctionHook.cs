@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using static Iced.Intel.AssemblerRegisters;
 
 namespace Vezel.Ruptura.Memory.Code;

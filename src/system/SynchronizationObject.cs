@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using Vezel.Ruptura.System.SafeHandles;
 using Windows.Win32.Foundation;
 using static Windows.Win32.WindowsPInvoke;

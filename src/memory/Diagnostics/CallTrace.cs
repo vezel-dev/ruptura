@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using Vezel.Ruptura.Memory.Code;
 using Windows.Win32.Foundation;
 using Windows.Win32.System.Diagnostics.Debug;

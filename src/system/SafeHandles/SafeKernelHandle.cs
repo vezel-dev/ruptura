@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: 0BSD
+
 using Windows.Win32.Foundation;
 using static Windows.Win32.WindowsPInvoke;
 
