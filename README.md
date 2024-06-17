@@ -20,6 +20,7 @@
 [![Build](https://img.shields.io/github/actions/workflow/status/vezel-dev/ruptura/build.yml?branch=master)](https://github.com/vezel-dev/ruptura/actions/workflows/build.yml)
 [![Discussions](https://img.shields.io/github/discussions/vezel-dev/ruptura?color=teal)](https://github.com/vezel-dev/ruptura/discussions)
 [![Discord](https://img.shields.io/badge/discord-chat-7289da?logo=discord)](https://discord.gg/wtzCfaX2Nj)
+[![Zulip](https://img.shields.io/badge/zulip-chat-394069?logo=zulip)](https://vezel.zulipchat.com)
 
 </div>
 
