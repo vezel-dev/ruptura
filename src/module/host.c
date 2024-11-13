@@ -74,7 +74,7 @@ uint32_t ruptura_host_initialize(ruptura_host *nonnull host, const wchar_t *nonn
         }
     }
 
-    HMODULE hostfxr = LoadLibrary(buffer);
+    HMODULE hostfxr = LoadLibraryW(buffer);
 
     free(buffer);
 
