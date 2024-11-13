@@ -34,9 +34,9 @@
         <PackageVersion Include="PeNet"
                         Version="4.1.0" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
-                        Version="9.0.0" />
+                        Version="8.0.8" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
-                        Version="9.0.0" />
+                        Version="8.0.8" />
     </ItemGroup>
 
     <!-- NU1903 -->
