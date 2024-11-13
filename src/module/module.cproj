@@ -4,9 +4,7 @@
         <AssemblyName Condition="'$(RuntimeIdentifier)' != ''">ruptura-$(RuntimeIdentifier.Split('-')[1])</AssemblyName>
         <DefineConstants>
             $(DefineConstants);
-            _UNICODE;
             NETHOST_USE_AS_STATIC;
-            UNICODE;
             WIN32_LEAN_AND_MEAN
         </DefineConstants>
         <DisableWarnings>

@@ -33,6 +33,7 @@
         <SymbolVisibility>Hidden</SymbolVisibility>
         <TargetFramework>net8.0</TargetFramework>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <UnicodeEnvironment>true</UnicodeEnvironment>
         <UseMicrosoftAbi>true</UseMicrosoftAbi>
     </PropertyGroup>
 
