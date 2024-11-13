@@ -18,7 +18,7 @@
         <ImplicitUsings>true</ImplicitUsings>
         <IsPackable>false</IsPackable>
         <IsPublishable>false</IsPublishable>
-        <LanguageStandard>gnu2x</LanguageStandard>
+        <LanguageStandard>gnu23</LanguageStandard>
         <LangVersion>latest</LangVersion>
         <MicrosoftExtensions>true</MicrosoftExtensions>
         <Nullable>enable</Nullable>
