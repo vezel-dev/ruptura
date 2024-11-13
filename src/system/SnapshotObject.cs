@@ -6,7 +6,7 @@ using static Windows.Win32.WindowsPInvoke;
 
 namespace Vezel.Ruptura.System;
 
-public sealed unsafe class SnapshotObject : KernelObject
+public sealed class SnapshotObject : KernelObject
 {
     private SnapshotObject(nint handle)
         : base(handle)
@@ -28,7 +28,7 @@ public sealed unsafe class SnapshotObject : KernelObject
         return obj;
     }
 
-    public static SnapshotObject OpenHandle(nint handle)
+    public static unsafe SnapshotObject OpenHandle(nint handle)
     {
         uint unused;
 
@@ -82,7 +82,7 @@ public sealed unsafe class SnapshotObject : KernelObject
                 break;
             }
 
-            static ModuleSnapshot CreateModule(in MODULEENTRY32W entry)
+            static unsafe ModuleSnapshot CreateModule(in MODULEENTRY32W entry)
             {
                 // Cannot use unsafe code in iterators...
 
