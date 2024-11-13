@@ -82,20 +82,22 @@ public sealed class SnapshotObject : KernelObject
                 break;
             }
 
-            static unsafe ModuleSnapshot CreateModule(in MODULEENTRY32W entry)
-            {
-                // Cannot use unsafe code in iterators...
-
-                return new(
-                    (int)entry.th32ProcessID,
-                    entry.szModule.ToString(),
-                    entry.hModule,
-                    entry.modBaseAddr,
-                    (int)entry.modBaseSize);
-            }
-
             if (entry.dwSize == Unsafe.SizeOf<MODULEENTRY32W>())
-                yield return CreateModule(entry);
+            {
+                ModuleSnapshot module;
+
+                unsafe
+                {
+                    module = new(
+                        (int)entry.th32ProcessID,
+                        entry.szModule.ToString(),
+                        entry.hModule,
+                        entry.modBaseAddr,
+                        (int)entry.modBaseSize);
+                }
+
+                yield return module;
+            }
 
             result = Module32NextW(handle, ref entry);
         }

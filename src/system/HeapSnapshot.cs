@@ -41,11 +41,11 @@ public readonly struct HeapSnapshot
                 yield break;
             }
 
-            static unsafe HeapBlockSnapshot CreateHeapBlock(in HEAPENTRY32 entry)
-            {
-                // Cannot use unsafe code in iterators...
+            HeapBlockSnapshot block;
 
-                return new(
+            unsafe
+            {
+                block = new(
                     (int)entry.th32ProcessID,
                     (nint)entry.th32HeapID,
                     entry.hHandle,
@@ -54,7 +54,7 @@ public readonly struct HeapSnapshot
                     (HeapBlockSnapshotFlags)entry.dwFlags);
             }
 
-            yield return CreateHeapBlock(entry);
+            yield return block;
 
             result = Heap32Next(ref entry);
         }
