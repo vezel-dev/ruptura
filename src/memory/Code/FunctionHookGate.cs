@@ -6,7 +6,7 @@ internal static unsafe class FunctionHookGate
 {
     private sealed class GateContext
     {
-        public readonly ref struct HookGuard
+        public readonly ref struct HookGuard : IDisposable
         {
             public bool IsOwned => _context != null;
 
