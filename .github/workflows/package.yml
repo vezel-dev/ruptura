@@ -20,7 +20,7 @@ env:
 jobs:
   package:
     if: github.repository == 'vezel-dev/ruptura'
-    runs-on: windows-2022
+    runs-on: windows-2025
     steps:
       - name: Clone repository
         uses: actions/checkout@v4.2.2
