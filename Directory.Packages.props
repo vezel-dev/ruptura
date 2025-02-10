@@ -30,7 +30,7 @@
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp"
                         Version="4.12.0" />
         <PackageVersion Include="Microsoft.Windows.CsWin32"
-                        Version="0.3.162" />
+                        Version="0.3.183" />
         <PackageVersion Include="PeNet"
                         Version="4.1.1" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
