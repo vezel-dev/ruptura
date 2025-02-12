@@ -60,7 +60,7 @@ public sealed class AssemblyInjectorOptions
 
         var options = Clone();
 
-        options.Arguments = arguments.ToImmutableArray();
+        options.Arguments = [.. arguments];
 
         return options;
     }
