@@ -13,6 +13,7 @@
             cast-qual
         </DisableWarnings>
         <RuntimeIdentifiers>
+            win-x86;
             win-x64
         </RuntimeIdentifiers>
     </PropertyGroup>
