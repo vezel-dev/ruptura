@@ -9,6 +9,7 @@
         </DefineConstants>
         <DisableWarnings>
             $(DisableWarnings);
+            cast-function-type-mismatch;
             cast-qual
         </DisableWarnings>
         <RuntimeIdentifiers>
