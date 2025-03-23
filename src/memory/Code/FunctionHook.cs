@@ -142,12 +142,35 @@ public sealed unsafe class FunctionHook : IDisposable
             var low = baseAddr + int.MinValue;
 
             if (low > baseAddr)
-                low = null; // Underflow, i.e. the bottom of the address space is reachable.
+                low = (byte*)nuint.MinValue; // Underflow, i.e. the bottom of the address space is reachable.
 
             var high = baseAddr + int.MaxValue;
 
             if (high < baseAddr)
-                high = (byte*)null - 1; // Overflow, i.e. the top of the address space is reachable.
+                high = (byte*)nuint.MaxValue; // Overflow, i.e. the top of the address space is reachable.
+
+            // We need to factor in any IP-relative memory addresses in the prologue code. If we do not do this, the
+            // relocated instructions may fail to assemble due to range issues.
+            foreach (var insn in prologue)
+            {
+                if (!insn.IsIPRelativeMemoryOperand)
+                    continue;
+
+                var dispAddr = (byte*)insn.IPRelativeMemoryAddress + insn.Length;
+
+                var dispLow = dispAddr + int.MinValue;
+
+                if (dispLow > dispAddr)
+                    dispLow = (byte*)nuint.MinValue; // Underflow, i.e. the bottom of the address space is reachable.
+
+                var dispHigh = dispAddr + int.MaxValue;
+
+                if (dispHigh < dispAddr)
+                    dispHigh = (byte*)nuint.MaxValue; // Overflow, i.e. the top of the address space is reachable.
+
+                low = (byte*)nuint.Max((nuint)low, (nuint)dispLow);
+                high = (byte*)nuint.Min((nuint)high, (nuint)dispHigh);
+            }
 
             placement = CodePlacement.Range(low, high);
         }
