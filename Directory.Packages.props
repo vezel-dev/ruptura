@@ -32,7 +32,7 @@
         <PackageVersion Include="Microsoft.Windows.CsWin32"
                         Version="0.3.183" />
         <PackageVersion Include="PeNet"
-                        Version="4.1.2" />
+                        Version="4.1.3" />
         <PackageVersion Include="runtime.win-x64.Microsoft.NETCore.DotNetAppHost"
                         Version="8.0.11" />
         <PackageVersion Include="runtime.win-x86.Microsoft.NETCore.DotNetAppHost"
