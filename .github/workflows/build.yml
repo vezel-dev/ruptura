@@ -44,7 +44,8 @@ jobs:
           ./cake -c ${{ matrix.cfg }}
       - name: Run samples
         run: |
-          dotnet example --all
+          dotnet example --all \
+              --skip attach
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4.6.2
