@@ -102,9 +102,6 @@ public sealed unsafe class TargetProcess : IDisposable
 
     public static TargetProcess Open(int id)
     {
-        // I am not sure why we can get away with not using PROCESS_CREATE_THREAD (CreateRemoteThread) and
-        // PROCESS_QUERY_LIMITED_INFORMATION (IsWow64Process2), but apparently we can. The below rights are the absolute
-        // minimum needed for successful injection (tested on Windows 11 22H2).
         return new(
             id,
             ProcessObject.OpenId(
